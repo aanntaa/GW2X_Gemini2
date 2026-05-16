@@ -673,7 +673,7 @@ class MovementModule:
     # =========================================================
 
     # Skyscale constants
-    SKYSCALE_OFFSET  = 0x1208B60  # module-relative, direct static address
+    SKYSCALE_OFFSET  = 0x1212310  # module-relative, direct static address
     SKYSCALE_ORI     = 4083        # vanilla ushort value
     SKYSCALE_MOD     = 37008       # infinite wall ushort value
 
