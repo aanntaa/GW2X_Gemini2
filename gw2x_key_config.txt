@@ -1,0 +1,56 @@
+# THIS IS GW2X COMBAT MACRO KEY SETTINGS
+# IF YOU SOMEHOW MESSEDUP THIS FILE CONTENT, JUST DELETE IT AND GW2X WILL RECREATED IT
+#
+#==============================================#
+# DEFAULT GAME SKILL KEY IS 1,2,3,4,5,6,7,8,9,0,F1,F2,F3,F4,F5,F6, and ~ for swap weapon
+# SPECIAL1 TO 6 IS THE F1 KEY IN GAME DEFAULT SETTING
+# HOWEVER, YOU CAN CHANGE IT AS PER YOUR OWN KEY THAT YOU ARE USING NOW
+# THIS IS HEX KEY CODE, IF YOU WANT TO CHANGE IT, YOU MUST USE HEX KEY CODE
+# YOU CAN FIND IT HERE : https://gist.github.com/tracend/912308
+# YOU WILL FIND SOMTHING LIKE [ #define DIK_1               0x02 ]
+# MEANING KEYBOARD KEY 1 ( ON TOP OF "Q"AND "TAB") KEY CODE IS "02" AND SO ON
+# AND MAKE SURE ITS THE SAME AS YOUR IN GAME KEYBOARD KEY THAT YOU ARE USING NOW 
+# FOR NOW, MOUSE INPUT IS NOT SUPPORTED YET 
+#==============================================#
+# DEFINE YOUR KEYBOARD INPUT SKILL
+#==============================================#
+SKILL_1 = "02"
+SKILL_2 = "03"
+SKILL_3 = "04"
+SKILL_4 = "05"
+SKILL_5 = "06"
+SKILL_6 = "10"
+SKILL_7 = "12"
+SKILL_8 = "2E"
+SKILL_9 = "2F"
+SKILL_10 = "2C"
+SPECIAL1 = "3B"
+SPECIAL2 = "3C"
+SPECIAL3 = "3D"
+SPECIAL4 = "3E"
+SPECIAL5 = "3F"
+SPECIAL6 = "40"
+SWAP_WEAPON = "29"
+DODGE = "16"
+#==============================================#
+#==============================================#
+# === AUTO INTERACT KEYS (SCAN CODES) ===
+# Must match your GW2 keybinds
+INTERACT = "21"   # example: F
+ESCAPE   = "01"   # ESC
+
+MOVE_FORWARD = "11"   # W
+MOVE_BACK    = "1F"   # S
+MOVE_LEFT    = "1E"   # A
+MOVE_RIGHT   = "20"   # D
+
+TAB = "0F"
+fishinghotkeyDirectInput = "02"
+
+slow_fishinghotkey1 = "03"
+
+slow_fishinghotkey2 = "04"
+
+fishinghotkey = "02"
+
+RethrowDelay = "1.0"

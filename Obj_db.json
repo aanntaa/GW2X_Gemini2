@@ -1,0 +1,1554 @@
+{
+  "1206": [
+    {
+      "name": "Weaponsmithing Station",
+      "x": -60.12,
+      "y": 121.34,
+      "z": 13.86,
+      "radius": 2.5
+    },
+    {
+      "name": "Artificing Station",
+      "x": -71.22,
+      "y": 119.87,
+      "z": 14.41,
+      "radius": 2.5
+    },
+    {
+      "name": "Strange Console",
+      "x": -6.32,
+      "y": 132.64,
+      "z": 45.12,
+      "radius": 2.5
+    },
+    {
+      "name": "Charging Station",
+      "x": -102.47,
+      "y": 116.79,
+      "z": -20.38,
+      "radius": 2.5
+    },
+    {
+      "name": "Tailoring Station",
+      "x": -60.09,
+      "y": 120.3,
+      "z": -13.12,
+      "radius": 2.5
+    },
+    {
+      "name": "Armorsmithing Station",
+      "x": -70.97,
+      "y": 120.23,
+      "z": -13.97,
+      "radius": 2.5
+    },
+    {
+      "name": "Portal to Tyria",
+      "x": -65.43,
+      "y": 121.68,
+      "z": 0.34,
+      "radius": 2.5
+    },
+    {
+      "name": "Fractal Quickplay (Beta)",
+      "x": -26.76,
+      "y": 119.15,
+      "z": 4.43,
+      "radius": 2.5
+    },
+    {
+      "name": "Raid Rally Point",
+      "x": -114.49,
+      "y": 116.79,
+      "z": 26.96,
+      "radius": 2.5
+    },
+    {
+      "name": "Mystic Forge",
+      "x": -27.16,
+      "y": 124.32,
+      "z": 24.19,
+      "radius": 2.5
+    },
+    {
+      "name": "Jeweling Station",
+      "type": "",
+      "x": -79.48,
+      "y": 120.78,
+      "z": -5.12,
+      "radius": 2.5
+    },
+    {
+      "name": "Cooking Station",
+      "type": "",
+      "x": -79.28,
+      "y": 120.78,
+      "z": 5.75,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": -104.16,
+      "y": 116.79,
+      "z": -27.01,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": -108.94,
+      "y": 116.79,
+      "z": -27.05,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Bot Workbench",
+      "type": "",
+      "x": -115.41,
+      "y": 116.79,
+      "z": -24.31,
+      "radius": 2.5
+    },
+    {
+      "name": "Dungeon - Fractal of the Mists",
+      "type": "",
+      "x": -14.23,
+      "y": 121.77,
+      "z": 0.01,
+      "radius": 2.5
+    },
+    {
+      "name": "Leatherworking Station",
+      "type": "",
+      "x": -51.24,
+      "y": 119.88,
+      "z": -5.18,
+      "radius": 2.5
+    },
+    {
+      "name": "Huntsman's Station",
+      "type": "",
+      "x": -51.91,
+      "y": 120.77,
+      "z": 5.71,
+      "radius": 2.5
+    },
+    {
+      "name": "Waypoint",
+      "type": "",
+      "x": -19.77,
+      "y": 123.48,
+      "z": -38.0,
+      "radius": 2.5
+    }
+  ],
+  "1422": [
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -174.7,
+      "y": 134.97,
+      "z": 748.42,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -206.75,
+      "y": 180.41,
+      "z": 888.7,
+      "radius": 2.5
+    },
+    {
+      "name": "634",
+      "type": "",
+      "x": -352.52,
+      "y": 195.32,
+      "z": -966.15,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 517.1,
+      "y": 32.14,
+      "z": 920.73,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 522.98,
+      "y": 33.24,
+      "z": 933.24,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 514.66,
+      "y": 31.76,
+      "z": 914.31,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 471.52,
+      "y": 14.9,
+      "z": 880.82,
+      "radius": 2.5
+    },
+    {
+      "name": "Bamboo Sapling",
+      "type": "",
+      "x": 479.57,
+      "y": 18.11,
+      "z": 886.49,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 440.09,
+      "y": 32.6,
+      "z": 923.06,
+      "radius": 2.5
+    },
+    {
+      "name": "Mithril Ore",
+      "type": "",
+      "x": 513.2,
+      "y": -12.1,
+      "z": 954.19,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 479.84,
+      "y": 49.66,
+      "z": 386.26,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -481.78,
+      "y": 184.99,
+      "z": -145.08,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 505.82,
+      "y": 14.11,
+      "z": 290.35,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 180.21,
+      "y": 309.57,
+      "z": -462.78,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 179.7,
+      "y": 309.79,
+      "z": -437.3,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 265.13,
+      "y": 309.38,
+      "z": -463.08,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 61.44,
+      "y": 200.47,
+      "z": -1005.16,
+      "radius": 2.5
+    },
+    {
+      "name": "Unsorted Jade Sample",
+      "type": "",
+      "x": -227.53,
+      "y": 144.05,
+      "z": 785.6,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -215.43,
+      "y": 160.38,
+      "z": 794.37,
+      "radius": 2.5
+    },
+    {
+      "name": "Unsorted Jade Sample",
+      "type": "",
+      "x": -217.68,
+      "y": 160.51,
+      "z": 795.62,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": -195.71,
+      "y": 180.47,
+      "z": 874.61,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": -196.9,
+      "y": 177.73,
+      "z": 857.49,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Quarry Waypoint",
+      "type": "",
+      "x": -197.89,
+      "y": 176.49,
+      "z": 838.18,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Bot Workbench",
+      "type": "",
+      "x": -195.19,
+      "y": 180.79,
+      "z": 886.61,
+      "radius": 2.5
+    },
+    {
+      "name": "Bamboo Sapling",
+      "type": "",
+      "x": -260.14,
+      "y": 205.41,
+      "z": 928.46,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": -139.14,
+      "y": 205.45,
+      "z": 918.31,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": -326.09,
+      "y": 124.9,
+      "z": 687.87,
+      "radius": 2.5
+    },
+    {
+      "name": "Mithril Ore",
+      "type": "",
+      "x": -365.94,
+      "y": 135.52,
+      "z": 727.07,
+      "radius": 2.5
+    },
+    {
+      "name": "Mithril Ore",
+      "type": "",
+      "x": -257.93,
+      "y": 111.78,
+      "z": 700.3,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": -256.56,
+      "y": 124.06,
+      "z": 688.08,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -266.35,
+      "y": 107.55,
+      "z": 723.87,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": -245.03,
+      "y": 144.13,
+      "z": 738.46,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -317.8,
+      "y": 144.09,
+      "z": 744.93,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 419.96,
+      "y": 157.35,
+      "z": -155.09,
+      "radius": 2.5
+    },
+    {
+      "name": "Naga Net",
+      "type": "",
+      "x": 399.48,
+      "y": 153.82,
+      "z": -183.54,
+      "radius": 2.5
+    },
+    {
+      "name": "Naga Net",
+      "type": "",
+      "x": 412.79,
+      "y": 154.8,
+      "z": -204.09,
+      "radius": 2.5
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 390.38,
+      "y": 151.2,
+      "z": -216.75,
+      "radius": 2.5
+    },
+    {
+      "name": "Naga Net",
+      "type": "",
+      "x": 372.48,
+      "y": 149.45,
+      "z": -186.66,
+      "radius": 2.5
+    },
+    {
+      "name": "Naga Net",
+      "type": "",
+      "x": 355.6,
+      "y": 149.69,
+      "z": -168.06,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 374.17,
+      "y": 163.34,
+      "z": -137.69,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 386.15,
+      "y": 167.01,
+      "z": -141.71,
+      "radius": 2.5
+    },
+    {
+      "name": "Mithril Ore",
+      "type": "Ore",
+      "x": 463.64,
+      "y": 158.15,
+      "z": -233.72,
+      "radius": 2.5
+    },
+    {
+      "name": "Mithril Ore",
+      "type": "Ore",
+      "x": 521.07,
+      "y": 160.82,
+      "z": -239.36,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": -384.72,
+      "y": 194.08,
+      "z": -567.28,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -435.13,
+      "y": 188.08,
+      "z": -549.74,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Chest",
+      "type": "",
+      "x": -358.03,
+      "y": 153.96,
+      "z": -486.6,
+      "radius": 2.5
+    },
+    {
+      "name": "Jadeite Vein",
+      "type": "",
+      "x": -295.71,
+      "y": 150.43,
+      "z": -452.61,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -298.27,
+      "y": 148.56,
+      "z": -530.72,
+      "radius": 2.5
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": -11.02,
+      "y": 275.46,
+      "z": -913.96,
+      "radius": 2.5
+    },
+    {
+      "name": "Vista",
+      "type": "",
+      "x": -14.97,
+      "y": 239.87,
+      "z": -986.33,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": -15.41,
+      "y": 203.61,
+      "z": -1009.34,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": -31.48,
+      "y": 201.66,
+      "z": -1017.1,
+      "radius": 2.5
+    },
+    {
+      "name": "Jadeite Vein",
+      "type": "",
+      "x": -150.27,
+      "y": 151.61,
+      "z": -690.89,
+      "radius": 2.5
+    },
+    {
+      "name": "Frozen Sea Waypoiint",
+      "type": "",
+      "x": -14.64,
+      "y": 198.34,
+      "z": -951.68,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": -14.69,
+      "y": 200.0,
+      "z": -959.5,
+      "radius": 2.5
+    },
+    {
+      "name": "Anvil",
+      "type": "",
+      "x": -23.96,
+      "y": 197.97,
+      "z": -957.17,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -31.82,
+      "y": 201.62,
+      "z": -971.63,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": -50.73,
+      "y": 201.58,
+      "z": -932.66,
+      "radius": 2.5
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": -64.46,
+      "y": 201.68,
+      "z": -940.14,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -68.17,
+      "y": 200.92,
+      "z": -945.27,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade battery",
+      "type": "",
+      "x": -87.93,
+      "y": 202.36,
+      "z": -1021.38,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -160.0,
+      "y": 185.7,
+      "z": -989.53,
+      "radius": 2.5
+    },
+    {
+      "name": "Orichalcum Ore",
+      "type": "",
+      "x": -189.54,
+      "y": 187.45,
+      "z": -997.46,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 19.81,
+      "y": 201.58,
+      "z": -932.87,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 46.9,
+      "y": 201.1,
+      "z": -952.24,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 41.06,
+      "y": 200.49,
+      "z": -1016.97,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Bot Workbench",
+      "type": "",
+      "x": 15.38,
+      "y": 200.81,
+      "z": -1021.11,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 24.91,
+      "y": 200.6,
+      "z": -1018.84,
+      "radius": 0.1
+    },
+    {
+      "name": "asd",
+      "type": "",
+      "x": 14.0,
+      "y": 201.0,
+      "z": -1021.0,
+      "radius": 0
+    },
+    {
+      "name": "sd",
+      "type": "",
+      "x": 14.0,
+      "y": 201.0,
+      "z": -1021.0,
+      "radius": 0
+    },
+    {
+      "name": "Letter",
+      "type": "",
+      "x": -471.6,
+      "y": 184.99,
+      "z": -140.3,
+      "radius": 2.5
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 13.54,
+      "y": 200.73,
+      "z": -1020.6,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Chest",
+      "type": "",
+      "x": 83.63,
+      "y": 197.06,
+      "z": -935.73,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 135.45,
+      "y": 194.28,
+      "z": -918.27,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 180.37,
+      "y": 194.34,
+      "z": -877.77,
+      "radius": 0.8
+    },
+    {
+      "name": "Strike Mission",
+      "type": "",
+      "x": 172.09,
+      "y": 194.0,
+      "z": -837.57,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 172.91,
+      "y": 193.4,
+      "z": -823.58,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 172.2,
+      "y": 194.99,
+      "z": -823.51,
+      "radius": 0.8
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 157.94,
+      "y": 193.76,
+      "z": -831.52,
+      "radius": 0.8
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 135.92,
+      "y": 187.82,
+      "z": -847.49,
+      "radius": 0.8
+    },
+    {
+      "name": "Orichalcum Ore",
+      "type": "",
+      "x": 101.54,
+      "y": 180.17,
+      "z": -855.67,
+      "radius": 0.8
+    },
+    {
+      "name": "Historic Plaque",
+      "type": "",
+      "x": 119.28,
+      "y": 164.99,
+      "z": -827.1,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 63.73,
+      "y": 148.28,
+      "z": -787.87,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 278.74,
+      "y": 161.96,
+      "z": -892.96,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 11.13,
+      "y": 177.88,
+      "z": -188.09,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 45.32,
+      "y": 176.78,
+      "z": -161.41,
+      "radius": 0.8
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 56.5,
+      "y": 176.82,
+      "z": -165.38,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 33.96,
+      "y": 179.62,
+      "z": -142.02,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 13.24,
+      "y": 161.0,
+      "z": -121.67,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 41.22,
+      "y": 163.9,
+      "z": -120.29,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 42.79,
+      "y": 161.03,
+      "z": -118.5,
+      "radius": 0.8
+    },
+    {
+      "name": "Harvest Complex Waypoint",
+      "type": "",
+      "x": 18.92,
+      "y": 160.97,
+      "z": -118.77,
+      "radius": 0.8
+    },
+    {
+      "name": "Orichalcum Ore",
+      "type": "",
+      "x": 78.56,
+      "y": 194.03,
+      "z": -911.58,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 74.13,
+      "y": 148.23,
+      "z": -815.69,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": -277.34,
+      "y": 148.23,
+      "z": -717.13,
+      "radius": 0.8
+    },
+    {
+      "name": "Jadeite Vein",
+      "type": "",
+      "x": -244.22,
+      "y": 152.41,
+      "z": -715.45,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": -279.8,
+      "y": 153.26,
+      "z": -627.62,
+      "radius": 0.8
+    },
+    {
+      "name": "Jadeite Vein",
+      "type": "",
+      "x": -281.06,
+      "y": 151.69,
+      "z": -626.07,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": -319.08,
+      "y": 148.21,
+      "z": -519.93,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 16.83,
+      "y": 153.42,
+      "z": -749.6,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 1.1,
+      "y": 149.34,
+      "z": -780.47,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 41.19,
+      "y": 150.83,
+      "z": -793.88,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Chest",
+      "type": "",
+      "x": 40.75,
+      "y": 149.48,
+      "z": -794.54,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 17.77,
+      "y": 149.16,
+      "z": -801.41,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 23.17,
+      "y": 148.9,
+      "z": -794.81,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 24.36,
+      "y": 147.77,
+      "z": -784.29,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 45.64,
+      "y": 148.73,
+      "z": -838.74,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 57.26,
+      "y": 149.34,
+      "z": -841.76,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 62.42,
+      "y": 149.79,
+      "z": -816.83,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 78.28,
+      "y": 148.33,
+      "z": -801.11,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 69.15,
+      "y": 149.99,
+      "z": -802.28,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 65.59,
+      "y": 149.65,
+      "z": -825.14,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 45.7,
+      "y": 149.39,
+      "z": -826.16,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 12.67,
+      "y": 147.52,
+      "z": -824.02,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 10.09,
+      "y": 148.17,
+      "z": -823.32,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 28.61,
+      "y": 148.65,
+      "z": -823.2,
+      "radius": 0.8
+    },
+    {
+      "name": "Debris",
+      "type": "",
+      "x": 3.69,
+      "y": 149.16,
+      "z": -797.33,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 204.95,
+      "y": 190.1,
+      "z": -321.21,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 160.64,
+      "y": 190.09,
+      "z": -347.82,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 106.61,
+      "y": 179.05,
+      "z": -266.39,
+      "radius": 0.8
+    },
+    {
+      "name": "Harvest Complex Pavillion",
+      "type": "",
+      "x": 110.69,
+      "y": 177.4,
+      "z": -261.52,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Defensive Protocol",
+      "type": "",
+      "x": 169.22,
+      "y": 190.13,
+      "z": -294.55,
+      "radius": 0.8
+    },
+    {
+      "name": "Crystallized Void Magic",
+      "type": "",
+      "x": 480.74,
+      "y": 109.44,
+      "z": 150.94,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 298.7,
+      "y": 114.11,
+      "z": 126.27,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 231.58,
+      "y": 119.32,
+      "z": 94.3,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 472.17,
+      "y": 109.03,
+      "z": 181.65,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Lantern",
+      "type": "",
+      "x": 18.17,
+      "y": 193.57,
+      "z": -308.3,
+      "radius": 0.8
+    },
+    {
+      "name": "Zip Line",
+      "type": "",
+      "x": 17.98,
+      "y": 190.18,
+      "z": -296.27,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Battery",
+      "type": "",
+      "x": 33.51,
+      "y": 190.3,
+      "z": -278.84,
+      "radius": 0.8
+    },
+    {
+      "name": "Jadeite Vein",
+      "type": "",
+      "x": 81.85,
+      "y": 149.27,
+      "z": -30.62,
+      "radius": 0.8
+    },
+    {
+      "name": "Jade Tech Offensive Protocol",
+      "type": "",
+      "x": 56.15,
+      "y": 170.54,
+      "z": -25.92,
+      "radius": 0.8
+    },
+    {
+      "name": "Security Turret",
+      "type": "",
+      "x": 53.7,
+      "y": 170.06,
+      "z": -34.57,
+      "radius": 0.8
+    },
+    {
+      "name": "Icebrood Prismatic Crystal",
+      "type": "",
+      "x": 50.73,
+      "y": 170.08,
+      "z": -45.33,
+      "radius": 0.8
+    },
+    {
+      "name": "Risen Prismatic Crystal",
+      "type": "",
+      "x": 31.8,
+      "y": 170.08,
+      "z": -64.68,
+      "radius": 0.8
+    }
+  ],
+  "1317": [
+    {
+      "name": "Abyssal",
+      "type": "",
+      "x": -633.35,
+      "y": 144.57,
+      "z": 399.25,
+      "radius": 0.8
+    },
+    {
+      "name": "Pact Chopper",
+      "type": "",
+      "x": 394.08,
+      "y": 209.02,
+      "z": -8.51,
+      "radius": 0.8
+    },
+    {
+      "name": "1083",
+      "type": "",
+      "x": 383.42,
+      "y": 227.06,
+      "z": -6.79,
+      "radius": 0.8
+    },
+    {
+      "name": "Pact Command Waypoint",
+      "type": "",
+      "x": 720.72,
+      "y": 104.32,
+      "z": 653.65,
+      "radius": 0.8
+    },
+    {
+      "name": "Anvil",
+      "type": "",
+      "x": 738.86,
+      "y": 104.52,
+      "z": 662.06,
+      "radius": 0.8
+    },
+    {
+      "name": "Melandru's Tears",
+      "type": "",
+      "x": 928.32,
+      "y": 118.44,
+      "z": 118.02,
+      "radius": 0.8
+    },
+    {
+      "name": "Branded Debris",
+      "type": "",
+      "x": -401.52,
+      "y": 181.39,
+      "z": -227.67,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Mote",
+      "type": "",
+      "x": -350.73,
+      "y": 298.36,
+      "z": -108.53,
+      "radius": 0.8
+    },
+    {
+      "name": "Ancient Sapling",
+      "type": "",
+      "x": -285.16,
+      "y": 296.49,
+      "z": -124.18,
+      "radius": 0.8
+    },
+    {
+      "name": "Flax",
+      "type": "",
+      "x": -294.85,
+      "y": 238.61,
+      "z": -199.92,
+      "radius": 0.8
+    },
+    {
+      "name": "Oakheart's Essence",
+      "type": "",
+      "x": 262.35,
+      "y": 242.88,
+      "z": -278.88,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Mote",
+      "type": "",
+      "x": 278.75,
+      "y": 238.77,
+      "z": -243.56,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Coffer",
+      "type": "",
+      "x": 465.01,
+      "y": 122.89,
+      "z": 352.87,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Coffer",
+      "type": "",
+      "x": 457.05,
+      "y": 123.06,
+      "z": 339.04,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Coffer",
+      "type": "",
+      "x": 468.31,
+      "y": 123.06,
+      "z": 334.35,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Coffer",
+      "type": "",
+      "x": -200.52,
+      "y": 215.15,
+      "z": 729.41,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Coffer",
+      "type": "",
+      "x": -204.61,
+      "y": 214.78,
+      "z": 729.25,
+      "radius": 0.8
+    },
+    {
+      "name": "Mistborn Coffer",
+      "type": "",
+      "x": -204.24,
+      "y": 213.31,
+      "z": 709.54,
+      "radius": 0.8
+    },
+    {
+      "name": "Pact Chopper",
+      "type": "",
+      "x": -228.44,
+      "y": 211.38,
+      "z": 711.61,
+      "radius": 0.8
+    },
+    {
+      "name": "Thermal Tube",
+      "type": "",
+      "x": -153.84,
+      "y": 216.37,
+      "z": 776.2,
+      "radius": 0.8
+    },
+    {
+      "name": "Red Oak Sapling",
+      "type": "",
+      "x": -197.69,
+      "y": 212.22,
+      "z": 697.3,
+      "radius": 0.8
+    },
+    {
+      "name": "Red Oak Sapling",
+      "type": "",
+      "x": -236.57,
+      "y": 176.44,
+      "z": 712.2,
+      "radius": 0.8
+    },
+    {
+      "name": "Mithril Ore",
+      "type": "",
+      "x": -228.23,
+      "y": 160.76,
+      "z": 626.44,
+      "radius": 0.8
+    },
+    {
+      "name": "Pact Chopper",
+      "type": "",
+      "x": -233.17,
+      "y": 159.43,
+      "z": 600.99,
+      "radius": 0.8
+    }
+  ],
+  "1263": [
+    {
+      "name": "Champion Dawn Waypoint",
+      "type": "",
+      "x": -593.09,
+      "y": 57.43,
+      "z": -126.16,
+      "radius": 0.8
+    }
+  ],
+  "1558": [
+    {
+      "name": "Dragon Pinata",
+      "type": "",
+      "x": 163.2,
+      "y": 15.28,
+      "z": -51.31,
+      "radius": 0.8
+    },
+    {
+      "name": "Krait Obelisk Shard",
+      "type": "",
+      "x": 165.4,
+      "y": 15.16,
+      "z": -49.09,
+      "radius": 0.8
+    },
+    {
+      "name": "Cooking Station",
+      "type": "",
+      "x": 166.76,
+      "y": 15.3,
+      "z": -54.01,
+      "radius": 0.8
+    },
+    {
+      "name": "Mr. Quiggles",
+      "type": "",
+      "x": 164.73,
+      "y": 15.31,
+      "z": -56.36,
+      "radius": 0.8
+    },
+    {
+      "name": "Exalted Chest",
+      "type": "",
+      "x": 178.21,
+      "y": 15.17,
+      "z": -60.94,
+      "radius": 0.8
+    },
+    {
+      "name": "Basic Cloth Rack",
+      "type": "",
+      "x": 176.05,
+      "y": 15.15,
+      "z": -46.03,
+      "radius": 0.8
+    },
+    {
+      "name": "Advanced Cloth Rack",
+      "type": "",
+      "x": 178.69,
+      "y": 15.15,
+      "z": -43.49,
+      "radius": 0.8
+    },
+    {
+      "name": "Advanced Leather Rack",
+      "type": "",
+      "x": 176.97,
+      "y": 21.0,
+      "z": -44.25,
+      "radius": 0.8
+    },
+    {
+      "name": "Basic Leather Rack",
+      "type": "",
+      "x": 174.75,
+      "y": 21.02,
+      "z": -46.85,
+      "radius": 0.8
+    },
+    {
+      "name": "Handiwork Workbench",
+      "type": "",
+      "x": 178.29,
+      "y": 18.34,
+      "z": -52.47,
+      "radius": 0.8
+    },
+    {
+      "name": "Found Bandit Chest",
+      "type": "",
+      "x": 183.83,
+      "y": 15.15,
+      "z": -63.38,
+      "radius": 0.8
+    },
+    {
+      "name": "Harvesting Collection Box",
+      "type": "",
+      "x": 205.86,
+      "y": 15.23,
+      "z": -134.25,
+      "radius": 0.8
+    },
+    {
+      "name": "Homestead Refinement - Farm",
+      "type": "",
+      "x": 202.76,
+      "y": 15.32,
+      "z": -123.23,
+      "radius": 0.8
+    },
+    {
+      "name": "Mining Collection Box",
+      "type": "",
+      "x": 243.72,
+      "y": 15.27,
+      "z": -210.21,
+      "radius": 0.8
+    },
+    {
+      "name": "Logging Collection Box",
+      "type": "",
+      "x": 190.1,
+      "y": 15.14,
+      "z": -199.29,
+      "radius": 0.8
+    },
+    {
+      "name": "Wintersday Tree",
+      "type": "",
+      "x": 202.35,
+      "y": 15.17,
+      "z": -211.03,
+      "radius": 0.8
+    }
+  ]
+}

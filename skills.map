@@ -1,0 +1,174 @@
+Daring_Advance=SKILL_10
+Daybreaking_Slash=SKILL_1
+Dazzling_Hammer=SKILL_2
+Effulgent_Stance=SKILL_7
+Effulgent_Stance_Damage=SKILL_7
+Enter_Radiant_Forge=SPECIAL4
+Exit_Radiant_Forge=SPECIAL4
+Glaring_Burst=SKILL_1
+Gleaming_Blade=SKILL_4
+Gleaming_Disc=SKILL_3
+Helio_Rush=SKILL_2
+
+Lucent_Thrust=SKILL_4
+Luminous_Staff=SKILL_3
+Piercing_Stance=SKILL_8
+
+Radiant_Courage=SPECIAL3
+Radiant_Justice=SPECIAL1
+Radiant_Resolve=SPECIAL2
+
+Symbol_of_Luminance=SKILL_5
+Shining_Spin=SKILL_2
+Solar_Storm=SKILL_4
+
+# --- GREATSWORD --- #
+Strike=SKILL_1
+Wrathful_Strike=SKILL_1
+Vengeful_Strike=SKILL_1
+Whirling_Wrath=SKILL_2
+Leap_of_Faith=SKILL_3
+Symbol_of_Resolution=SKILL_4
+Binding_Blade=SKILL_5
+
+# --- LONGBOW --- #
+Hunter_s_Ward=SKILL_5
+Symbol_of_Energy=SKILL_4
+Deflecting_Shot=SKILL_3
+True_Shot=SKILL_2
+Puncture_Shot=SKILL_1
+
+# --- DRAGONHUNTER --- #
+Sword_of_Justice=SKILL_7
+Spear_of_Justice=SPECIAL1
+Wings_of_Resolve=SPECIAL2	
+Shield_of_Courage=SPECIAL3
+Procession_of_Blades=SKILL_8
+Dragon_s_Maw=SKILL_10
+
+# Wiki: Instant. We add settle to simulate the global cooldown/animation lock.
+Weapon_Swap=SWAP_WEAPON
+# ==============================================================================
+# ENGINEER / HOLOSMITH
+# ==============================================================================
+
+# --- TOOLBELT / UTILITY ---
+Thunderclap=SKILL_5
+Defensive_Protocol_Thorns=SPECIAL2 
+Detonate_Throw_Mine_Mine_Field=SKILL_8
+Electro_whirl=SKILL_2
+Evolve=SPECIAL5
+Throw_Mine=SKILL_8
+Detonate=SKILL_8
+Static_Shock=SPECIAL1
+
+Offensive_Protocol_Shred=SPECIAL3
+Offensive_Protocol_Obliterate=SPECIAL4 
+Offensive_Protocol_Demolish=SPECIAL3 
+
+# --- KITS (Instant but need UI settle time) ---
+Grenade_Kit=SKILL_7 
+Bomb_Kit=SKILL_9 
+Med_Kit=SKILL_6 
+Flamethrower=SKILL_8 
+
+# --- GRENADES ---
+Shrapnel_Grenade=SKILL_2 
+Poison_Grenade=SKILL_5  
+Freeze_Grenade=SKILL_4   
+Grenade=SKILL_1          
+
+# --- BOMBS ---
+Big_Ol_Bomb=SKILL_5
+Galvanic_Bomb=SKILL_3
+Magnetic_Bomb=SKILL_4
+Fire_Bomb=SKILL_2
+Bomb=SKILL_1
+
+# --- FLAMETHROWER ---
+Napalm=SKILL_5
+Stoke_the_Flames=SKILL_4 
+Air_Blast=SKILL_3        
+Flame_Blast=SKILL_2      
+Flame_Jet=SKILL_1
+Puncturing_Jab=SKILL_1  
+Rending_Strike=SKILL_1   
+Amplifying_Slice=SKILL_1 
+Conduit_Surge=SKILL_2  
+Lightning_Rod=SKILL_3    
+Electric_Artillery=SKILL_3 
+Roiling_Skies=SKILL_4    
+Devastator=SKILL_5      
+Plasmatic_State=SKILL_9  
+Flux_State=SKILL_10    
+
+#==============================================#
+=REVENANT SECTION=WEAPONS
+#==============================================#
+Misery_Swipe=SKILL_1
+Anguish_Swipe=SKILL_1
+Manifest_Toxin=SKILL_1
+Searing_Fissure=SKILL_2
+Echoing_Eruption=SKILL_3	
+Frigid_Blitz=SKILL_4	
+Temporal_Rift=SKILL_5
+
+Abyssal_Strike=SKILL_1
+Abyssal_Force=SKILL_2
+Abyssal_Blitz=SKILL_3	
+Abyssal_Blot=SKILL_4
+Abyssal_Raze=SKILL_5
+
+Serene_Slash=SKILL_1
+Acerbic_Cut=SKILL_1
+Motivating_Whirl=SKILL_1
+Blossoming_Aura=SKILL_2
+Otherworldly_Bond=SKILL_3
+
+Mist_Swing=SKILL_1
+Mist_Slash=SKILL_1
+Arcing_Mists=SKILL_1
+Mist_Unleashed=SKILL_2
+Phantom_s_Onslaught=SKILL_3
+Eternity_s_Requiem=SKILL_5
+
+Deathstrike=SKILL_5
+Chilling_Isolation=SKILL_2
+Unrelenting_Assault=SKILL_3
+Shackling_Wave=SKILL_4
+Preparation_Thrust=SKILL_1
+Brutal_Blade=SKILL_1
+Rift_Slash=SKILL_1
+
+#==============================================#
+=REVENANT SECTION=CONDUIT
+#==============================================#
+Legendary_Entity_Stance=SPECIAL1
+Cosmic_Wisdom=SPECIAL3 
+Release_Potential_Mesmer=SPECIAL2  
+Release_Potential_Dervish=SPECIAL2    
+Release_Potential_Assassin=SPECIAL2 
+Twin_Moon_Sweep=SKILL_10
+Hex_Eater_Vortex=SKILL_9
+Banish_Enchantment_Cosmic_Wisdom=SKILL_7
+Call_to_Anguish_Cosmic_Wisdom=SKILL_8
+Unyielding_Impact_Cosmic_Wisdom=SKILL_8
+Embrace_the_Darkness_Cosmic_Wisdom=SKILL_10
+Beguiling_Haze=SKILL_7
+Gladiator_s_Defense=SKILL_8 
+
+#==============================================#
+REVENANT SECTION=ASSASSIN STANCE
+#==============================================#
+Impossible_Odds=SKILL_9 
+Legendary_Assassin_Stance=SPECIAL1
+
+#==============================================#
+REVENANT SECTION=DEMON STANCE
+#==============================================#
+Legendary_Demon_Stance=SPECIAL1
+Resist_the_Darkness=SKILL_10
+Embrace_The_Darkness=SKILL_10
+Banish_Enchantment=SKILL_7
+Call_to_Anguish=SKILL_8	
+Unyielding_Impact=SKILL_8	

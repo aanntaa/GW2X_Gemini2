@@ -1,0 +1,65 @@
+{
+  "5274": "Jeek",
+  "3981": "Ailionora",
+  "3765": "River Fish Node",
+  "3766": "River Fish Node",
+  "3764": "River Fish Node",
+  "3763": "River Fish Node",
+  "3733": "River Fish Node",
+  "3734": "River Fish Node",
+  "3750": "River Fish Node",
+  "3747": "River Fish Node",
+  "3756": "River Fish Node",
+  "3755": "River Fish Node",
+  "1014": "Portal",
+  "1269": "Ramsey",
+  "3687": "Iron Ore",
+  "3682": "Iron Ore",
+  "17828": "Master Weaponsmith",
+  "17832": "Master Huntsman",
+  "17663": "Master Tailor",
+  "17596": "Master Leatherworker",
+  "17609": "Master Armorsmith",
+  "17912": "Master Jeweler",
+  "27073": "Food Service",
+  "1206": {
+    "17832": "Master Hunstman",
+    "17828": "Master Weaponsmith",
+    "17910": "Master Artificier",
+    "17802": "Master Chef",
+    "9950": "Mystic Forge Attendant",
+    "5265": "Laurel Merchant",
+    "11246": "Gathering Merchant",
+    "9942": "Dungeon Merchant"
+  },
+  "1422": [
+    {
+      "species_id": "19344",
+      "x": -2.0435667037963867,
+      "y": 391.76824951171875,
+      "z": -528.9480590820312,
+      "radius": 2.0,
+      "alias": "Sowoon"
+    }
+  ],
+  "1317": [
+    {
+      "species_id": "21895",
+      "x": 694.2021484375,
+      "y": 102.98526000976562,
+      "z": 529.9083862304688,
+      "radius": 2.0,
+      "alias": "Volatile Magic Collector"
+    }
+  ],
+  "1558": [
+    {
+      "species_id": "None",
+      "x": 165.39964294433594,
+      "y": 15.157353401184082,
+      "z": -49.085872650146484,
+      "radius": 2.0,
+      "alias": "Herro Challange"
+    }
+  ]
+}

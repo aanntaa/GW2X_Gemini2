@@ -1,0 +1,1552 @@
+[
+  {
+    "id": "15",
+    "name": "Queensdale",
+    "portals": {
+      "Portal to Divinity's Reach": [
+        -383.721,
+        74.6097,
+        600.053
+      ],
+      "Portal to Gendarran Fields": [
+        1015.94,
+        30.6876,
+        195.832
+      ],
+      "Portal to Kessex Hills": [
+        -708.848,
+        34.7494,
+        -608.364
+      ],
+      "Portal to Caudecus's Manor": [
+        993.776,
+        26.5291,
+        601.091
+      ]
+    }
+  },
+  {
+    "id": "17",
+    "name": "Harathi Hinterlands",
+    "portals": {
+      "Portal to Gendarran Fields": [
+        -386.484,
+        97.7766,
+        -767.092
+      ]
+    }
+  },
+  {
+    "id": "1043",
+    "name": "Auric Basin",
+    "portals": {
+      "Portal to Tangled Depths": [
+        517.234,
+        216.186,
+        -765.011
+      ],
+      "Portal to Verdant Brink": [
+        -453.34,
+        499.973,
+        799.54
+      ],
+      "Portal to Guild Hall": [
+        296.002,
+        9.36674,
+        145.308
+      ]
+    }
+  },
+  {
+    "id": "1015",
+    "name": "The Silverwastes",
+    "portals": {
+      "Portal to Brisban Wildlands": [
+        609.801,
+        414.797,
+        -188.477
+      ],
+      "Portal to Verdant Brink": [
+        -429.091,
+        425.538,
+        -317.119
+      ]
+    }
+  },
+  {
+    "id": "18",
+    "name": "Divinity's Reach",
+    "portals": {
+      "Portal to Fields of Ruin": [
+        487.899,
+        67.0682,
+        -130.575
+      ],
+      "Portal to Lion's Arch": [
+        124.979,
+        145.386,
+        -154.389
+      ],
+      "Portal to Queensdale": [
+        66.5503,
+        100.264,
+        -520.981
+      ],
+      "Portal to Home Instance": [
+        200.358,
+        79.9018,
+        144.896
+      ],
+      "Portal to Lake Doric": [
+        465.205,
+        100.047,
+        177.44
+      ]
+    }
+  },
+  {
+    "id": "91",
+    "name": "The Grove",
+    "portals": {
+      "Portal to Caledon Forest": [
+        -82.6864,
+        75.6869,
+        292.498
+      ],
+      "Portal to Lion's Arch": [
+        50.6745,
+        74.2969,
+        126.107
+      ],
+      "Portal to Home Instance": [
+        41.9375,
+        1.40155,
+        50.2183
+      ]
+    }
+  },
+  {
+    "id": "27",
+    "name": "Lornar's Pass",
+    "portals": {
+      "Portal to Bloodtide Coast": [
+        -464.686,
+        -1.05632,
+        -1270.3
+      ],
+      "Portal to Dredgehaunt Cliffs": [
+        476.697,
+        126.848,
+        -509.465
+      ],
+      "Portal to Gendarran Fields": [
+        -486.88,
+        41.278,
+        1303.56
+      ],
+      "Portal to Lion's Arch": [
+        -469.647,
+        131.262,
+        378.42
+      ],
+      "Portal to Snowden Drifts": [
+        332.004,
+        161.568,
+        1427.41
+      ],
+      "Portal to Straits of Devastation": [
+        -453.785,
+        173.803,
+        453.794
+      ],
+      "Portal to Timberline Falls": [
+        289.234,
+        73.367,
+        -1413.93
+      ],
+      "Portal to Hall of Chains": [
+        369.813,
+        146.455,
+        -85.5269
+      ]
+    }
+  },
+  {
+    "id": "35",
+    "name": "Metrica Province",
+    "portals": {
+      "Portal to Brisban Wildlands": [
+        -68.8202,
+        31.6116,
+        939.629
+      ],
+      "Portal to Caledon Forest": [
+        566.564,
+        33.0671,
+        706.051
+      ],
+      "Portal to Rata Sum": [
+        -552.112,
+        53.0523,
+        -751.098
+      ]
+    }
+  },
+  {
+    "id": "54",
+    "name": "Brisban Wildlands",
+    "portals": {
+      "Portal to Caledon Forest": [
+        1030.29,
+        37.1791,
+        -303.194
+      ],
+      "Portal to Dry Top": [
+        -919.103,
+        47.6251,
+        -750.422
+      ],
+      "Portal to Kessex Hills": [
+        1013.59,
+        66.2299,
+        733.436
+      ],
+      "Portal to Metrica Province": [
+        279.707,
+        79.1804,
+        -698.566
+      ],
+      "Portal to Silverwastes": [
+        -960.118,
+        44.4629,
+        162.934
+      ]
+    }
+  },
+  {
+    "id": "1178",
+    "name": "Bitterfrost Frontier",
+    "portals": {
+      "Portal to Frostgorge Sound": [
+        -544.595,
+        0.142502,
+        -376.78
+      ]
+    }
+  },
+  {
+    "id": "53",
+    "name": "Sparkfly Fen",
+    "portals": {
+      "Portal to Bloodtide Coast": [
+        -599.233,
+        3.41318,
+        939.587
+      ],
+      "Portal to Mount Maelstrom": [
+        686.852,
+        43.0106,
+        -645.615
+      ],
+      "Portal to Straits of Devastation": [
+        284.525,
+        55.5561,
+        -903.169
+      ]
+    }
+  },
+  {
+    "id": "29",
+    "name": "Timberline Falls",
+    "portals": {
+      "Portal to Dredgehaunt Cliffs": [
+        318.078,
+        72.6426,
+        971.85
+      ],
+      "Portal to Lornar's Pass": [
+        -555.821,
+        45.3282,
+        953.266
+      ],
+      "Portal to Mount Maelstrom": [
+        -342.768,
+        10.8712,
+        -840.023
+      ]
+    }
+  },
+  {
+    "id": "95",
+    "name": "Alpine Borderlands",
+    "portals": {
+      "Portal to Lion's Arch": [
+        -17.2678,
+        168.889,
+        408.7
+      ],
+      "Portal to Blue Borderlands": [
+        23.718,
+        167.002,
+        480.818
+      ],
+      "Portal to Eternal Battlegrounds": [
+        4.75012,
+        168.732,
+        497.991
+      ],
+      "Portal to Red Borderlands": [
+        -12.926,
+        166.935,
+        479.56
+      ]
+    }
+  },
+  {
+    "id": "31",
+    "name": "Snowden Drifts",
+    "portals": {
+      "Portal to Frostgorge Sound": [
+        771.111,
+        41.7105,
+        547.456
+      ],
+      "Portal to Gendarran Fields": [
+        -1175.42,
+        36.0253,
+        -283.378
+      ],
+      "Portal to Lornar's Pass": [
+        -325.853,
+        52.3144,
+        -548.639
+      ],
+      "Portal to Wayfarer Foothills": [
+        1175.96,
+        61.3451,
+        431.132
+      ]
+    }
+  },
+  {
+    "id": "30",
+    "name": "Frostgorge Sound",
+    "portals": {
+      "Portal to Fireheart Rise": [
+        874.743,
+        12.5323,
+        14.6781
+      ],
+      "Portal to Snowden Drifts": [
+        -748.392,
+        48.5528,
+        -901.706
+      ],
+      "Portal to Wayfarer Foothills": [
+        480.532,
+        52.0782,
+        -874.017
+      ],
+      "Portal to Honor of the Waves": [
+        106.533,
+        6.76626,
+        561.045
+      ],
+      "Portal to Bitterfrost Frontier": [
+        -574.091,
+        9.27882,
+        903.255
+      ]
+    }
+  },
+  {
+    "id": "1428",
+    "name": "Arborstone",
+    "portals": {
+      "Portal to New Kaineng City": [
+        -1133.07,
+        12.0471,
+        746.839
+      ],
+      "Portal to The Echoval Wilds": [
+        -736.265,
+        14.1094,
+        440.065
+      ]
+    }
+  },
+  {
+    "id": "39",
+    "name": "Mount Maelstrom",
+    "portals": {
+      "Portal to Sparkfly Fen": [
+        -1113.32,
+        37.9303,
+        555.182
+      ],
+      "Portal to Straits of Devastation": [
+        -1120.17,
+        16.6029,
+        -489.001
+      ],
+      "Portal to Timberline Falls": [
+        -78.6728,
+        26.2424,
+        745.334
+      ],
+      "Portal to Crucible of Eternity": [
+        773.731,
+        12.2753,
+        463.692
+      ]
+    }
+  },
+  {
+    "id": "23",
+    "name": "Kessex Hills",
+    "portals": {
+      "Portal to Brisban Wildlands": [
+        -1158.42,
+        76.7111,
+        296.921
+      ],
+      "Portal to Caledon Forest": [
+        -182.945,
+        46.4895,
+        -559.711
+      ],
+      "Portal to Gendarran Fields": [
+        1192.25,
+        20.9845,
+        531.416
+      ],
+      "Portal to Queensdale": [
+        -665.255,
+        82.3558,
+        554.65
+      ]
+    }
+  },
+  {
+    "id": "1422",
+    "name": "Dragon's End",
+    "portals": {
+      "Portal to The Echoval Wilds": [
+        -586.329,
+        239.047,
+        1019.98
+      ]
+    }
+  },
+  {
+    "id": "25",
+    "name": "Iron Marches",
+    "portals": {
+      "Portal to Blazeridge Steppes": [
+        572.416,
+        12.1843,
+        -568.366
+      ],
+      "Portal to Fireheart Rise": [
+        -560.176,
+        27.1747,
+        462.537
+      ],
+      "Portal to Plains of Ashford": [
+        20.6667,
+        28.6049,
+        -1198.79
+      ]
+    }
+  },
+  {
+    "id": "872",
+    "name": "Mistlock Observatory",
+    "portals": {
+      "Portal to Lion's Arch": [
+        61.3757,
+        231.577,
+        -37.7565
+      ]
+    }
+  },
+  {
+    "id": "22",
+    "name": "Fireheart Rise",
+    "portals": {
+      "Portal to Frostgorge Sound": [
+        -894.663,
+        88.7725,
+        68.534
+      ],
+      "Portal to Iron Marches": [
+        965.762,
+        8.08153,
+        -547.046
+      ],
+      "Portal to Citadel of Flame": [
+        895.763,
+        75.1267,
+        697.454
+      ]
+    }
+  },
+  {
+    "id": "96",
+    "name": "Alpine Borderlands",
+    "portals": {
+      "Portal to Lion's Arch": [
+        535.378,
+        54.6006,
+        -879.52
+      ],
+      "Portal to Eternal Battlegrounds": [
+        569.112,
+        56.0747,
+        -857.817
+      ],
+      "Portal to Green Borderlands": [
+        569.596,
+        54.2014,
+        -876.943
+      ],
+      "Portal to Red Borderlands": [
+        556.167,
+        54.1347,
+        -843.681
+      ]
+    }
+  },
+  {
+    "id": "32",
+    "name": "Diessa Plateau",
+    "portals": {
+      "Portal to Black Citadel": [
+        -765.239,
+        45.62,
+        -638.032
+      ],
+      "Portal to Plains of Ashford": [
+        914.487,
+        13.2254,
+        -663.781
+      ],
+      "Portal to Wayfarer Foothills": [
+        -1010.05,
+        125.624,
+        254.518
+      ]
+    }
+  },
+  {
+    "id": "24",
+    "name": "Gendarran Fields",
+    "portals": {
+      "Portal to Harathi Hinterlands": [
+        -697.029,
+        56.3735,
+        593.375
+      ],
+      "Portal to Kessex Hills": [
+        -1170.1,
+        8.99536,
+        -485.773
+      ],
+      "Portal to Lion's Arch": [
+        237.925,
+        4.58282,
+        -548.657
+      ],
+      "Portal to Lornar's Pass": [
+        1216.7,
+        86.7681,
+        -194.211
+      ],
+      "Portal to Queensdale": [
+        -1194.26,
+        5.83101,
+        379.845
+      ],
+      "Portal to Snowden Drifts": [
+        1250.82,
+        82.9603,
+        342.591
+      ],
+      "Portal to Straits of Devastation": [
+        743.107,
+        80.9649,
+        422.658
+      ]
+    }
+  },
+  {
+    "id": "20",
+    "name": "Blazeridge Steppes",
+    "portals": {
+      "Portal to Fields of Ruin": [
+        436.885,
+        43.7594,
+        -1199.13
+      ],
+      "Portal to Iron Marches": [
+        -541.49,
+        18.5825,
+        970.827
+      ],
+      "Portal to Plains of Ashford": [
+        -568.555,
+        35.9237,
+        -413.656
+      ]
+    }
+  },
+  {
+    "id": "21",
+    "name": "Fields of Ruin",
+    "portals": {
+      "Portal to Blazeridge Steppes": [
+        439.735,
+        1.79569,
+        826.76
+      ],
+      "Portal to Divinity's Reach": [
+        -695.021,
+        69.1912,
+        -381.139
+      ]
+    }
+  },
+  {
+    "id": "873",
+    "name": "Southsun Cove",
+    "portals": {
+      "Portal to Lion's Arch": [
+        653.576,
+        33.877,
+        -299.864
+      ]
+    }
+  },
+  {
+    "id": "218",
+    "name": "Black Citadel",
+    "portals": {
+      "Portal to Diessa Plateau": [
+        -11.3636,
+        139.525,
+        549.866
+      ],
+      "Portal to Lion's Arch": [
+        -163.875,
+        175.244,
+        323.994
+      ],
+      "Portal to Plains of Ashford": [
+        441.477,
+        130.522,
+        222.828
+      ],
+      "Portal to Home Instance": [
+        304.892,
+        139.691,
+        260.432
+      ]
+    }
+  },
+  {
+    "id": "1206",
+    "name": "Mistlock Sanctuary",
+    "portals": {
+      "Portal to Fractals of the Mists": [
+        -15.5474,
+        120.83,
+        0.0982647
+      ]
+    }
+  },
+  {
+    "id": "26",
+    "name": "Dredgehaunt Cliffs",
+    "portals": {
+      "Portal to Hoelbrak": [
+        203.502,
+        101.94,
+        929.254
+      ],
+      "Portal to Lornar's Pass": [
+        -601.008,
+        57.964,
+        159.433
+      ],
+      "Portal to Timberline Falls": [
+        35.6845,
+        46.6892,
+        -809.739
+      ],
+      "Portal to Sorrow's Embrace": [
+        -566.915,
+        4.94794,
+        -658.125
+      ]
+    }
+  },
+  {
+    "id": "19",
+    "name": "Plains of Ashford",
+    "portals": {
+      "Portal to Black Citadel": [
+        -1134.6,
+        66.5705,
+        114.78
+      ],
+      "Portal to Blazeridge Steppes": [
+        1193.78,
+        42.2121,
+        -152.179
+      ],
+      "Portal to Diessa Plateau": [
+        -254.597,
+        65.7376,
+        564.003
+      ],
+      "Portal to Iron Marches": [
+        660.641,
+        38.8088,
+        574.771
+      ],
+      "Portal to Ascalonian Catacombs": [
+        317.553,
+        25.6838,
+        379.065
+      ]
+    }
+  },
+  {
+    "id": "28",
+    "name": "Wayfarer Foothills",
+    "portals": {
+      "Portal to Diessa Plateau": [
+        424.652,
+        125.696,
+        975.966
+      ],
+      "Portal to Frostgorge Sound": [
+        277.33,
+        212.58,
+        1284.94
+      ],
+      "Portal to Hoelbrak": [
+        -308.068,
+        126.933,
+        -563.739
+      ],
+      "Portal to Snowden Drifts": [
+        -376.465,
+        118.587,
+        1077.62
+      ],
+      "Portal to Cragstead": [
+        343.648,
+        134.4,
+        1023.78
+      ]
+    }
+  },
+  {
+    "id": "34",
+    "name": "Caledon Forest",
+    "portals": {
+      "Portal to Brisban Wildlands": [
+        -487.75,
+        43.5744,
+        312.014
+      ],
+      "Portal to Kessex Hills": [
+        499.219,
+        17.4857,
+        1206.92
+      ],
+      "Portal to The Grove": [
+        -190.597,
+        22.7638,
+        -1132.48
+      ],
+      "Portal to Twilight Arbor": [
+        -410.565,
+        0.745789,
+        987.306
+      ]
+    }
+  },
+  {
+    "id": "50",
+    "name": "Lion's Arch",
+    "portals": {
+      "Portal to Black Citadel": [
+        170.041,
+        39.337,
+        186.067
+      ],
+      "Portal to Bloodtide Coast": [
+        265.945,
+        31.6469,
+        -398.16
+      ],
+      "Portal to Divinity's Reach": [
+        127.52,
+        39.2842,
+        266.415
+      ],
+      "Portal to Gendarran Fields": [
+        -160.517,
+        32.968,
+        439.796
+      ],
+      "Portal to Hoelbrak": [
+        179.393,
+        39.2842,
+        246.719
+      ],
+      "Portal to Lornar's Pass": [
+        647.637,
+        26.3562,
+        45.153
+      ],
+      "Portal to Rata Sum": [
+        103.155,
+        39.2846,
+        210.029
+      ],
+      "Portal to Southsun Cove": [
+        159.667,
+        39.2852,
+        268.417
+      ],
+      "Portal to The Grove": [
+        145.242,
+        39.3757,
+        176.458
+      ],
+      "Portal to Aerodrome": [
+        126.449,
+        32.6723,
+        -328.547
+      ],
+      "Portal to Fractals of the Mists": [
+        146.621,
+        32.5604,
+        -243.652
+      ],
+      "Portal to Guild Hall": [
+        499.087,
+        31.3951,
+        169.804
+      ],
+      "Portal to Blue Borderlands": [
+        163.865,
+        26.3546,
+        -294.425
+      ],
+      "Portal to Edge of the Mists": [
+        96.285,
+        26.2806,
+        -250.317
+      ],
+      "Portal to Eternal Battlegrounds": [
+        118.579,
+        26.405,
+        -290.256
+      ],
+      "Portal to Green Borderlands": [
+        191.661,
+        26.0905,
+        -235.143
+      ],
+      "Portal to Obsidian Sanctum": [
+        105.573,
+        25.9138,
+        -220.18
+      ],
+      "Portal to PvP Lobby": [
+        160.725,
+        30.7326,
+        -147.628
+      ],
+      "Portal to Red Borderlands": [
+        192.633,
+        26.5891,
+        -263.292
+      ],
+	  "Portal to Shipwreck Strand": [
+		145.95, 
+		40.68, 
+		230.38
+	  ]
+    }
+  },
+  {
+    "id": "51",
+    "name": "Straits of Devastation",
+    "portals": {
+      "Portal to Gendarran Fields": [
+        769.859,
+        16.3127,
+        252.645
+      ],
+      "Portal to Lornar's Pass": [
+        800.943,
+        15.8623,
+        247.259
+      ],
+      "Portal to Malchor's Leap": [
+        -942.445,
+        53.2725,
+        -446.326
+      ],
+      "Portal to Mount Maelstrom": [
+        945.647,
+        27.7383,
+        164.58
+      ],
+      "Portal to Sparkfly Fen": [
+        518.773,
+        76.4839,
+        765.481
+      ],
+      "Portal to Chantry of Secrets": [
+        786.713,
+        15.7825,
+        254.278
+      ]
+    }
+  },
+  {
+    "id": "62",
+    "name": "Cursed Shore",
+    "portals": {
+      "Portal to Malchor's Leap": [
+        362.843,
+        96.6205,
+        1167.41
+      ],
+      "Portal to The Ruined City of Arah": [
+        551.188,
+        88.9278,
+        -249.466
+      ]
+    }
+  },
+  {
+    "id": "65",
+    "name": "Malchor's Leap",
+    "portals": {
+      "Portal to Cursed Shore": [
+        -297.711,
+        60.9766,
+        -569.247
+      ],
+      "Portal to Straits of Devastation": [
+        1178.53,
+        53.8644,
+        -251.169
+      ]
+    }
+  },
+  {
+    "id": "73",
+    "name": "Bloodtide Coast",
+    "portals": {
+      "Portal to Lion's Arch": [
+        230.522,
+        20.8099,
+        982.135
+      ],
+      "Portal to Lornar's Pass": [
+        739.016,
+        -1.04632,
+        -160.866
+      ],
+      "Portal to Sparkfly Fen": [
+        -511.524,
+        19.3836,
+        -791.325
+      ],
+      "Portal to Chantry of Secrets": [
+        186.58,
+        -1.05554,
+        556.591
+      ]
+    }
+  },
+  {
+    "id": "899",
+    "name": "Obsidian Sanctum",
+    "portals": {
+      "Portal to Lion's Arch": [
+        600.692,
+        10.8407,
+        495.262
+      ]
+    }
+  },
+  {
+    "id": "988",
+    "name": "Dry Top",
+    "portals": {
+      "Portal to Brisban Wildlands": [
+        421.081,
+        28.0087,
+        -531.069
+      ]
+    }
+  },
+  {
+    "id": "326",
+    "name": "Hoelbrak",
+    "portals": {
+      "Portal to Dredgehaunt Cliffs": [
+        292.864,
+        333.076,
+        -310.665
+      ],
+      "Portal to Lion's Arch": [
+        -63.7461,
+        315.903,
+        -38.3543
+      ],
+      "Portal to Wayfarer Foothills": [
+        497.874,
+        313.014,
+        -190.299
+      ],
+      "Portal to Home Instance": [
+        98.7583,
+        303.715,
+        -244.641
+      ]
+    }
+  },
+  {
+    "id": "1041",
+    "name": "Dragon's Stand",
+    "portals": {
+      "Portal to Tangled Depths": [
+        820.517,
+        23.5329,
+        818.267
+      ]
+    }
+  },
+  {
+    "id": "1045",
+    "name": "Tangled Depths",
+    "portals": {
+      "Portal to Auric Basin": [
+        -796.807,
+        258.449,
+        161.49
+      ],
+      "Portal to Dragon's Stand": [
+        119.19,
+        20.1231,
+        -614.183
+      ]
+    }
+  },
+  {
+    "id": "1052",
+    "name": "Verdant Brink",
+    "portals": {
+      "Portal to Silverwastes": [
+        959.548,
+        416.944,
+        66.1083
+      ],
+      "Portal to Auric Basin": [
+        -791.622,
+        379.416,
+        -425.769
+      ],
+      "Portal to Guild Hall": [
+        -747.656,
+        325.793,
+        431.133
+      ],
+      "Portal to Salvation Pass": [
+        981.01,
+        423.103,
+        417.837
+      ],
+      "Portal to Spirit Vale": [
+        977.756,
+        423.835,
+        420.492
+      ],
+      "Portal to Stronghold of the Faithful": [
+        984.121,
+        423.757,
+        414.236
+      ]
+    }
+  },
+  {
+    "id": "1442",
+    "name": "Seitung Province",
+    "portals": {
+      "Portal to New Kaineng City": [
+        503.453,
+        13.7939,
+        854.164
+      ]
+    }
+  },
+  {
+    "id": "1438",
+    "name": "New Kaineng City",
+    "portals": {
+      "Portal to Seitung Province": [
+        -1150.87,
+        2.96327,
+        -241.129
+      ],
+      "Portal to The Echoval Wilds": [
+        1096.31,
+        43.1063,
+        -347.685
+      ],
+      "Portal to Arborstone": [
+        1035.57,
+        49.1001,
+        -720.345
+      ]
+    }
+  },
+  {
+    "id": "1452",
+    "name": "The Echovald Wilds",
+    "portals": {
+      "Portal to New Kaineng City": [
+        -119.748,
+        167.459,
+        726.881
+      ],
+      "Portal to Arborstone": [
+        -663.222,
+        167.772,
+        367.891
+      ],
+      "Portal to Dragon's End": [
+        1113.66,
+        95.4055,
+        50.8525
+      ]
+    }
+  },
+  {
+    "id": "139",
+    "name": "Rata Sum",
+    "portals": {
+      "Portal to Lion's Arch": [
+        69.9897,
+        383.392,
+        279.298
+      ],
+      "Portal to Metrica Province": [
+        137.578,
+        383.191,
+        92.8303
+      ],
+      "Portal to Home Instance": [
+        -69.1652,
+        383.562,
+        134.884
+      ]
+    }
+  },
+  {
+    "id": "248",
+    "name": "Salma District (Home)",
+    "portals": {
+      "Portal to Divinity's Reach": [
+        202.77,
+        78.9947,
+        152.229
+      ]
+    }
+  },
+  {
+    "id": "1301",
+    "name": "Jahai Bluffs",
+    "portals": {
+      "Portal to Domain of Vabbi": [
+        560.449,
+        141.046,
+        937.181
+      ]
+    }
+  },
+  {
+    "id": "1158",
+    "name": "Noble's Folly",
+    "portals": {
+      "Portal to Verdant Brink": [
+        -259.584,
+        576.428,
+        -397.416
+      ]
+    }
+  },
+  {
+    "id": "1210",
+    "name": "Crystal Oasis",
+    "portals": {
+      "Portal to Desert Highlands": [
+        546.289,
+        96.7633,
+        708.929
+      ],
+      "Portal to Elon Riverlands": [
+        1045.16,
+        21.148,
+        -576.377
+      ]
+    }
+  },
+  {
+    "id": "112",
+    "name": "The Ruined City of Arah",
+    "portals": {
+      "Portal to Cursed Shore": [
+        -619.109,
+        33.9905,
+        50.7998
+      ]
+    }
+  },
+  {
+    "id": "1248",
+    "name": "Domain of Vabbi",
+    "portals": {
+      "Portal to Guild Hall": [
+        -892.951,
+        141.264,
+        874.916
+      ],
+      "Portal to Jahai Bluffs": [
+        615.736,
+        91.8743,
+        -902.792
+      ],
+      "Portal to The Desolation": [
+        -1408.89,
+        85.8006,
+        816.279
+      ]
+    }
+  },
+  {
+    "id": "1226",
+    "name": "The Desolation",
+    "portals": {
+      "Portal to Domain of Vabbi": [
+        1066.24,
+        269.416,
+        -1171.99
+      ],
+      "Portal to Elon Riverlands": [
+        857.768,
+        -0.783164,
+        1510.52
+      ]
+    }
+  },
+  {
+    "id": "1228",
+    "name": "Elon Riverlands",
+    "portals": {
+      "Portal to Crystal Oasis": [
+        604.83,
+        101.504,
+        963.953
+      ],
+      "Portal to The Desolation": [
+        859.0,
+        -0.249804,
+        -957.083
+      ]
+    }
+  },
+  {
+    "id": "1211",
+    "name": "Desert Highlands",
+    "portals": {
+      "Portal to Crystal Oasis": [
+        543.494,
+        162.047,
+        -724.506
+      ]
+    }
+  },
+  {
+    "id": "1099",
+    "name": "Desert Borderlands",
+    "portals": {
+      "Portal to Lion's Arch": [
+        -727.981,
+        183.184,
+        -826.013
+      ],
+      "Portal to Blue Borderlands": [
+        -767.506,
+        182.48,
+        -780.099
+      ],
+      "Portal to Eternal Battlegrounds": [
+        -785.229,
+        184.366,
+        -798.658
+      ],
+      "Portal to Green Borderlands": [
+        -774.497,
+        182.673,
+        -826.149
+      ]
+    }
+  },
+  {
+    "id": "1185",
+    "name": "Lake Doric",
+    "portals": {
+      "Portal to Divinity's Reach": [
+        -353.723,
+        34.6994,
+        -134.399
+      ]
+    }
+  },
+  {
+    "id": "897",
+    "name": "Cragstead",
+    "portals": {
+      "Portal to Wayfarer Foothills": [
+        -352.84,
+        135.872,
+        -380.697
+      ]
+    }
+  },
+  {
+    "id": "371",
+    "name": "Hero's Canton (Home)",
+    "portals": {
+      "Portal to Black Citadel": [
+        305.952,
+        136.902,
+        274.355
+      ]
+    }
+  },
+  {
+    "id": "375",
+    "name": "Hunter's Hearth (Home)",
+    "portals": {
+      "Portal to Hoelbrak": [
+        101.03,
+        342.181,
+        -266.328
+      ]
+    }
+  },
+  {
+    "id": "650",
+    "name": "Applied Development Lab (Home)",
+    "portals": {
+      "Portal to Rata Sum": [
+        -390.552,
+        337.019,
+        646.451
+      ]
+    }
+  },
+  {
+    "id": "647",
+    "name": "Dreamer's Terrace (Home)",
+    "portals": {
+      "Portal to The Grove": [
+        39.8766,
+        1.17723,
+        48.3331
+      ]
+    }
+  },
+  {
+    "id": "336",
+    "name": "Chantry of Secrets",
+    "portals": {
+      "Portal to Bloodtide Coast": [
+        -18.5991,
+        0.832146,
+        -175.21
+      ],
+      "Portal to Straits of Devastation": [
+        -36.6673,
+        5.80563,
+        -172.145
+      ]
+    }
+  },
+  {
+    "id": "38",
+    "name": "Eternal Battlegrounds",
+    "portals": {
+      "Portal to Lion's Arch": [
+        -848.603,
+        31.0315,
+        -821.349
+      ],
+      "Portal to Green Borderlands": [
+        -864.757,
+        30.4736,
+        -780.518
+      ],
+      "Portal to Red Borderlands": [
+        -878.355,
+        30.5934,
+        -817.785
+      ]
+    }
+  },
+  {
+    "id": "1155",
+    "name": "Lion's Arch Aerodrome",
+    "portals": {
+      "Portal to Lion's Arch": [
+        132.298,
+        34.1903,
+        -293.674
+      ],
+      "Portal to Training Area": [
+        195.843,
+        39.0751,
+        -323.191
+      ],
+      "Portal to Bastion of the Penitent": [
+        92.1427,
+        39.5995,
+        -415.464
+      ],
+      "Portal to Hall of Chains": [
+        126.821,
+        34.1838,
+        -410.344
+      ],
+      "Portal to Mythwright Gambit": [
+        164.296,
+        34.2057,
+        -389.359
+      ],
+      "Portal to Salvation Pass": [
+        64.6477,
+        39.5604,
+        -371.1
+      ],
+      "Portal to Spirit Vale": [
+        57.5226,
+        34.1846,
+        -344.731
+      ],
+      "Portal to Stronghold of the Faithful": [
+        85.0305,
+        34.1841,
+        -386.144
+      ],
+      "Portal to The Key of Ahdashim": [
+        157.612,
+        39.7005,
+        -413.746
+      ]
+    }
+  },
+  {
+    "id": "350",
+    "name": "Heart of the Mists",
+    "portals": {
+      "Portal to Lion's Arch": [
+        35.7968,
+        231.107,
+        -50.8997
+      ]
+    }
+  },
+  {
+    "id": "71",
+    "name": "Honor of the Waves",
+    "portals": {
+      "Portal to Frostgorge Sound": [
+        -38.3634,
+        40.7566,
+        -54.0359
+      ]
+    }
+  },
+  {
+    "id": "1073",
+    "name": "Guild Initiative Office",
+    "portals": {
+      "Portal to Lion's Arch": [
+        506.697,
+        31.4117,
+        167.577
+      ]
+    }
+  },
+  {
+    "id": "1124",
+    "name": "Lost Precipice",
+    "portals": {
+      "Portal to Verdant Brink": [
+        258.088,
+        190.033,
+        -381.101
+      ]
+    }
+  },
+  {
+    "id": "1232",
+    "name": "Windswept Haven",
+    "portals": {
+      "Portal to Domain of Vabbi": [
+        -144.342,
+        127.178,
+        -363.255
+      ]
+    }
+  },
+  {
+    "id": "1593",
+    "name": "Starlit Weald",
+	"portals": {
+      "Portal to Shipwreck Stand": [
+        -144.342,
+        127.178,
+        -363.255
+      ]
+	}
+  },
+  {
+    "id": "1595",
+    "name": "Shipwreck Strand",
+	"portals": {
+      "Portal to Starlit Weald": [
+        -144.342,
+        127.178,
+        -363.255
+      ],
+	  "Portal to Lion's Arch": [
+        132.298,
+        34.1903,
+        -293.674
+      ]
+	}
+  }
+]

@@ -1,0 +1,3386 @@
+{
+  "10112": {
+    "name": "Mini  Brown Bear",
+    "type": ""
+  },
+  "10122": {
+    "name": "Mini Skritt Forager",
+    "type": ""
+  },
+  "10252": {
+    "name": "Black Lion Trader",
+    "type": ""
+  },
+  "10319": {
+    "name": "Black Lion Delivery Agent",
+    "type": ""
+  },
+  "10354": {
+    "name": "Kodan Infantry",
+    "type": ""
+  },
+  "10695": {
+    "name": "Peacemaker Officer",
+    "type": ""
+  },
+  "1083": {
+    "name": "Crow",
+    "type": ""
+  },
+  "11245": {
+    "name": "Dessa",
+    "type": ""
+  },
+  "11246": {
+    "name": "Dessa's Krewe",
+    "type": ""
+  },
+  "11346": {
+    "name": "Inspector Ellen Kiel",
+    "type": ""
+  },
+  "11370": {
+    "name": "Consortium Guard",
+    "type": ""
+  },
+  "11477": {
+    "name": "Vampire Bat",
+    "type": ""
+  },
+  "11484": {
+    "name": "Grawl Priest",
+    "type": ""
+  },
+  "11486": {
+    "name": "Grawl Raider",
+    "type": ""
+  },
+  "11487": {
+    "name": "Grawl Berserker",
+    "type": ""
+  },
+  "11488": {
+    "name": "Grawl Shaman",
+    "type": ""
+  },
+  "11606": {
+    "name": "Mini Risen Priest of Balthazar",
+    "type": ""
+  },
+  "11636": {
+    "name": "Herald",
+    "type": ""
+  },
+  "11638": {
+    "name": "Herald",
+    "type": ""
+  },
+  "11656": {
+    "name": "Refugee",
+    "type": ""
+  },
+  "1172": {
+    "name": "Ettin",
+    "type": ""
+  },
+  "11877": {
+    "name": "Pet Rat",
+    "type": ""
+  },
+  "1195": {
+    "name": "Chicken",
+    "type": ""
+  },
+  "12245": {
+    "name": "Black Lion Weapon Specialist",
+    "type": ""
+  },
+  "12253": {
+    "name": "Mini Holographic Risen Knight",
+    "type": "Mini"
+  },
+  "1229": {
+    "name": "Mercenary",
+    "type": ""
+  },
+  "1236": {
+    "name": "BAT 9929",
+    "type": ""
+  },
+  "1238": {
+    "name": "Mercenary",
+    "type": ""
+  },
+  "12382": {
+    "name": "Mini Kookoochoo the Incredulous",
+    "type": ""
+  },
+  "12503": {
+    "name": "Homesteading Mastery Space Unlock",
+    "type": "Mini"
+  },
+  "12512": {
+    "name": "First Mate Gaets",
+    "type": ""
+  },
+  "12513": {
+    "name": "Captain Barnicus",
+    "type": ""
+  },
+  "12526": {
+    "name": "Mini Liadri the Concealing Dark",
+    "type": ""
+  },
+  "12547": {
+    "name": "Mini Twisted Reaver",
+    "type": ""
+  },
+  "12548": {
+    "name": "Mini Twisted Nightmare",
+    "type": ""
+  },
+  "1266": {
+    "name": "Cow",
+    "type": ""
+  },
+  "1269": {
+    "name": "Seraph Soldier",
+    "type": "Mini"
+  },
+  "12708": {
+    "name": "Mini Super Banana",
+    "type": ""
+  },
+  "12725": {
+    "name": "Mini Tequatl the Sunless",
+    "type": "Mini"
+  },
+  "12763": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "13258": {
+    "name": "Ash Legion Spy",
+    "type": ""
+  },
+  "13395": {
+    "name": "Mini Llama",
+    "type": ""
+  },
+  "13400": {
+    "name": "Mini Destroyer Crab",
+    "type": ""
+  },
+  "1370": {
+    "name": "Rooster",
+    "type": ""
+  },
+  "13827": {
+    "name": "Mini Monkey King",
+    "type": ""
+  },
+  "13880": {
+    "name": "Mini Zuzu, Cat of Darkness",
+    "type": "Mini"
+  },
+  "13965": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "1397": {
+    "name": "Eagle",
+    "type": "Mini"
+  },
+  "1398": {
+    "name": "Spider",
+    "type": ""
+  },
+  "1422": {
+    "name": "Branded Devourer",
+    "type": ""
+  },
+  "14315": {
+    "name": "Sous-Chef Seimur Oxbone",
+    "type": ""
+  },
+  "14368": {
+    "name": "Mini Red Panda",
+    "type": ""
+  },
+  "14535": {
+    "name": "Pocket Raptor",
+    "type": ""
+  },
+  "14544": {
+    "name": "Bristleback",
+    "type": ""
+  },
+  "1455": {
+    "name": "Branded Devourer Hatcling",
+    "type": ""
+  },
+  "14668": {
+    "name": "Insect Swarm",
+    "type": ""
+  },
+  "14748": {
+    "name": "Pocket Raptor",
+    "type": ""
+  },
+  "14752": {
+    "name": "Bonebreaker",
+    "type": ""
+  },
+  "14810": {
+    "name": "Servant",
+    "type": ""
+  },
+  "14887": {
+    "name": "Nuhoch Stomper",
+    "type": ""
+  },
+  "14934": {
+    "name": "Harvesting Collection Box",
+    "type": ""
+  },
+  "14990": {
+    "name": "Vigil Warmaster",
+    "type": ""
+  },
+  "15026": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "15040": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "15054": {
+    "name": "Vigil Tactician",
+    "type": ""
+  },
+  "15104": {
+    "name": "Whispers Creator",
+    "type": ""
+  },
+  "15111": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "15126": {
+    "name": "Rat",
+    "type": ""
+  },
+  "15138": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "15150": {
+    "name": "Whispers Creator",
+    "type": ""
+  },
+  "15158": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "15174": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "15177": {
+    "name": "Black Lion Researcher",
+    "type": "Guild Bank"
+  },
+  "15232": {
+    "name": "Vigil Tactician",
+    "type": ""
+  },
+  "15380": {
+    "name": "Juvenile Tiger",
+    "type": ""
+  },
+  "15402": {
+    "name": "Juvenile Smokescale",
+    "type": ""
+  },
+  "15436": {
+    "name": "Juvenile Electric Wyvern",
+    "type": ""
+  },
+  "15458": {
+    "name": "Nuhoch Scout",
+    "type": ""
+  },
+  "15464": {
+    "name": "Brine Clutchall",
+    "type": ""
+  },
+  "15483": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15510": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15536": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15568": {
+    "name": "Nuhoch Scout",
+    "type": ""
+  },
+  "15570": {
+    "name": "Baron von Scrufflebutt",
+    "type": ""
+  },
+  "15573": {
+    "name": "Mini Devil Dog",
+    "type": ""
+  },
+  "15612": {
+    "name": "Snuggles",
+    "type": ""
+  },
+  "15615": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15626": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15631": {
+    "name": "Mini Professsor Mew",
+    "type": ""
+  },
+  "15665": {
+    "name": "Mini Mister Mittens",
+    "type": ""
+  },
+  "15694": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15703": {
+    "name": "Professor Mew",
+    "type": ""
+  },
+  "15708": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15711": {
+    "name": "Pall Gilmore",
+    "type": ""
+  },
+  "15733": {
+    "name": "Gamli A\u00f0alsteinnson",
+    "type": ""
+  },
+  "15737": {
+    "name": "Kensho Arrowsoul",
+    "type": ""
+  },
+  "15776": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15784": {
+    "name": "Mr. Mittens",
+    "type": ""
+  },
+  "15792": {
+    "name": "Priory Arcanist",
+    "type": ""
+  },
+  "15793": {
+    "name": "Dessa's Krewe",
+    "type": ""
+  },
+  "15797": {
+    "name": "Itzel",
+    "type": ""
+  },
+  "15837": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15904": {
+    "name": "Rekka",
+    "type": ""
+  },
+  "15909": {
+    "name": "Sophia Carriker",
+    "type": ""
+  },
+  "15920": {
+    "name": "ch15920-88",
+    "type": ""
+  },
+  "15952": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15960": {
+    "name": "Fractal Avenger",
+    "type": ""
+  },
+  "15980": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "15988": {
+    "name": "Chronicle Mistwalker",
+    "type": ""
+  },
+  "15989": {
+    "name": "Guild Initiative Representative",
+    "type": ""
+  },
+  "16014": {
+    "name": "Mini Blue Guardian",
+    "type": ""
+  },
+  "16019": {
+    "name": "Mini Sabetha",
+    "type": ""
+  },
+  "16020": {
+    "name": "Mini Gorseval the Multifarious",
+    "type": ""
+  },
+  "16025": {
+    "name": "Farmer",
+    "type": ""
+  },
+  "16043": {
+    "name": "Mini Angry Wintersday Gift",
+    "type": ""
+  },
+  "16133": {
+    "name": "Mini Slubling",
+    "type": ""
+  },
+  "1618": {
+    "name": "Guard",
+    "type": ""
+  },
+  "16207": {
+    "name": "Aesthetician",
+    "type": ""
+  },
+  "16252": {
+    "name": "Ezal the Quick",
+    "type": ""
+  },
+  "1652": {
+    "name": "Priest",
+    "type": ""
+  },
+  "16522": {
+    "name": "Priory Scholar",
+    "type": "Merchant"
+  },
+  "16672": {
+    "name": "Cat",
+    "type": ""
+  },
+  "16675": {
+    "name": "Cat",
+    "type": ""
+  },
+  "1669": {
+    "name": "Iron Legion Soldier",
+    "type": ""
+  },
+  "16711": {
+    "name": "Professor Mew",
+    "type": ""
+  },
+  "16725": {
+    "name": "Dessa's Krewe",
+    "type": ""
+  },
+  "16731": {
+    "name": "Rusty Golem",
+    "type": ""
+  },
+  "16776": {
+    "name": "Mini Pirate Captain Huuhes",
+    "type": ""
+  },
+  "16854": {
+    "name": "Mini Oxidecimus the Shadow Raven",
+    "type": ""
+  },
+  "16855": {
+    "name": "Mini Thailog the Gargoyle",
+    "type": ""
+  },
+  "16859": {
+    "name": "Mini Feline Familiar",
+    "type": ""
+  },
+  "17063": {
+    "name": "Mini Chicken",
+    "type": ""
+  },
+  "17083": {
+    "name": "Mini Festive Aurene",
+    "type": ""
+  },
+  "17084": {
+    "name": "Mini Tiny Snowball",
+    "type": ""
+  },
+  "1712": {
+    "name": "Rat",
+    "type": ""
+  },
+  "17138": {
+    "name": "Mini Ghostly Cat",
+    "type": ""
+  },
+  "17184": {
+    "name": "Mini Eye of Janthir",
+    "type": ""
+  },
+  "17200": {
+    "name": "Seraph Lieutenant",
+    "type": ""
+  },
+  "17249": {
+    "name": "Mini Fire Tornado",
+    "type": ""
+  },
+  "17317": {
+    "name": "Mini Samarog",
+    "type": ""
+  },
+  "17392": {
+    "name": "Mini Krytan Floppy Fish",
+    "type": ""
+  },
+  "1741": {
+    "name": "Stag",
+    "type": ""
+  },
+  "17430": {
+    "name": "Mini G.O.X.",
+    "type": ""
+  },
+  "17465": {
+    "name": "Smogscale",
+    "type": ""
+  },
+  "17516": {
+    "name": "Mini Outlaw Puppy",
+    "type": ""
+  },
+  "17592": {
+    "name": "Portal",
+    "type": ""
+  },
+  "17596": {
+    "name": "Circus Castaway",
+    "type": ""
+  },
+  "17609": {
+    "name": "Sanctuary Krewe",
+    "type": ""
+  },
+  "17631": {
+    "name": "Mini Lazarus",
+    "type": ""
+  },
+  "1764": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "17663": {
+    "name": "Sanctuary Krewe",
+    "type": ""
+  },
+  "1770": {
+    "name": "Technician",
+    "type": ""
+  },
+  "17727": {
+    "name": "Mini Dwayna's Messenger",
+    "type": ""
+  },
+  "17802": {
+    "name": "Sanctuary Krewe",
+    "type": ""
+  },
+  "17828": {
+    "name": "Circus Castaway",
+    "type": ""
+  },
+  "17832": {
+    "name": "Circus Castaway",
+    "type": ""
+  },
+  "17840": {
+    "name": "Fractal Explorer",
+    "type": ""
+  },
+  "17844": {
+    "name": "Fractal Explorer",
+    "type": ""
+  },
+  "17886": {
+    "name": "Fractal Explorer",
+    "type": ""
+  },
+  "17889": {
+    "name": "Mistwalker Ilia",
+    "type": ""
+  },
+  "17910": {
+    "name": "Sanctuary Krewe",
+    "type": ""
+  },
+  "17912": {
+    "name": "Sanctuary Krewe",
+    "type": ""
+  },
+  "1792": {
+    "name": "Flesh Golem",
+    "type": ""
+  },
+  "17959": {
+    "name": "Villager",
+    "type": ""
+  },
+  "18068": {
+    "name": "Priory Historian",
+    "type": ""
+  },
+  "18119": {
+    "name": "Juvenile Jacaranda",
+    "type": ""
+  },
+  "18126": {
+    "name": "Priory Explorer",
+    "type": ""
+  },
+  "18297": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "18333": {
+    "name": "Villager",
+    "type": ""
+  },
+  "18455": {
+    "name": "Mini Sunspear Kormir",
+    "type": ""
+  },
+  "18468": {
+    "name": "Priory Explorer",
+    "type": ""
+  },
+  "18527": {
+    "name": "Mini Yellow Catmander",
+    "type": ""
+  },
+  "1859": {
+    "name": "Cave Bat",
+    "type": ""
+  },
+  "18626": {
+    "name": "Priory Arcanist",
+    "type": ""
+  },
+  "18657": {
+    "name": "Mini Sunspear Suti",
+    "type": ""
+  },
+  "18688": {
+    "name": "Juvenile Fanged Iboga",
+    "type": ""
+  },
+  "18703": {
+    "name": "Mini Blue Catmander",
+    "type": ""
+  },
+  "18758": {
+    "name": "Sunspear",
+    "type": ""
+  },
+  "18926": {
+    "name": "Priory Historian",
+    "type": ""
+  },
+  "18968": {
+    "name": "Vulture",
+    "type": ""
+  },
+  "19005": {
+    "name": "Juvenile Cheetah",
+    "type": ""
+  },
+  "19038": {
+    "name": "Priory Arcanist",
+    "type": ""
+  },
+  "19104": {
+    "name": "Juvenile Rock Gazelle",
+    "type": ""
+  },
+  "19141": {
+    "name": "Mini Junundu Wurm",
+    "type": ""
+  },
+  "19166": {
+    "name": "Juvenile Sand Lion",
+    "type": ""
+  },
+  "19177": {
+    "name": "Prairie Dog",
+    "type": ""
+  },
+  "19201": {
+    "name": "Priory Historian",
+    "type": ""
+  },
+  "19253": {
+    "name": "Sunspear",
+    "type": ""
+  },
+  "19318": {
+    "name": "Mini Ice Raptor Hatchling",
+    "type": ""
+  },
+  "19343": {
+    "name": "Priory Scholar",
+    "type": ""
+  },
+  "19380": {
+    "name": "Mini Spooky Griffon",
+    "type": ""
+  },
+  "19395": {
+    "name": "Orthodox Scholar",
+    "type": ""
+  },
+  "19418": {
+    "name": "Scholar",
+    "type": ""
+  },
+  "19458": {
+    "name": "Priory Observer",
+    "type": ""
+  },
+  "19490": {
+    "name": "Scholar",
+    "type": ""
+  },
+  "19492": {
+    "name": "Scholar",
+    "type": ""
+  },
+  "1950": {
+    "name": "Inkeeper",
+    "type": ""
+  },
+  "19511": {
+    "name": "Orthodox Scholar",
+    "type": ""
+  },
+  "19520": {
+    "name": "Priory Observer",
+    "type": ""
+  },
+  "19539": {
+    "name": "Scholar",
+    "type": ""
+  },
+  "19552": {
+    "name": "Orthodox Scholar",
+    "type": ""
+  },
+  "19553": {
+    "name": "Mini Dhuum",
+    "type": ""
+  },
+  "19572": {
+    "name": "Orthodox Scholar",
+    "type": ""
+  },
+  "19600": {
+    "name": "Orthodox Scholar",
+    "type": ""
+  },
+  "19627": {
+    "name": "Villager",
+    "type": ""
+  },
+  "1966": {
+    "name": "Mosquito",
+    "type": ""
+  },
+  "19661": {
+    "name": "Orthodox Scholar",
+    "type": ""
+  },
+  "19673": {
+    "name": "Mini Sayida",
+    "type": ""
+  },
+  "19698": {
+    "name": "Archivist Rhadha",
+    "type": ""
+  },
+  "19773": {
+    "name": "Visiting Scholar",
+    "type": ""
+  },
+  "19789": {
+    "name": "Visiting Scholar",
+    "type": ""
+  },
+  "19811": {
+    "name": "Scholar",
+    "type": ""
+  },
+  "19870": {
+    "name": "Priory Observer",
+    "type": ""
+  },
+  "19881": {
+    "name": "Mini Large Angry Snowball",
+    "type": ""
+  },
+  "19887": {
+    "name": "Mini Tiny Angry Snowball",
+    "type": ""
+  },
+  "19896": {
+    "name": "Mini Toxx",
+    "type": ""
+  },
+  "19901": {
+    "name": "Mini Gift Box Gourdon",
+    "type": ""
+  },
+  "19912": {
+    "name": "Black Lion Chest Merchant",
+    "type": ""
+  },
+  "19914": {
+    "name": "Gardener Morris",
+    "type": ""
+  },
+  "19918": {
+    "name": "ch19918-658",
+    "type": ""
+  },
+  "19938": {
+    "name": "Mini Lunar Gourdog",
+    "type": ""
+  },
+  "19963": {
+    "name": "Mini Lunar \"Horse\"",
+    "type": ""
+  },
+  "19966": {
+    "name": "Mini Grand Lion Griffon",
+    "type": ""
+  },
+  "20039": {
+    "name": "Olmakhan Sandshifter",
+    "type": ""
+  },
+  "2005": {
+    "name": "Frog",
+    "type": ""
+  },
+  "20157": {
+    "name": "Olmakhan Nightwalker",
+    "type": ""
+  },
+  "20280": {
+    "name": "Olmakhan Sandshifter",
+    "type": ""
+  },
+  "20293": {
+    "name": "Olmakhan Lifebinder",
+    "type": ""
+  },
+  "20395": {
+    "name": "Mini Blue Griffon Hatchling",
+    "type": ""
+  },
+  "20396": {
+    "name": "Black Lion Exchange Specialist",
+    "type": ""
+  },
+  "20856": {
+    "name": "Villager",
+    "type": ""
+  },
+  "20891": {
+    "name": "Mini Beach Gourdon",
+    "type": ""
+  },
+  "21034": {
+    "name": "Orrian Captain",
+    "type": ""
+  },
+  "21056": {
+    "name": "Snaff",
+    "type": ""
+  },
+  "2108": {
+    "name": "Rabbit",
+    "type": ""
+  },
+  "2109": {
+    "name": "Rabbit",
+    "type": ""
+  },
+  "21093": {
+    "name": "Lord Faren",
+    "type": ""
+  },
+  "21115": {
+    "name": "Orrian Soldier",
+    "type": ""
+  },
+  "21144": {
+    "name": "Mini Branded Riftstalker",
+    "type": ""
+  },
+  "21207": {
+    "name": "Orrian Soldier",
+    "type": ""
+  },
+  "21245": {
+    "name": "Desert Fox",
+    "type": ""
+  },
+  "21305": {
+    "name": "Mini Pumpkin Jack O' Lantern",
+    "type": ""
+  },
+  "21309": {
+    "name": "Kestrel Aoi",
+    "type": ""
+  },
+  "21347": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "21362": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "21374": {
+    "name": "Captain Strohm",
+    "type": ""
+  },
+  "21378": {
+    "name": "Priory Scholar",
+    "type": ""
+  },
+  "21381": {
+    "name": "Whisper Keeper",
+    "type": ""
+  },
+  "2139": {
+    "name": "Dolphin",
+    "type": ""
+  },
+  "21391": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "21393": {
+    "name": "Whisper Keeper",
+    "type": ""
+  },
+  "21408": {
+    "name": "Priory Arcanist",
+    "type": ""
+  },
+  "21413": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "21418": {
+    "name": "Priory Arcanist",
+    "type": ""
+  },
+  "21437": {
+    "name": "Caithe",
+    "type": ""
+  },
+  "21447": {
+    "name": "Whisper Keeper",
+    "type": ""
+  },
+  "21449": {
+    "name": "Cabin Boy Weyandt",
+    "type": ""
+  },
+  "21474": {
+    "name": "Vigil Marksman",
+    "type": ""
+  },
+  "21475": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "21481": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "21491": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "21492": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "21503": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "21516": {
+    "name": "Whispers Keeper",
+    "type": ""
+  },
+  "21523": {
+    "name": "Vigil Marksman",
+    "type": ""
+  },
+  "21526": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "21528": {
+    "name": "Priory Scholaar",
+    "type": ""
+  },
+  "21541": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "21559": {
+    "name": "Whisper Creator",
+    "type": ""
+  },
+  "21561": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "21574": {
+    "name": "Shark",
+    "type": ""
+  },
+  "21584": {
+    "name": "Priory Researcher",
+    "type": ""
+  },
+  "21605": {
+    "name": "Vigil Tactician",
+    "type": ""
+  },
+  "21611": {
+    "name": "Whiper Keeper",
+    "type": ""
+  },
+  "21643": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "21659": {
+    "name": "Vigil Crusader",
+    "type": ""
+  },
+  "21671": {
+    "name": "Vigil Marksman",
+    "type": ""
+  },
+  "21673": {
+    "name": "Vigil Recruit",
+    "type": ""
+  },
+  "21689": {
+    "name": "Priory Researcher",
+    "type": ""
+  },
+  "21694": {
+    "name": "Whispers Creator",
+    "type": ""
+  },
+  "21707": {
+    "name": "Mini Festive Lantern",
+    "type": ""
+  },
+  "21769": {
+    "name": "Crystal Bloom Warden",
+    "type": ""
+  },
+  "21777": {
+    "name": "Crystal Bloom Knight",
+    "type": ""
+  },
+  "21784": {
+    "name": "Mini Ghostly Gwen",
+    "type": ""
+  },
+  "21804": {
+    "name": "Crystal Bloom Warden",
+    "type": ""
+  },
+  "21805": {
+    "name": "Olmakhan Sandshifter",
+    "type": ""
+  },
+  "21808": {
+    "name": "Crystal Bloom Paragon",
+    "type": ""
+  },
+  "21813": {
+    "name": "Olmakhan Sandshifter",
+    "type": ""
+  },
+  "21815": {
+    "name": "Spearmarshal Zaeim",
+    "type": ""
+  },
+  "21829": {
+    "name": "Crystal Bloom Paragon",
+    "type": ""
+  },
+  "21846": {
+    "name": "Crystal Bloom Hunter",
+    "type": ""
+  },
+  "21848": {
+    "name": "Crystal Bloom Guardian",
+    "type": ""
+  },
+  "21854": {
+    "name": "Shadow Beast",
+    "type": ""
+  },
+  "21863": {
+    "name": "Crystal Bloom Weaver",
+    "type": ""
+  },
+  "21870": {
+    "name": "Waypoint",
+    "type": ""
+  },
+  "21884": {
+    "name": "Crystal Bloom Blade",
+    "type": ""
+  },
+  "21898": {
+    "name": "Pack Bull",
+    "type": ""
+  },
+  "21917": {
+    "name": "Crystal Bloom Guardian",
+    "type": ""
+  },
+  "21922": {
+    "name": "Abyssal",
+    "type": ""
+  },
+  "21935": {
+    "name": "Crystal Bloom Weaver",
+    "type": ""
+  },
+  "22002": {
+    "name": "Mini Djinn Lamp",
+    "type": ""
+  },
+  "22033": {
+    "name": "Mini Ember Skyscale Hatchling",
+    "type": ""
+  },
+  "22038": {
+    "name": "Mini Gray Skyscale Hatchling",
+    "type": ""
+  },
+  "22279": {
+    "name": "Mini Guardian Angel Aurene",
+    "type": ""
+  },
+  "22439": {
+    "name": "Mini Almorra Soulkeeper",
+    "type": ""
+  },
+  "22440": {
+    "name": "Mini Boneskinner",
+    "type": ""
+  },
+  "22596": {
+    "name": "Mini Skyscale Pet",
+    "type": ""
+  },
+  "22597": {
+    "name": "Mini Mystical Snowflake",
+    "type": ""
+  },
+  "22598": {
+    "name": "Mini Joko Funko POP!",
+    "type": ""
+  },
+  "22600": {
+    "name": "Mini Essence of Luck",
+    "type": ""
+  },
+  "22648": {
+    "name": "Mini Whisper of Jormag",
+    "type": ""
+  },
+  "2273": {
+    "name": "Cliff Bat",
+    "type": ""
+  },
+  "22989": {
+    "name": "Mini Varinia Stormsounder",
+    "type": ""
+  },
+  "23112": {
+    "name": "Mini TT6-B Devourer",
+    "type": ""
+  },
+  "23283": {
+    "name": "Mini Circle of Love Aurene",
+    "type": ""
+  },
+  "23525": {
+    "name": "Mini Red Shiba Inu",
+    "type": ""
+  },
+  "23531": {
+    "name": "Mini Cream Shiba Inu",
+    "type": ""
+  },
+  "23564": {
+    "name": "Mini Lunar Tiger",
+    "type": ""
+  },
+  "23571": {
+    "name": "Ministry of Security Sorcerer",
+    "type": ""
+  },
+  "23589": {
+    "name": "Kestrel Watchkeeper",
+    "type": ""
+  },
+  "23590": {
+    "name": "Kestrel Watchkeeper",
+    "type": ""
+  },
+  "23610": {
+    "name": "Ministry of Security Sorcerer",
+    "type": ""
+  },
+  "23623": {
+    "name": "Speaker Ritualist",
+    "type": ""
+  },
+  "23660": {
+    "name": "Spirit of Destruction",
+    "type": ""
+  },
+  "23688": {
+    "name": "Void Thornheart",
+    "type": ""
+  },
+  "23701": {
+    "name": "Void Worm",
+    "type": ""
+  },
+  "23748": {
+    "name": "Ministry of Security Sorceress",
+    "type": ""
+  },
+  "23750": {
+    "name": "Student",
+    "type": ""
+  },
+  "23753": {
+    "name": "Void Glacier",
+    "type": ""
+  },
+  "23754": {
+    "name": "Speaker Purifier",
+    "type": ""
+  },
+  "23767": {
+    "name": "Speaker Saboteur",
+    "type": ""
+  },
+  "23768": {
+    "name": "Brotherhood Pistoleer",
+    "type": ""
+  },
+  "23798": {
+    "name": "Void Rimewolf",
+    "type": ""
+  },
+  "23802": {
+    "name": "Jade Brother Kyung-Hee",
+    "type": ""
+  },
+  "23806": {
+    "name": "Supervisor",
+    "type": ""
+  },
+  "23809": {
+    "name": "Ministry of Security Watch",
+    "type": ""
+  },
+  "23816": {
+    "name": "Mnistry of Security Watch",
+    "type": ""
+  },
+  "23833": {
+    "name": "Dragonfly",
+    "type": ""
+  },
+  "23835": {
+    "name": "Ministry of Security Guard",
+    "type": ""
+  },
+  "23850": {
+    "name": "Kirin",
+    "type": ""
+  },
+  "23854": {
+    "name": "Instructor",
+    "type": ""
+  },
+  "23865": {
+    "name": "Repurposed Jade Bulwark",
+    "type": ""
+  },
+  "23874": {
+    "name": "Void Despoiler",
+    "type": ""
+  },
+  "23882": {
+    "name": "Dragonfly",
+    "type": ""
+  },
+  "23887": {
+    "name": "Repurposed Jade Courier",
+    "type": ""
+  },
+  "23898": {
+    "name": "Void Emberknight",
+    "type": ""
+  },
+  "23908": {
+    "name": "Crane",
+    "type": ""
+  },
+  "23910": {
+    "name": "Shrine Guardian",
+    "type": ""
+  },
+  "23912": {
+    "name": "Brotherhood Junker",
+    "type": ""
+  },
+  "23918": {
+    "name": "Worker",
+    "type": ""
+  },
+  "23926": {
+    "name": "Xunlai Jade Security",
+    "type": ""
+  },
+  "23929": {
+    "name": "Kestrel Defender",
+    "type": ""
+  },
+  "23945": {
+    "name": "Void Coldsteel",
+    "type": ""
+  },
+  "23948": {
+    "name": "Repurposed Jade Courier",
+    "type": ""
+  },
+  "23962": {
+    "name": "Void Stormseer",
+    "type": ""
+  },
+  "23966": {
+    "name": "White Tiger",
+    "type": ""
+  },
+  "23986": {
+    "name": "Canthan Spirit Swordsman",
+    "type": ""
+  },
+  "23996": {
+    "name": "Tropical Bird",
+    "type": ""
+  },
+  "24008": {
+    "name": "Laborer",
+    "type": ""
+  },
+  "24013": {
+    "name": "Minister Nguyen",
+    "type": ""
+  },
+  "24025": {
+    "name": "Jade Servitor",
+    "type": ""
+  },
+  "24039": {
+    "name": "Void Brandcharger",
+    "type": ""
+  },
+  "24041": {
+    "name": "Fanged Deer",
+    "type": ""
+  },
+  "24043": {
+    "name": "Brotherhood Sharpshooter",
+    "type": ""
+  },
+  "24053": {
+    "name": "Void Brandscale",
+    "type": ""
+  },
+  "24063": {
+    "name": "Void Coldsteel",
+    "type": ""
+  },
+  "24086": {
+    "name": "Void Corpseknitter",
+    "type": ""
+  },
+  "24124": {
+    "name": "Fledgling",
+    "type": ""
+  },
+  "24133": {
+    "name": "Juvenile Siege Turtle",
+    "type": ""
+  },
+  "24154": {
+    "name": "Brotherhood Scrapper",
+    "type": ""
+  },
+  "24164": {
+    "name": "Ghostly Luxon Hero",
+    "type": ""
+  },
+  "24170": {
+    "name": "Void Warforged",
+    "type": ""
+  },
+  "24185": {
+    "name": "Dock Worker",
+    "type": ""
+  },
+  "24189": {
+    "name": "Peasant",
+    "type": ""
+  },
+  "24196": {
+    "name": "Jade Bulwark",
+    "type": ""
+  },
+  "24203": {
+    "name": "Juvenile Wallow",
+    "type": ""
+  },
+  "24235": {
+    "name": "Void Glacier",
+    "type": ""
+  },
+  "24267": {
+    "name": "Brotherhood Junker",
+    "type": ""
+  },
+  "24273": {
+    "name": "Jade Detainer",
+    "type": ""
+  },
+  "24285": {
+    "name": "Commoner",
+    "type": ""
+  },
+  "24292": {
+    "name": "Dragonfly",
+    "type": ""
+  },
+  "24298": {
+    "name": "Juvenile White Tiger",
+    "type": ""
+  },
+  "24304": {
+    "name": "Speaker Hyun",
+    "type": ""
+  },
+  "24321": {
+    "name": "Worker",
+    "type": ""
+  },
+  "24324": {
+    "name": "Jade Detainer",
+    "type": ""
+  },
+  "24345": {
+    "name": "Crane",
+    "type": ""
+  },
+  "24426": {
+    "name": "Void Brandscale",
+    "type": ""
+  },
+  "24450": {
+    "name": "Champion Void Giant",
+    "type": ""
+  },
+  "24452": {
+    "name": "Peddler",
+    "type": ""
+  },
+  "24456": {
+    "name": "Tanuki",
+    "type": ""
+  },
+  "24461": {
+    "name": "Xunlai Jade Engineer",
+    "type": ""
+  },
+  "24488": {
+    "name": "Mote of Friendship",
+    "type": ""
+  },
+  "24544": {
+    "name": "Kid",
+    "type": ""
+  },
+  "24575": {
+    "name": "Jade Brother Myung",
+    "type": ""
+  },
+  "24590": {
+    "name": "Void Rotspinner",
+    "type": ""
+  },
+  "24592": {
+    "name": "Brotherhood Warrior",
+    "type": ""
+  },
+  "24607": {
+    "name": "Void Corpseknitter",
+    "type": ""
+  },
+  "24614": {
+    "name": "Commoner",
+    "type": ""
+  },
+  "24624": {
+    "name": "Xunlai Jade Administrator",
+    "type": ""
+  },
+  "24637": {
+    "name": "Peddler",
+    "type": "Fishmonger"
+  },
+  "24649": {
+    "name": "Speaker Warrior",
+    "type": ""
+  },
+  "24662": {
+    "name": "Peddler",
+    "type": ""
+  },
+  "24673": {
+    "name": "White Tiger",
+    "type": ""
+  },
+  "24677": {
+    "name": "Void Stormseer",
+    "type": ""
+  },
+  "24705": {
+    "name": "Speaker Scout",
+    "type": ""
+  },
+  "24708": {
+    "name": "Unbound Spirit of Destruction",
+    "type": ""
+  },
+  "24714": {
+    "name": "Void Bomber",
+    "type": ""
+  },
+  "24724": {
+    "name": "Kestrel Aoi",
+    "type": ""
+  },
+  "24726": {
+    "name": "Repurposed Jade Servitor",
+    "type": ""
+  },
+  "24728": {
+    "name": "Siege Turtle Leader",
+    "type": ""
+  },
+  "24735": {
+    "name": "Brotherhood Assassin",
+    "type": ""
+  },
+  "24737": {
+    "name": "Void Fiend",
+    "type": ""
+  },
+  "24738": {
+    "name": "Jade Tracker",
+    "type": ""
+  },
+  "24752": {
+    "name": "Xunlai Jade Security",
+    "type": ""
+  },
+  "24761": {
+    "name": "Void Goliath",
+    "type": ""
+  },
+  "24766": {
+    "name": "Void Foulmaw",
+    "type": ""
+  },
+  "24772": {
+    "name": "Void Brandfang",
+    "type": ""
+  },
+  "24775": {
+    "name": "Kestrel Lieutenant",
+    "type": ""
+  },
+  "24776": {
+    "name": "Training Master",
+    "type": ""
+  },
+  "24777": {
+    "name": "Speaker Saboteur",
+    "type": ""
+  },
+  "24780": {
+    "name": "Void Frostwing",
+    "type": ""
+  },
+  "24796": {
+    "name": "Juvenile Siege Turtle",
+    "type": ""
+  },
+  "24797": {
+    "name": "Peddler",
+    "type": "Fishing Supplies"
+  },
+  "24807": {
+    "name": "Void Melter",
+    "type": ""
+  },
+  "24817": {
+    "name": "Peasant",
+    "type": ""
+  },
+  "24820": {
+    "name": "Wallow",
+    "type": ""
+  },
+  "24855": {
+    "name": "Void Warforged",
+    "type": ""
+  },
+  "24867": {
+    "name": "Supervisor",
+    "type": ""
+  },
+  "24880": {
+    "name": "Elder",
+    "type": ""
+  },
+  "24908": {
+    "name": "Repurposed Jade Detainer",
+    "type": ""
+  },
+  "24912": {
+    "name": "Void Brandfang",
+    "type": ""
+  },
+  "24922": {
+    "name": "Void Warforged",
+    "type": ""
+  },
+  "24923": {
+    "name": "Ghostly Kurzick Hero",
+    "type": ""
+  },
+  "24927": {
+    "name": "Ministry of Security Guard",
+    "type": ""
+  },
+  "24946": {
+    "name": "Brotherhood Scrapper",
+    "type": ""
+  },
+  "24956": {
+    "name": "Wallow",
+    "type": ""
+  },
+  "24987": {
+    "name": "Jade Bulwark",
+    "type": ""
+  },
+  "24997": {
+    "name": "Void Infested",
+    "type": ""
+  },
+  "25021": {
+    "name": "Ministry of Security Sorceress",
+    "type": ""
+  },
+  "25036": {
+    "name": "Xunlai Jade Engineer",
+    "type": ""
+  },
+  "25040": {
+    "name": "Xunlai Jade Administrator",
+    "type": ""
+  },
+  "25044": {
+    "name": "Student",
+    "type": ""
+  },
+  "25046": {
+    "name": "Ministry of Security Guard",
+    "type": ""
+  },
+  "25050": {
+    "name": "Ministy of Security Watch",
+    "type": ""
+  },
+  "25057": {
+    "name": "Void Rotspinner",
+    "type": ""
+  },
+  "25071": {
+    "name": "Crab",
+    "type": ""
+  },
+  "25099": {
+    "name": "Speaker Assassin",
+    "type": ""
+  },
+  "25107": {
+    "name": "Xunlai Jade Administrator",
+    "type": ""
+  },
+  "25131": {
+    "name": "Juvenile Phoenix",
+    "type": ""
+  },
+  "25138": {
+    "name": "Void Tangler",
+    "type": ""
+  },
+  "25155": {
+    "name": "Brotherhood Scrapper",
+    "type": ""
+  },
+  "25162": {
+    "name": "Dock Worker",
+    "type": ""
+  },
+  "25165": {
+    "name": "Mini Joon",
+    "type": ""
+  },
+  "25183": {
+    "name": "Repurposed Jade Tracker",
+    "type": ""
+  },
+  "25186": {
+    "name": "Ministry of Security Watch",
+    "type": ""
+  },
+  "25190": {
+    "name": "Mini Void Vinetooth",
+    "type": ""
+  },
+  "25195": {
+    "name": "Laborer",
+    "type": ""
+  },
+  "25197": {
+    "name": "Ministry of Security Guard",
+    "type": ""
+  },
+  "25304": {
+    "name": "Mini Pink Tigris Cub",
+    "type": ""
+  },
+  "25310": {
+    "name": "Mini Golden Tigris Cub",
+    "type": ""
+  },
+  "25311": {
+    "name": "Mini Blazing Tigris Cub",
+    "type": ""
+  },
+  "2536": {
+    "name": "Child",
+    "type": ""
+  },
+  "2537": {
+    "name": "Child",
+    "type": ""
+  },
+  "2538": {
+    "name": "Old  Woman",
+    "type": ""
+  },
+  "2540": {
+    "name": "Farmer",
+    "type": ""
+  },
+  "25402": {
+    "name": "Jade Bot",
+    "type": ""
+  },
+  "2541": {
+    "name": "Farmer",
+    "type": ""
+  },
+  "25436": {
+    "name": "Mini Corgi",
+    "type": ""
+  },
+  "25437": {
+    "name": "Mini Dachshund",
+    "type": ""
+  },
+  "25443": {
+    "name": "Materialized Shrine Guardian Infant",
+    "type": ""
+  },
+  "25488": {
+    "name": "Jade Bot",
+    "type": ""
+  },
+  "25516": {
+    "name": "Mini Blue Bauble",
+    "type": ""
+  },
+  "2553": {
+    "name": "Merchnt",
+    "type": ""
+  },
+  "2554": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "2557": {
+    "name": "Noble",
+    "type": ""
+  },
+  "2558": {
+    "name": "Noble",
+    "type": ""
+  },
+  "2559": {
+    "name": "Seraph Archer",
+    "type": ""
+  },
+  "2560": {
+    "name": "Seraph Arcer",
+    "type": ""
+  },
+  "2562": {
+    "name": "Seraph Captain",
+    "type": ""
+  },
+  "2564": {
+    "name": "Seraph Guard",
+    "type": ""
+  },
+  "2566": {
+    "name": "Seraph Soldier",
+    "type": ""
+  },
+  "2573": {
+    "name": "Villager",
+    "type": ""
+  },
+  "2574": {
+    "name": "Villager",
+    "type": ""
+  },
+  "2576": {
+    "name": "Worker",
+    "type": ""
+  },
+  "2603": {
+    "name": "Kid",
+    "type": ""
+  },
+  "26037": {
+    "name": "Hearth's Glow Waypoint",
+    "type": ""
+  },
+  "26147": {
+    "name": "Juvenile Sky-Chaak Striker",
+    "type": ""
+  },
+  "26183": {
+    "name": "Professor Smoll",
+    "type": ""
+  },
+  "26210": {
+    "name": "Mini Peitha",
+    "type": ""
+  },
+  "26261": {
+    "name": "Mini Mystical Blue Orb",
+    "type": ""
+  },
+  "26304": {
+    "name": "Mini Janthiri Bee",
+    "type": ""
+  },
+  "26315": {
+    "name": "Stable Master",
+    "type": ""
+  },
+  "26425": {
+    "name": "Villager",
+    "type": ""
+  },
+  "26445": {
+    "name": "Villager",
+    "type": ""
+  },
+  "26447": {
+    "name": "Stable Mount",
+    "type": ""
+  },
+  "26523": {
+    "name": "Villager",
+    "type": ""
+  },
+  "26580": {
+    "name": "Mini Waiting Sorrow",
+    "type": ""
+  },
+  "26614": {
+    "name": "Deft Lahar",
+    "type": ""
+  },
+  "26628": {
+    "name": "Juvenile Warclaw",
+    "type": ""
+  },
+  "26787": {
+    "name": "Mini Sentient Conduit",
+    "type": ""
+  },
+  "26851": {
+    "name": "Juvenile Janthiri Bee",
+    "type": ""
+  },
+  "26899": {
+    "name": "Cat",
+    "type": ""
+  },
+  "26922": {
+    "name": "Mini Fumaroller",
+    "type": ""
+  },
+  "26995": {
+    "name": "Mini Beige Journeykit",
+    "type": ""
+  },
+  "27001": {
+    "name": "Mini White Journey Kit",
+    "type": ""
+  },
+  "27020": {
+    "name": "Mini Garenhoff Forest Cat",
+    "type": ""
+  },
+  "27030": {
+    "name": "Rabbit Spirit",
+    "type": ""
+  },
+  "27033": {
+    "name": "Fox Spirit",
+    "type": ""
+  },
+  "27042": {
+    "name": "Frog Spirit",
+    "type": ""
+  },
+  "27065": {
+    "name": "Snuggles",
+    "type": ""
+  },
+  "27073": {
+    "name": "Professor Mew",
+    "type": ""
+  },
+  "27154": {
+    "name": "Mini Captain Leo the Relentless",
+    "type": ""
+  },
+  "2717": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "27191": {
+    "name": "Mini Kela",
+    "type": ""
+  },
+  "27259": {
+    "name": "Juvenile Raptor Swiftwing",
+    "type": ""
+  },
+  "27568": {
+    "name": "Mini Gwyldell",
+    "type": ""
+  },
+  "27577": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "27596": {
+    "name": "Mini Dancing Crab",
+    "type": ""
+  },
+  "27653": {
+    "name": "Mini Horse-Gourdon",
+    "type": ""
+  },
+  "3082": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "3088": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "3115": {
+    "name": "Bear Shaman",
+    "type": ""
+  },
+  "3131": {
+    "name": "Wounded Seraph",
+    "type": ""
+  },
+  "32367": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "3354": {
+    "name": "Found Bandit Chest",
+    "type": ""
+  },
+  "33583": {
+    "name": "Handiwork Workbench",
+    "type": ""
+  },
+  "3378": {
+    "name": "Local",
+    "type": ""
+  },
+  "3380": {
+    "name": "Warrior",
+    "type": ""
+  },
+  "3381": {
+    "name": "Warrior",
+    "type": ""
+  },
+  "34007": {
+    "name": "Hatched Chili Pepper Bush",
+    "type": ""
+  },
+  "3447": {
+    "name": "Hawk",
+    "type": ""
+  },
+  "34789": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "3535": {
+    "name": "Villager",
+    "type": ""
+  },
+  "35681": {
+    "name": "Homestead Refinement\u2014Farm",
+    "type": ""
+  },
+  "36265": {
+    "name": "Airship Cargo",
+    "type": ""
+  },
+  "36684": {
+    "name": "Upgrade Point",
+    "type": ""
+  },
+  "37060": {
+    "name": "Freshwater Fish",
+    "type": ""
+  },
+  "3713": {
+    "name": "Rabbit",
+    "type": ""
+  },
+  "3717": {
+    "name": "Root Vegetables",
+    "type": ""
+  },
+  "3723": {
+    "name": "Villager",
+    "type": ""
+  },
+  "3726": {
+    "name": "Guard",
+    "type": ""
+  },
+  "37486": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "37572": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "38008": {
+    "name": "Root Plants",
+    "type": ""
+  },
+  "38009": {
+    "name": "Herbs",
+    "type": ""
+  },
+  "38010": {
+    "name": "Vegetable Plants",
+    "type": ""
+  },
+  "3827": {
+    "name": "Juvenile Jungle Stalker",
+    "type": ""
+  },
+  "3967": {
+    "name": "Hunter",
+    "type": ""
+  },
+  "3973": {
+    "name": "Farmer",
+    "type": ""
+  },
+  "3981": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "3983": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "3987": {
+    "name": "Ooze",
+    "type": ""
+  },
+  "40113": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "40710": {
+    "name": "Kournan Supply Cache",
+    "type": ""
+  },
+  "4092": {
+    "name": "Rat",
+    "type": ""
+  },
+  "4177": {
+    "name": "Servant",
+    "type": ""
+  },
+  "4198": {
+    "name": "Inkeeper",
+    "type": ""
+  },
+  "42128": {
+    "name": "Basic Cloth Rack",
+    "type": ""
+  },
+  "4222": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "4240": {
+    "name": "Raven",
+    "type": ""
+  },
+  "42881": {
+    "name": "Mistborn Mote",
+    "type": ""
+  },
+  "4294901984": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294902315": {
+    "name": "Guild Cloth Synthesizer",
+    "type": ""
+  },
+  "4294903927": {
+    "name": "Jade Fragments",
+    "type": ""
+  },
+  "4294904907": {
+    "name": "Pocket Waypoint",
+    "type": ""
+  },
+  "4294905075": {
+    "name": "Homegrown Kale",
+    "type": ""
+  },
+  "4294905114": {
+    "name": "Found Bandit Chest",
+    "type": ""
+  },
+  "4294905838": {
+    "name": "Guild Leather Synthesizer",
+    "type": ""
+  },
+  "4294905890": {
+    "name": "Sunken Chest",
+    "type": ""
+  },
+  "4294906950": {
+    "name": "Mr. Quiggles",
+    "type": ""
+  },
+  "4294907002": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294907111": {
+    "name": "Guild Berry Synthesizer",
+    "type": ""
+  },
+  "4294908974": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294909386": {
+    "name": "Cooking Station",
+    "type": ""
+  },
+  "4294911357": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294911390": {
+    "name": "Salvage Pile",
+    "type": ""
+  },
+  "4294911816": {
+    "name": "Shore Fish",
+    "type": ""
+  },
+  "4294912680": {
+    "name": "Lumbermill Saw",
+    "type": ""
+  },
+  "4294913796": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294914263": {
+    "name": "Homesteading Mastery Space Unlock",
+    "type": ""
+  },
+  "4294914992": {
+    "name": "Assembly Device",
+    "type": ""
+  },
+  "4294916694": {
+    "name": "Harvesting Collection Box",
+    "type": ""
+  },
+  "4294916830": {
+    "name": "Grand Chest",
+    "type": ""
+  },
+  "4294917887": {
+    "name": "Scribing Station",
+    "type": ""
+  },
+  "4294920057": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294924412": {
+    "name": "Herbs",
+    "type": ""
+  },
+  "4294924432": {
+    "name": "Silver Ore",
+    "type": ""
+  },
+  "4294924679": {
+    "name": "Boiling-Hot Magma",
+    "type": ""
+  },
+  "4294925549": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294926248": {
+    "name": "Mote of Friendship",
+    "type": ""
+  },
+  "4294926323": {
+    "name": "Cinematic Control Console",
+    "type": ""
+  },
+  "4294927229": {
+    "name": "Shadow Cannon",
+    "type": ""
+  },
+  "4294927797": {
+    "name": "Hearth's Glow Waypoint",
+    "type": ""
+  },
+  "4294928625": {
+    "name": "Mining Collection Box",
+    "type": ""
+  },
+  "4294929183": {
+    "name": "Grand Chest",
+    "type": ""
+  },
+  "4294929328": {
+    "name": "Sunken Chest",
+    "type": ""
+  },
+  "4294929337": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294929690": {
+    "name": "Asura Gate to Lion's Arch",
+    "type": ""
+  },
+  "4294929844": {
+    "name": "Homestead Refinement\u2014Lumber Mill",
+    "type": ""
+  },
+  "4294934127": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294935343": {
+    "name": "Handiwork Workbench",
+    "type": ""
+  },
+  "4294935578": {
+    "name": "Fetid Fog",
+    "type": ""
+  },
+  "4294935693": {
+    "name": "To Lion's Arch",
+    "type": ""
+  },
+  "4294935767": {
+    "name": "Hatched Chili Pepper Bush",
+    "type": ""
+  },
+  "4294936549": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294937246": {
+    "name": "Jade Fragments",
+    "type": ""
+  },
+  "4294937441": {
+    "name": "Homestead Refinement\u2014Farm",
+    "type": ""
+  },
+  "4294937820": {
+    "name": "Quartz Crystal Formation",
+    "type": ""
+  },
+  "4294937922": {
+    "name": "Ancient Sapling",
+    "type": ""
+  },
+  "4294938025": {
+    "name": "Airship Cargo",
+    "type": ""
+  },
+  "4294938444": {
+    "name": "Upgrade Point",
+    "type": ""
+  },
+  "4294938542": {
+    "name": "Difluorite Crystals",
+    "type": ""
+  },
+  "4294938820": {
+    "name": "Freshwater Fish",
+    "type": ""
+  },
+  "4294938870": {
+    "name": "Dragon Crystal Node",
+    "type": ""
+  },
+  "4294938902": {
+    "name": "Difluorite Crystals",
+    "type": ""
+  },
+  "4294939246": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294939332": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294939688": {
+    "name": "Difluorite Crystals",
+    "type": ""
+  },
+  "4294939768": {
+    "name": "Root Plants",
+    "type": ""
+  },
+  "4294939769": {
+    "name": "Herbs",
+    "type": ""
+  },
+  "4294939770": {
+    "name": "Vegetable Plants",
+    "type": ""
+  },
+  "4294939802": {
+    "name": "To Wizard's Tower",
+    "type": ""
+  },
+  "4294939978": {
+    "name": "Iron Ore",
+    "type": ""
+  },
+  "4294940243": {
+    "name": "Lowland Shore",
+    "type": ""
+  },
+  "4294941448": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294941676": {
+    "name": "Scale Setting Sequencer",
+    "type": ""
+  },
+  "4294941873": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "4294942069": {
+    "name": "King-Sized Candy Corn Node",
+    "type": ""
+  },
+  "4294942131": {
+    "name": "Tukawa Sapling",
+    "type": ""
+  },
+  "4294942166": {
+    "name": "Bauble",
+    "type": ""
+  },
+  "4294942470": {
+    "name": "Kournan Supply Cache",
+    "type": ""
+  },
+  "4294942715": {
+    "name": "Pocket Waypoint",
+    "type": ""
+  },
+  "4294942928": {
+    "name": "Homegrown Kale",
+    "type": ""
+  },
+  "4294943420": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294943513": {
+    "name": "Aurillium",
+    "type": ""
+  },
+  "4294943888": {
+    "name": "Basic Cloth Rack",
+    "type": ""
+  },
+  "4294944641": {
+    "name": "Mistborn Mote",
+    "type": ""
+  },
+  "4294944849": {
+    "name": "Homestead Refinement\u2014Metal Forge",
+    "type": ""
+  },
+  "4294944986": {
+    "name": "Prismaticite",
+    "type": ""
+  },
+  "4294945036": {
+    "name": "Exalted Chest",
+    "type": ""
+  },
+  "4294946205": {
+    "name": "Flax",
+    "type": ""
+  },
+  "4294946346": {
+    "name": "Red Oak Sapling",
+    "type": ""
+  },
+  "4294946347": {
+    "name": "Inglewood Sapling",
+    "type": ""
+  },
+  "4294946450": {
+    "name": "Mistlock Singularity",
+    "type": ""
+  },
+  "4294946564": {
+    "name": "Silver Ore",
+    "type": ""
+  },
+  "4294947144": {
+    "name": "Black Lion Requisition Teams Post",
+    "type": ""
+  },
+  "4294947176": {
+    "name": "Black Lion Requisition Teams Post",
+    "type": ""
+  },
+  "4294947484": {
+    "name": "Logging Collection Box",
+    "type": ""
+  },
+  "4294948174": {
+    "name": "Guild Vegetable Synthesizer",
+    "type": ""
+  },
+  "4294948927": {
+    "name": "Salvage Pile",
+    "type": ""
+  },
+  "4294950732": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294950746": {
+    "name": "Homegrown Kale",
+    "type": ""
+  },
+  "4294951070": {
+    "name": "Difluorite Crystals",
+    "type": ""
+  },
+  "4294951307": {
+    "name": "Anvil",
+    "type": ""
+  },
+  "4294951406": {
+    "name": "Homesteading Mastery Space Unlock",
+    "type": ""
+  },
+  "4294951575": {
+    "name": "Winterberry Bush",
+    "type": ""
+  },
+  "4294951841": {
+    "name": "Pocket Waypoint",
+    "type": ""
+  },
+  "4294952009": {
+    "name": "Krait Obelisk Shard",
+    "type": ""
+  },
+  "4294952217": {
+    "name": "Freshwater Fish",
+    "type": ""
+  },
+  "4294952261": {
+    "name": "Freshwater Fish",
+    "type": ""
+  },
+  "4294952932": {
+    "name": "Advanced Leather Rack",
+    "type": ""
+  },
+  "4294953069": {
+    "name": "Grand Chest",
+    "type": ""
+  },
+  "4294953246": {
+    "name": "Diving Goggles",
+    "type": ""
+  },
+  "4294953904": {
+    "name": "Basic Leather Rack",
+    "type": ""
+  },
+  "4294953906": {
+    "name": "Basic Leather Rack",
+    "type": ""
+  },
+  "4294953955": {
+    "name": "Difluorite Crystals",
+    "type": ""
+  },
+  "4294954594": {
+    "name": "Petrified Stump",
+    "type": ""
+  },
+  "4294954925": {
+    "name": "Homegrown Kale",
+    "type": ""
+  },
+  "4294954929": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294956101": {
+    "name": "Mr. Quiggles",
+    "type": ""
+  },
+  "4294956197": {
+    "name": "Sprocket Generator",
+    "type": ""
+  },
+  "4294956410": {
+    "name": "Guild Herb Synthesizer",
+    "type": ""
+  },
+  "4294956432": {
+    "name": "Orichalcum Ore",
+    "type": ""
+  },
+  "4294956433": {
+    "name": "Platinum Ore",
+    "type": ""
+  },
+  "4294956436": {
+    "name": "Ghost Pepper",
+    "type": ""
+  },
+  "4294956437": {
+    "name": "Omnomberries",
+    "type": ""
+  },
+  "4294956439": {
+    "name": "Lotus",
+    "type": ""
+  },
+  "4294956441": {
+    "name": "Orrian Truffle",
+    "type": ""
+  },
+  "4294956442": {
+    "name": "Mithril Ore",
+    "type": ""
+  },
+  "4294956880": {
+    "name": "Advanced Cloth Rack",
+    "type": ""
+  },
+  "4294957750": {
+    "name": "Copper Ore",
+    "type": ""
+  },
+  "4294957751": {
+    "name": "Silver Ore",
+    "type": ""
+  },
+  "4294957752": {
+    "name": "Gold Ore",
+    "type": ""
+  },
+  "4294958905": {
+    "name": "Mistonium",
+    "type": ""
+  },
+  "4294958925": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294959069": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294959071": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294959097": {
+    "name": "Dragon Pi\u00f1ata",
+    "type": ""
+  },
+  "4294959272": {
+    "name": "Wintersday Tree of Generosity",
+    "type": ""
+  },
+  "4294959380": {
+    "name": "Ekku Sapling",
+    "type": ""
+  },
+  "4294959381": {
+    "name": "Mimosa Sapling",
+    "type": ""
+  },
+  "4294960026": {
+    "name": "Lowland Shore",
+    "type": ""
+  },
+  "4294960281": {
+    "name": "Primordial Orchid",
+    "type": ""
+  },
+  "4294960710": {
+    "name": "Basic Cloth Rack",
+    "type": ""
+  },
+  "4294960901": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294960985": {
+    "name": "Brandstone",
+    "type": ""
+  },
+  "4294961029": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294961030": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294961033": {
+    "name": "Shadow Cannon",
+    "type": ""
+  },
+  "4294961071": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294961078": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294961109": {
+    "name": "Growing Crops",
+    "type": ""
+  },
+  "4294961193": {
+    "name": "Brandstone",
+    "type": ""
+  },
+  "4294961213": {
+    "name": "Guild Lumber Synthesizer",
+    "type": ""
+  },
+  "4294961611": {
+    "name": "Crystallized Supply Cache",
+    "type": ""
+  },
+  "4294961847": {
+    "name": "Guild Ore Synthesizer",
+    "type": ""
+  },
+  "4294962426": {
+    "name": "Bloodstone Crystals",
+    "type": ""
+  },
+  "4294962552": {
+    "name": "Eternal Ice",
+    "type": ""
+  },
+  "4294963612": {
+    "name": "Reflection Crystal Waypoint",
+    "type": ""
+  },
+  "4294963847": {
+    "name": "Mote of Friendship",
+    "type": ""
+  },
+  "4294964183": {
+    "name": "Lost Troubleshooter Badge",
+    "type": ""
+  },
+  "4294964385": {
+    "name": "Jade Bot Workbench",
+    "type": ""
+  },
+  "4294965486": {
+    "name": "Snow Truffle",
+    "type": ""
+  },
+  "4294966218": {
+    "name": "Orrian Truffle",
+    "type": ""
+  },
+  "4294966536": {
+    "name": "Datapad",
+    "type": ""
+  },
+  "4294967119": {
+    "name": "Orrian Oyster",
+    "type": ""
+  },
+  "4310": {
+    "name": "Rat",
+    "type": ""
+  },
+  "43276": {
+    "name": "Exalted Chest",
+    "type": ""
+  },
+  "4329": {
+    "name": "Warden Scout",
+    "type": ""
+  },
+  "4331": {
+    "name": "Warden Scout",
+    "type": ""
+  },
+  "4333": {
+    "name": "Warden Ranger",
+    "type": ""
+  },
+  "4426": {
+    "name": "Juvenile Brown Bear",
+    "type": ""
+  },
+  "44445": {
+    "name": "Flax",
+    "type": ""
+  },
+  "45416": {
+    "name": "Black Lion Requisition Teams Post",
+    "type": ""
+  },
+  "4607": {
+    "name": "Forest Spider Hatchling",
+    "type": ""
+  },
+  "4728": {
+    "name": "PM-632z",
+    "type": ""
+  },
+  "4855": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "4857": {
+    "name": "Commoner",
+    "type": ""
+  },
+  "4858": {
+    "name": "Beggar",
+    "type": ""
+  },
+  "49646": {
+    "name": "Homesteading Mastery Space Unlock",
+    "type": ""
+  },
+  "49815": {
+    "name": "Winterberry Bush",
+    "type": ""
+  },
+  "50249": {
+    "name": "Krait Obelisk Shard",
+    "type": ""
+  },
+  "50457": {
+    "name": "Freshwater Fish",
+    "type": ""
+  },
+  "50501": {
+    "name": "Freshwater Fish",
+    "type": ""
+  },
+  "5072": {
+    "name": "Firefly",
+    "type": ""
+  },
+  "5081": {
+    "name": "Doe",
+    "type": ""
+  },
+  "5087": {
+    "name": "Forest Spider",
+    "type": ""
+  },
+  "5115": {
+    "name": "Sylvan Hound",
+    "type": ""
+  },
+  "5116": {
+    "name": "Wolf",
+    "type": ""
+  },
+  "51172": {
+    "name": "Advanced Leather Rack",
+    "type": ""
+  },
+  "5121": {
+    "name": "Seraph Sergeant",
+    "type": ""
+  },
+  "5207": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5208": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5209": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5211": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5212": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5213": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5214": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "52144": {
+    "name": "Basic Leather Rack",
+    "type": ""
+  },
+  "5216": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5242": {
+    "name": "Skritt Forager",
+    "type": ""
+  },
+  "5243": {
+    "name": "Skritt Bottle Lobber",
+    "type": ""
+  },
+  "5260": {
+    "name": "Progeny",
+    "type": ""
+  },
+  "5261": {
+    "name": "Progeny",
+    "type": ""
+  },
+  "5262": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "5263": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "5264": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "5265": {
+    "name": "Citizen",
+    "type": ""
+  },
+  "5274": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "5275": {
+    "name": "Peacemaker Chief",
+    "type": ""
+  },
+  "5276": {
+    "name": "Peacemaker Chief",
+    "type": ""
+  },
+  "5277": {
+    "name": "Peacemaker Officer",
+    "type": ""
+  },
+  "5283": {
+    "name": "Worker",
+    "type": ""
+  },
+  "5284": {
+    "name": "Worker",
+    "type": ""
+  },
+  "5292": {
+    "name": "Blood Legion Captain",
+    "type": ""
+  },
+  "5298": {
+    "name": "Cub",
+    "type": ""
+  },
+  "5311": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "53165": {
+    "name": "Homegrown Kale",
+    "type": ""
+  },
+  "5322": {
+    "name": "Soldier",
+    "type": ""
+  },
+  "5323": {
+    "name": "Soldier",
+    "type": ""
+  },
+  "5327": {
+    "name": "Seraph Sergeant",
+    "type": ""
+  },
+  "5375": {
+    "name": "Lionguard",
+    "type": ""
+  },
+  "5376": {
+    "name": "Lionguard",
+    "type": ""
+  },
+  "5398": {
+    "name": "Rabbit",
+    "type": ""
+  },
+  "5409": {
+    "name": "Covington Pirate",
+    "type": ""
+  },
+  "5432": {
+    "name": "Skritt Sentry",
+    "type": ""
+  },
+  "54341": {
+    "name": "Mr. Quiggles",
+    "type": ""
+  },
+  "5438": {
+    "name": "Hunter",
+    "type": ""
+  },
+  "54676": {
+    "name": "Ghost Pepper",
+    "type": ""
+  },
+  "54677": {
+    "name": "Omnomberries",
+    "type": ""
+  },
+  "54679": {
+    "name": "Lotus",
+    "type": ""
+  },
+  "55120": {
+    "name": "Advanced Cloth Rack",
+    "type": ""
+  },
+  "5581": {
+    "name": "Juvenile Carion Devourer",
+    "type": ""
+  },
+  "5607": {
+    "name": "Villager",
+    "type": ""
+  },
+  "5662": {
+    "name": "Villager",
+    "type": ""
+  },
+  "57337": {
+    "name": "Dragon Pi\u00f1ata",
+    "type": ""
+  },
+  "59851": {
+    "name": "Crystallized Supply Cache",
+    "type": ""
+  },
+  "6006": {
+    "name": "Mini Raven",
+    "type": ""
+  },
+  "6040": {
+    "name": "Market Broker",
+    "type": ""
+  },
+  "6043": {
+    "name": "Juvenile Alpine Wolf",
+    "type": ""
+  },
+  "609": {
+    "name": "Zip Line",
+    "type": ""
+  },
+  "6132": {
+    "name": "Iron Legion Soldier",
+    "type": ""
+  },
+  "62087": {
+    "name": "Mote of Friendship",
+    "type": ""
+  },
+  "6246": {
+    "name": "Wolfborn",
+    "type": ""
+  },
+  "629": {
+    "name": "Zip Line",
+    "type": ""
+  },
+  "632": {
+    "name": "Kestrel Logbook",
+    "type": ""
+  },
+  "6368": {
+    "name": "Krytan Drakehound",
+    "type": ""
+  },
+  "63726": {
+    "name": "Snow Truffle",
+    "type": ""
+  },
+  "64458": {
+    "name": "Orrian Truffle",
+    "type": ""
+  },
+  "64776": {
+    "name": "Datapad",
+    "type": ""
+  },
+  "6511": {
+    "name": "Mini Logan Thackeray",
+    "type": ""
+  },
+  "655": {
+    "name": "Arborstone Waypoint",
+    "type": ""
+  },
+  "6552": {
+    "name": "Mini Zojja",
+    "type": ""
+  },
+  "6591": {
+    "name": "Mini Storm Imp",
+    "type": ""
+  },
+  "6601": {
+    "name": "Mini Ice Elemental",
+    "type": ""
+  },
+  "6849": {
+    "name": "Juvenile Jaguar",
+    "type": ""
+  },
+  "6850": {
+    "name": "Juvenile Marsh Drake",
+    "type": ""
+  },
+  "6883": {
+    "name": "Juvenile Blue Moa",
+    "type": ""
+  },
+  "6887": {
+    "name": "Juvenile Black Moa",
+    "type": ""
+  },
+  "6888": {
+    "name": "Juvenile River Drake",
+    "type": ""
+  },
+  "6989": {
+    "name": "Invisiman",
+    "type": ""
+  },
+  "7000": {
+    "name": "Mini Snow Owl",
+    "type": ""
+  },
+  "7229": {
+    "name": "Garden Hoe",
+    "type": ""
+  },
+  "7284": {
+    "name": "Elixir of Heroes",
+    "type": ""
+  },
+  "7324": {
+    "name": "Ale Keg",
+    "type": ""
+  },
+  "7336": {
+    "name": "Juvenile Fern Hound",
+    "type": ""
+  },
+  "76": {
+    "name": "Anvil",
+    "type": ""
+  },
+  "7626": {
+    "name": "Cooking Station",
+    "type": ""
+  },
+  "7663": {
+    "name": "Old Woman",
+    "type": ""
+  },
+  "7927": {
+    "name": "Juvenile Black Bear",
+    "type": ""
+  },
+  "7932": {
+    "name": "Juvenile Lynx",
+    "type": ""
+  },
+  "7949": {
+    "name": "Juvenile Lashtail Devourer",
+    "type": ""
+  },
+  "7981": {
+    "name": "Illusionary Warden",
+    "type": ""
+  },
+  "8": {
+    "name": "Leatherworking Station",
+    "type": ""
+  },
+  "8003": {
+    "name": "Juvenile Eagle",
+    "type": ""
+  },
+  "8007": {
+    "name": "Juvenile Forest Spider",
+    "type": ""
+  },
+  "8008": {
+    "name": "Juvenile Black Widow Spider",
+    "type": ""
+  },
+  "8013": {
+    "name": "Juvenile Boar",
+    "type": ""
+  },
+  "8014": {
+    "name": "Juvenile Warthog",
+    "type": ""
+  },
+  "8016": {
+    "name": "Juvenile Pig",
+    "type": ""
+  },
+  "8110": {
+    "name": "Clone",
+    "type": ""
+  },
+  "8186": {
+    "name": "Tropical Bird",
+    "type": ""
+  },
+  "8434": {
+    "name": "Mosquito",
+    "type": ""
+  },
+  "8496": {
+    "name": "Mercenary",
+    "type": ""
+  },
+  "8497": {
+    "name": "Mercenary",
+    "type": ""
+  },
+  "8499": {
+    "name": "Mercenary",
+    "type": ""
+  },
+  "8603": {
+    "name": "Golem Assistant",
+    "type": ""
+  },
+  "8653": {
+    "name": "Priory Historian",
+    "type": ""
+  },
+  "8909": {
+    "name": "Ash Legion Scout",
+    "type": ""
+  },
+  "9151": {
+    "name": "Lionguard",
+    "type": ""
+  },
+  "9163": {
+    "name": "Warrior",
+    "type": ""
+  },
+  "9398": {
+    "name": "Servant",
+    "type": ""
+  },
+  "9453": {
+    "name": "Mini Rockfur Racoon",
+    "type": ""
+  },
+  "9597": {
+    "name": "Homesteading Mastery Unlock",
+    "type": ""
+  },
+  "9942": {
+    "name": "Merchant",
+    "type": ""
+  },
+  "9950": {
+    "name": "Sunspear",
+    "type": ""
+  }
+}
