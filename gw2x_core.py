@@ -131,7 +131,7 @@ globals().update(load_module_from_url(URL_USER))
 # ===============================
 # Base
 base_core_address        = xxxx1
-skyscalegreenbaraddress  = xxxx2
+# skyscalegreenbaraddress  = xxxx2
 griffoninstaboostaddress = xxxx3
 fishingmasteraddress     = xxxx4
 skiffmasteraddress       = xxxx5
@@ -1054,51 +1054,154 @@ def _try_pointer_chain(base):
         print(f"[MouseChain] Failed: {e}")
         return None
 
+def _try_aob(base, save_config=False):
+    """
+    Dynamically resolve mouse X from a RIP-relative LEA reference.
 
-def _try_aob(base):
-    """AOB scan → find mov rsi,[rip+x] before instruction → dereference → struct base."""
+    Current relationship:
+
+        code AOB
+            ↓
+        lea rcx,[rip+rel32]
+            ↓
+        mouse structure base
+            ↓ +0x300
+        mouse X
+
+    No pointer_base_offset is required for resolution.
+    """
+
+    import re
     import struct as _struct
-    print("[MouseAOB] Scanning for write instruction...")
-    instr = pm.pattern_scan_module(MOUSE_AOB_PATTERN, "Gw2-64.exe")
-    if not instr:
-        print("[MouseAOB] Pattern not found — update MOUSE_AOB_PATTERN after patch.")
-        return None
-    print(f"[MouseAOB] Instruction at {hex(instr)}")
 
-    # Dump surrounding bytes for diagnosis regardless
+    print("[MouseAOB] Scanning for mouse structure reference...")
+
+    # ---------------------------------------------------------
+    # Current code:
+    #
+    # 48 8B 05 ?? ?? ?? ??
+    # 48 8D 0D ?? ?? ?? ??
+    # FF 90 88 00 00 00
+    #
+    # Both rel32 displacements are wildcarded.
+    # ---------------------------------------------------------
+
+    pattern = (
+        re.escape(bytes.fromhex("48 8B 05"))
+        + b"...."
+        + re.escape(bytes.fromhex("48 8D 0D"))
+        + b"...."
+        + re.escape(bytes.fromhex("FF 90 88 00 00 00"))
+    )
+
+    match = pm.pattern_scan_module(
+        pattern,
+        "Gw2-64.exe"
+    )
+
+    if not match:
+        print("[MouseAOB] Mouse structure AOB not found.")
+        return None
+
+    print(
+        f"[MouseAOB] Signature found: "
+        f"{hex(match)} "
+        f"(module+{hex(match - base)})"
+    )
+
+    # ---------------------------------------------------------
+    # Layout:
+    #
+    # match+0:
+    #   48 8B 05 xx xx xx xx
+    #
+    # match+7:
+    #   48 8D 0D xx xx xx xx
+    #
+    # So LEA RCX starts at +7.
+    # ---------------------------------------------------------
+
+    lea_addr = match + 7
+
     try:
-        window = pm.read_bytes(instr - 128, 128)
+        lea_bytes = pm.read_bytes(
+            lea_addr,
+            7
+        )
+
+        if lea_bytes[:3] != b"\x48\x8D\x0D":
+            print(
+                f"[MouseAOB] Expected LEA RCX not found "
+                f"at {hex(lea_addr)}"
+            )
+            return None
+
+        rel32 = _struct.unpack(
+            "<i",
+            lea_bytes[3:7]
+        )[0]
+
+        # RIP-relative:
+        #
+        # target = address after instruction + displacement
+        #
+        struct_base = (
+            lea_addr
+            + 7
+            + rel32
+        )
+
+        mouse_x_addr = (
+            struct_base
+            + 0x300
+        )
+
+        print(
+            f"[MouseAOB] LEA @ {hex(lea_addr)}"
+        )
+
+        print(
+            f"[MouseAOB] Struct base: "
+            f"{hex(struct_base)} "
+            f"(module+{hex(struct_base - base)})"
+        )
+
+        print(
+            f"[MouseAOB] Mouse X candidate: "
+            f"{hex(mouse_x_addr)}"
+        )
+
+        # -----------------------------------------------------
+        # Validate XYZ
+        # -----------------------------------------------------
+
+        rx = pm.read_float(mouse_x_addr)
+        ry = pm.read_float(mouse_x_addr + 4)
+        rz = pm.read_float(mouse_x_addr + 8)
+
+        if not all(
+            -100_000_000 < v < 100_000_000
+            for v in (rx, ry, rz)
+        ):
+            print(
+                f"[MouseAOB] Invalid XYZ values: "
+                f"{rx}, {ry}, {rz}"
+            )
+            return None
+
+        print(
+            f"[MouseAOB] SUCCESS -> "
+            f"X={hex(mouse_x_addr)} "
+            f"raw=({rx:.1f}, {ry:.1f}, {rz:.1f})"
+        )
+
+        return mouse_x_addr
+
     except Exception as e:
-        print(f"[MouseAOB] Cannot read memory window: {e}")
+        print(
+            f"[MouseAOB] Resolution failed: {e}"
+        )
         return None
-
-    print(f"[MouseAOB] Bytes before instruction: {window[-32:].hex(' ').upper()}")
-
-    # Try: mov rsi, [rip+offset]  →  48 8B 35 XX XX XX XX
-    for sig, reg_name in [(b"\x48\x8B\x35", "rsi"), (b"\x4C\x8B\x35", "r14"), (b"\x48\x8B\x3D", "rdi")]:
-        idx = window.rfind(sig)
-        if idx == -1:
-            continue
-        rip_off    = _struct.unpack("<i", window[idx+3:idx+7])[0]
-        instr_abs  = (instr - 128) + idx
-        static_ptr = instr_abs + 7 + rip_off
-        print(f"[MouseAOB] Found mov {reg_name},[rip+off] → static ptr @ {hex(static_ptr)}")
-        try:
-            struct_base = pm.read_longlong(static_ptr)
-            x_addr      = struct_base + 0x300
-            test        = pm.read_float(x_addr)
-            if test == 0.0 or not (-100_000_000 < test < 100_000_000):
-                raise ValueError(f"Implausible value: {test}")
-            print(f"[MouseAOB] OK → {hex(x_addr)}  raw_x={test:.1f}")
-            _save_mouse_config(static_ptr - base, [0x300])
-            return x_addr
-        except Exception as e:
-            print(f"[MouseAOB] {reg_name} path failed: {e}")
-            continue
-
-    print("[MouseAOB] Could not resolve struct base. Check the byte dump above in CE.")
-    return None
-
 
 def reset_mouse_cache():
     """Force re-resolution on next read (call after map load if needed)."""
@@ -1108,19 +1211,25 @@ def reset_mouse_cache():
 
 def read_mouse_3d_position():
     global _mouse_x_addr
+
     if not pm:
         return None
 
-    # Use cached address if available
     if _mouse_x_addr is None:
         try:
-            base = pymem.process.module_from_name(pm.process_handle, "Gw2-64.exe").lpBaseOfDll
+            base = pymem.process.module_from_name(
+                pm.process_handle,
+                "Gw2-64.exe"
+            ).lpBaseOfDll
         except Exception as e:
             print(f"[Mouse] Module base failed: {e}")
             return None
-        _mouse_x_addr = _try_pointer_chain(base) or _try_aob(base)
+
+        # AOB-only resolution
+        _mouse_x_addr = _try_aob(base)
+
         if not _mouse_x_addr:
-            print("[Mouse] All resolution methods failed.")
+            print("[Mouse] AOB resolution failed.")
             return None
 
     try:
@@ -1129,9 +1238,10 @@ def read_mouse_3d_position():
         rz = pm.read_float(_mouse_x_addr + 8)
 
         conv = 1.0 / 39.37
-        mx   =  rx * conv
-        mz   =  ry * conv
-        my   = -rz * conv
+
+        mx = rx * conv
+        mz = ry * conv
+        my = -rz * conv
 
         return (mx, my, mz)
 
@@ -1139,7 +1249,6 @@ def read_mouse_3d_position():
         print(f"[Mouse] Read failed ({e}), resetting cache.")
         reset_mouse_cache()
         return None
-
 
 def write_coords_raw(x, y, z):
     """Writes units using unified 1.2303125x engine multiplier."""
@@ -1489,48 +1598,48 @@ def enable_mountstamina_loop():
 # ===============================
 skyscale_stop_event = threading.Event()
 
-def enable_skyscale_loop():
-    logging.info("[Skyscale] Loop injeksi Skyscale bar dimulai.")
+# def enable_skyscale_loop():
+#     logging.info("[Skyscale] Loop injeksi Skyscale bar dimulai.")
     
-    while not skyscale_stop_event.is_set():
-        try:
-            # Memastikan process memory dan variabel offset tersedia
-            if pm and skyscalegreenbaraddress:
-                # Menghitung alamat absolut berdasarkan base address + static offset dari server
-                target_addr = pm.base_address + skyscalegreenbaraddress
-                pm.write_ushort(target_addr, 37008)  # Nilai modifikasi Skyscale Infinite
+#     while not skyscale_stop_event.is_set():
+#         try:
+#             # Memastikan process memory dan variabel offset tersedia
+#             if pm and skyscalegreenbaraddress:
+#                 # Menghitung alamat absolut berdasarkan base address + static offset dari server
+#                 target_addr = pm.base_address + skyscalegreenbaraddress
+#                 pm.write_ushort(target_addr, 37008)  # Nilai modifikasi Skyscale Infinite
             
-            time.sleep(0.1) # Loop rate 10Hz
-        except Exception as e:
-            logging.error(f"[Skyscale] Gagal menulis ke memori: {e}")
-            time.sleep(0.5)
+#             time.sleep(0.1) # Loop rate 10Hz
+#         except Exception as e:
+#             logging.error(f"[Skyscale] Gagal menulis ke memori: {e}")
+#             time.sleep(0.5)
             
-    logging.info("[Skyscale] Loop injeksi dihentikan.")
+#     logging.info("[Skyscale] Loop injeksi dihentikan.")
 
-def toggle_skyscale_wall(active):
-    global skyscale_thread
+# def toggle_skyscale_wall(active):
+#     global skyscale_thread
     
-    if active:
-        if 'skyscale_thread' in globals() and skyscale_thread and skyscale_thread.is_alive():
-            logging.warning("[Skyscale] Thread sudah aktif. Mengabaikan perintah start.")
-            return
+#     if active:
+#         if 'skyscale_thread' in globals() and skyscale_thread and skyscale_thread.is_alive():
+#             logging.warning("[Skyscale] Thread sudah aktif. Mengabaikan perintah start.")
+#             return
 
-        logging.info("[Skyscale] Mengaktifkan Infinite Wall.")
-        skyscale_stop_event.clear()
-        skyscale_thread = threading.Thread(target=enable_skyscale_loop, daemon=True)
-        skyscale_thread.start()
+#         logging.info("[Skyscale] Mengaktifkan Infinite Wall.")
+#         skyscale_stop_event.clear()
+#         skyscale_thread = threading.Thread(target=enable_skyscale_loop, daemon=True)
+#         skyscale_thread.start()
 
-    else:
-        logging.info("[Skyscale] Menonaktifkan Infinite Wall.")
-        skyscale_stop_event.set()
+#     else:
+#         logging.info("[Skyscale] Menonaktifkan Infinite Wall.")
+#         skyscale_stop_event.set()
 
-        if pm and skyscalegreenbaraddress:
-            try:
-                target_addr = pm.base_address + skyscalegreenbaraddress
-                pm.write_ushort(target_addr, 4083)  # Kembalikan ke nilai standar engine
-                logging.info("[Skyscale] Nilai default 4083 berhasil dikembalikan.")
-            except Exception as e:
-                logging.error(f"[Skyscale] Gagal mengembalikan nilai default: {e}")
+#         if pm and skyscalegreenbaraddress:
+#             try:
+#                 target_addr = pm.base_address + skyscalegreenbaraddress
+#                 pm.write_ushort(target_addr, 4083)  # Kembalikan ke nilai standar engine
+#                 logging.info("[Skyscale] Nilai default 4083 berhasil dikembalikan.")
+#             except Exception as e:
+#                 logging.error(f"[Skyscale] Gagal mengembalikan nilai default: {e}")
 
 def toggle_mount_stamina(active):
     global stamina_thread

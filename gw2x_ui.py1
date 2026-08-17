@@ -110,12 +110,6 @@ class GW2X_UI:
         
         # --- LOAD SETTINGS ---
         cfg = data.load_ui_settings()
-
-        # ESP must NEVER auto-enable on trainer launch.
-        # Ignore any ESP state persisted by an older session/config.
-        cfg_inputs = cfg.setdefault("inputs", {})
-        for _esp_key in ("esp_player", "esp_npc", "esp_path", "esp_health"):
-            cfg_inputs[_esp_key] = 0
         
         self.transparency = float(cfg.get("transparency", 0.95))
         self.always_on_top = tk.BooleanVar(value=cfg.get("always_on_top", True))
@@ -318,6 +312,8 @@ class GW2X_UI:
             
             # --- UPDATE POINTER DINAMIS ---
             self.logic.pm = core.pm
+            if hasattr(self, 'movement') and self.movement:
+                self.movement.pm = core.pm
             if hasattr(self, 'fishing') and self.fishing:
                 self.fishing.pm = core.pm
                 
@@ -1889,13 +1885,11 @@ class GW2X_UI:
         tk.Label(main_frame, text="Entity ESP", bg="#121212", fg="#e67e22", font=("Segoe UI", 9, "bold")).pack(anchor="w", pady=(0, 5))
         
         for text, key in options:
-            # Session always starts with ESP OFF. User may enable it manually afterwards.
-            var = tk.IntVar(value=0)
-            self.saved_inputs[key] = 0
+            var = tk.IntVar(value=self.saved_inputs.get(key, 0))
             
-            # Explicitly apply OFF when the ESP window is first constructed.
+            # FIX: Sync state to logic on UI load
             if self.logic:
-                self.logic.toggle_esp(key, False)
+                self.logic.toggle_esp(key, var.get())
 
             def on_change(k=key, v=var, t=text):
                 self.saved_inputs[k] = v.get()

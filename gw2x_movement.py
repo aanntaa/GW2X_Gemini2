@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 import gw2x_core as core
 import gw2x_logic
+import pymem
 
 # ===============================
 # OFFSETS (Extracted & Fixed)
@@ -45,6 +46,8 @@ class MovementModule:
         self.var_speed_val = None    
         self.var_pro_glider = None   
         self._speed_pause_until = 0
+        self._proglider_boost_active = False
+        self._proglider_boost_started = 0.0
 
         # --- Griffon Variables ---
         self._griffon_running = False
@@ -125,73 +128,102 @@ class MovementModule:
     # Logic: Walk Speed
     # ==========================
     def _walk_speed_loop(self):
-        self._dbg("Walk speed loop started (Smooth Version)")
+        self._dbg("Walk speed loop started (Glider-safe persistent version)")
         self._dbg(f"base_core_address = {hex(core.base_core_address) if core.base_core_address else 'NOT SET'}")
 
-        self._last_y = None
+        was_gliding = False
 
         while self.is_walk_active:
             try:
-                # Pause during pro-glider boost window
-                if time.time() < getattr(self, "_speed_pause_until", 0):
-                    time.sleep(0.01)
+                # Pro Glider explicitly owns gravity/speed while its boost is active.
+                # Do not let normal Speed Hack fight the Pro Glider values.
+                if getattr(self, "_proglider_boost_active", False):
+                    time.sleep(0.005)
                     continue
 
-                # Resolve pointers once per loop
+                if time.time() < getattr(self, "_speed_pause_until", 0):
+                    time.sleep(0.005)
+                    continue
+
+                # Always resolve the current live pointers. Mount/skill/form transitions
+                # can rebuild the underlying movement object.
                 speed_ptrs = []
                 for offset in [OFFSET_SPEED_1, OFFSET_SPEED_2, OFFSET_SPEED_3]:
                     addr = self.get_pointer_address(core.base_core_address, offset)
                     if addr:
                         speed_ptrs.append(addr)
 
-                glider_ptr = self.get_pointer_address(core.base_core_address, OFFSET_GLIDER_DOWNRATE)
+                # ------------------------------------------------------
+                # Detect ACTUAL GLIDER state only.
+                #
+                # Important: do NOT use Y movement / "airborne" here.
+                # Skill animations, jumping, slopes and mount transitions can all
+                # change Y and were causing the speed hack to stop enforcing.
+                #
+                # Mumble mount_index is used as an override: a mounted character
+                # is never treated as gliding even if the downrate value briefly
+                # passes through the glider-looking range during a transition.
+                # ------------------------------------------------------
+                mounted = False
+                try:
+                    if core.mumble:
+                        m = core.mumble.read()
+                        if m:
+                            mounted = int(m.get("mount_index", 0) or 0) != 0
+                except Exception:
+                    pass
 
-                # ---- 1️⃣ Detect Gliding ----
                 gliding = False
-                if glider_ptr:
+                glider_ptr = self.get_pointer_address(
+                    core.base_core_address, OFFSET_GLIDER_DOWNRATE
+                )
+
+                if not mounted and glider_ptr:
                     try:
                         g_val = self.pm.read_float(glider_ptr)
-                        if -4.5 <= g_val <= -2.5:
-                            gliding = True
-                    except:
+                        gliding = (-4.5 <= g_val <= -2.5)
+                    except Exception:
                         pass
 
-                # ---- 2️⃣ Detect Airborne (Smoother & Faster Check) ----
-                airborne = False
-                pos = core.read_coords()
-                
-                if pos:
-                    current_y = pos[1] # Axis vertikal
-                    if self._last_y is not None:
-                        # Toleransi dinaikkan dari 0.005 ke 0.06
-                        # Ini memungkinkan karakter lari di tanjakan/turunan curam tanpa memicu "airborne" palsu
-                        if abs(current_y - self._last_y) > 0.06:
-                            airborne = True
-                    self._last_y = current_y
+                if gliding:
+                    # On entry, remove the walk-speed override once so the glider
+                    # does not inherit the hacked ground/mount speed. After that,
+                    # leave the values alone and let GW2 control glider speed.
+                    if not was_gliding:
+                        for addr in speed_ptrs:
+                            try:
+                                self.pm.write_float(addr, 12.0)
+                            except Exception:
+                                pass
+                        self._dbg("Glider detected -> speed hack suspended")
 
-                # ---- 3️⃣ If Airborne or Gliding → DO NOTHING ----
-                if airborne or gliding:
-                    time.sleep(0.01)
+                    was_gliding = True
+                    time.sleep(0.005)
                     continue
 
-                # ---- 4️⃣ Grounded → Apply Speed ----
+                # Leaving glider -> immediately resume the configured speed hack.
+                if was_gliding:
+                    self._dbg("Glider ended -> speed hack resumed")
+                    was_gliding = False
+
                 try:
                     target_us_speed = float(self.var_speed_val.get())
-                except:
+                except Exception:
                     target_us_speed = DEFAULT_BASE_SPEED_US
 
                 internal_speed = target_us_speed / GW2_SPEED_DIVISOR
 
+                # Persistent enforcement while walking, swimming, jumping, using
+                # skills, mounted, mounting/dismounting, etc.
                 for addr in speed_ptrs:
                     try:
                         self.pm.write_float(addr, internal_speed)
-                    except:
+                    except Exception:
                         pass
 
-            except:
-                pass
+            except Exception as e:
+                self._dbg(f"Walk speed loop error: {e}")
 
-            # Polling rate diturunkan ke 5ms (200 tick/detik) agar injeksi memori sangat padat dan mulus
             time.sleep(0.005)
 
     def on_walkspeed_change(self, *args):
@@ -225,10 +257,17 @@ class MovementModule:
     # Logic: Pro Glider (FIXED)
     # ========================
     def toggle_proglider(self, active=None):
+        previous = self.proglider_active
+
         if active is None:
             self.proglider_active = not self.proglider_active
         else:
             self.proglider_active = active
+
+        # If the feature is turned off while a boost is active, never leave
+        # hover gravity / forward speed behind.
+        if previous and not self.proglider_active and getattr(self, "_proglider_boost_active", False):
+            self._finish_proglider_boost(restore_gravity=True, reason="feature disabled")
 
         self._dbg(f"ProGlider state set to {self.proglider_active}")
 
@@ -288,77 +327,157 @@ class MovementModule:
         while True:
             try:
                 vk = self._proglider_hotkey.get("key", 0x10)
-                is_down = user32.GetAsyncKeyState(vk) & 0x8000
+                is_down = bool(user32.GetAsyncKeyState(vk) & 0x8000)
 
-                if is_down and self.proglider_active:
-                    # Continuously apply hover and speed while held
+                # IMPORTANT: Pro Glider is edge-triggered.
+                # The old port called _proglider_boost() every 20 ms while SHIFT
+                # was held. After stowing the glider, that kept forcing -0.001
+                # gravity + 60 speed and caused the mid-air stall.
+                if is_down and not was_down and self.proglider_active:
                     self._proglider_boost()
-                
-                elif not is_down and was_down and self.proglider_active:
-                    # Released -> Instantly restore speed to default to prevent sliding
-                    self._speed_pause_until = 0  # Resume walk loop immediately
-                    self._restore_speed_defaults()
+
+                # While SHIFT remains held, only MONITOR the value. Never keep
+                # rewriting it. When GW2 stows the glider it will replace our
+                # -0.001 value with its own movement/gravity value. That change
+                # is the signal that the boost must end immediately.
+                elif is_down and self.proglider_active and getattr(self, "_proglider_boost_active", False):
+                    self._monitor_proglider_state()
+
+                elif not is_down and was_down:
+                    if getattr(self, "_proglider_boost_active", False):
+                        # If GW2 already changed the -0.001 value, the glider was
+                        # stowed before SHIFT was released. Do not force -3.2 back
+                        # into a non-glider state in that case.
+                        restore_gravity = True
+                        try:
+                            glider_ptr = self.get_pointer_address(core.base_core_address, OFFSET_GLIDER_DOWNRATE)
+                            if glider_ptr:
+                                g_val = self.pm.read_float(glider_ptr)
+                                restore_gravity = (-0.02 <= g_val <= 0.02)
+                        except Exception:
+                            pass
+
+                        self._finish_proglider_boost(
+                            restore_gravity=restore_gravity,
+                            reason="hotkey released" if restore_gravity else "glider already stowed before hotkey release"
+                        )
 
                 was_down = is_down
-                time.sleep(0.02) # Fast polling for smooth hover
+                time.sleep(0.02)
 
             except Exception as e:
                 self._dbg(f"Hotkey listener error: {e}")
                 time.sleep(0.5)
 
+    def _monitor_proglider_state(self):
+        """End the boost if GW2 changes the glider downrate after it was boosted."""
+        try:
+            glider_ptr = self.get_pointer_address(core.base_core_address, OFFSET_GLIDER_DOWNRATE)
+            if not glider_ptr:
+                self._finish_proglider_boost(restore_gravity=False, reason="glider pointer lost")
+                return
+
+            g_val = self.pm.read_float(glider_ptr)
+
+            # During our active hover the value should remain extremely close to
+            # -0.001. A meaningful change means the engine changed movement state
+            # (most importantly: the glider was stowed mid-air).
+            if not (-0.02 <= g_val <= 0.02):
+                self._finish_proglider_boost(restore_gravity=False, reason=f"glider state changed ({g_val:.3f})")
+
+        except Exception as e:
+            self._dbg(f"ProGlider monitor error: {e}")
+
     def _proglider_boost(self):
         try:
             glider_ptr = self.get_pointer_address(core.base_core_address, OFFSET_GLIDER_DOWNRATE)
             if not glider_ptr:
-                print("[MovementDBG] ProGlider: Pointer is NULL (0x0). Base offset might be wrong.")
-                return
+                self._dbg("ProGlider: glider pointer is NULL")
+                return False
 
-            try:
-                g_val = self.pm.read_float(glider_ptr)
-                
-                # --- DEBUG PRINT ---
-                # Ini akan mencetak nilai gravitasi ke terminal saat kamu menekan tombol boost
-                print(f"[MovementDBG] Raw Downrate Value: {g_val:.3f}")
-                
-            except Exception as e:
-                print(f"[MovementDBG] Read Error: {e}")
-                return
+            g_val = self.pm.read_float(glider_ptr)
+            self._dbg(f"ProGlider downrate before boost: {g_val:.3f}")
 
-            # EXACT ORIGINAL LOGIC: 
-            if (-4.0 <= g_val <= -3.0) or (-0.002 <= g_val <= 0.0):
-                self._speed_pause_until = time.time() + 0.5
-                self.pm.write_float(glider_ptr, -0.001)
+            # Match the original decompiled behavior: only START the boost when
+            # the untouched glider downrate is in its normal gliding range.
+            # Do not treat our own -0.001 value as a reason to boost again.
+            if not (-4.0 <= g_val <= -3.0):
+                return False
 
-                speed_ptrs = []
-                for offset in [OFFSET_SPEED_1, OFFSET_SPEED_2, OFFSET_SPEED_3]:
-                    addr = self.get_pointer_address(core.base_core_address, offset)
-                    if addr:
-                        speed_ptrs.append(addr)
+            self.pm.write_float(glider_ptr, -0.001)
 
-                for addr in speed_ptrs:
-                    self.pm.write_float(addr, 60.0)
-
-            elif -2.0 <= g_val <= 1.0:
-                pass
-
-        except Exception as e:
-            print(f"[MovementDBG] ProGlider Error: {e}")
-
-    def _restore_speed_defaults(self):
-        """Helper to snap speed back to normal when releasing the hotkey"""
-        try:
-            # 1. Paksa kembalikan gravitasi (downrate) agar karakter bisa jatuh/mendarat
-            glider_ptr = self.get_pointer_address(core.base_core_address, OFFSET_GLIDER_DOWNRATE)
-            if glider_ptr:
-                self.pm.write_float(glider_ptr, -3.2)
-                
-            # 2. Kembalikan kecepatan ke standar mid-air orisinal (12.0)
             for offset in [OFFSET_SPEED_1, OFFSET_SPEED_2, OFFSET_SPEED_3]:
                 addr = self.get_pointer_address(core.base_core_address, offset)
                 if addr:
-                    self.pm.write_float(addr, 12.0)
+                    self.pm.write_float(addr, 60.0)
+
+            self._proglider_boost_active = True
+            self._proglider_boost_started = time.time()
+            self._speed_pause_until = 0
+            self._dbg("ProGlider boost ACTIVE")
+            return True
+
         except Exception as e:
-            self._dbg(f"Restore error: {e}")
+            self._dbg(f"ProGlider Error: {e}")
+            return False
+
+    def _restore_speed_after_proglider(self, allow_speed_hack):
+        """Restore the correct owner of the speed fields after Pro Glider ends."""
+        try:
+            # If we are STILL gliding (normal SHIFT release), Speed Hack must stay
+            # out of the glider. Restore vanilla glider speed only.
+            if not allow_speed_hack:
+                target = 12.0
+            else:
+                # Glider was stowed: normal Speed Hack may immediately resume.
+                speed_hack_enabled = (
+                    self.is_walk_active
+                    and self.var_speed_active is not None
+                    and self.var_speed_val is not None
+                    and bool(self.var_speed_active.get())
+                )
+
+                if speed_hack_enabled:
+                    try:
+                        target = float(self.var_speed_val.get()) / GW2_SPEED_DIVISOR
+                    except Exception:
+                        target = DEFAULT_BASE_SPEED_US / GW2_SPEED_DIVISOR
+                else:
+                    target = 12.0
+
+            for offset in [OFFSET_SPEED_1, OFFSET_SPEED_2, OFFSET_SPEED_3]:
+                addr = self.get_pointer_address(core.base_core_address, offset)
+                if addr:
+                    self.pm.write_float(addr, target)
+
+        except Exception as e:
+            self._dbg(f"ProGlider speed restore error: {e}")
+
+    def _finish_proglider_boost(self, restore_gravity=True, reason=""):
+        """Clear Pro Glider ownership without leaving hover/speed values behind."""
+        try:
+            # Clear ownership FIRST so the normal speed loop may resume.
+            self._proglider_boost_active = False
+            self._proglider_boost_started = 0.0
+            self._speed_pause_until = 0
+
+            if restore_gravity:
+                glider_ptr = self.get_pointer_address(core.base_core_address, OFFSET_GLIDER_DOWNRATE)
+                if glider_ptr:
+                    self.pm.write_float(glider_ptr, -3.2)
+
+            self._restore_speed_after_proglider(allow_speed_hack=not restore_gravity)
+
+            if reason:
+                self._dbg(f"ProGlider boost ended: {reason}")
+
+        except Exception as e:
+            self._dbg(f"ProGlider finish error: {e}")
+
+    def _restore_speed_defaults(self):
+        # Compatibility helper used by older call sites.
+        self._finish_proglider_boost(restore_gravity=True, reason="restore requested")
+
     # ==========================
     # Logic: Wall Climb
     # ==========================
@@ -672,10 +791,7 @@ class MovementModule:
     #   Stamina:  CE find what writes to mount stamina float → copy 8 bytes → update STAMINA_ORI
     # =========================================================
 
-    # Skyscale constants
-    SKYSCALE_OFFSET  = 0x1212310  # module-relative, direct static address
-    SKYSCALE_ORI     = 4083        # vanilla ushort value
-    SKYSCALE_MOD     = 37008       # infinite wall ushort value
+    
 
     # Mount stamina constants
     # Pattern: 8 bytes surrounding the stamina float write instruction
@@ -696,18 +812,91 @@ class MovementModule:
         else:
             self._dbg("Griffon AOB not found")
 
+    # Skyscale constants
+    SKYSCALE_OFFSET = 0x121F7F0
+    SKYSCALE_ORI    = 4083
+    SKYSCALE_MOD    = 37008
+
     def _resolve_skyscale_addr(self):
-        """Skyscale uses a direct static offset — same stability as griffon."""
+        """
+        Resolve the Skyscale patch point using an AOB anchor.
+
+        AOB anchor:
+            49 6B EF 1C
+
+        Patch offset:
+            +0x0B
+        """
+
         try:
-            base = self.pm.base_address
-            addr = base + self.SKYSCALE_OFFSET
-            # Verify: read current value, should be 4083 or 37008
-            val = self.pm.read_ushort(addr)
-            self._dbg(f"Skyscale addr: {hex(addr)}  current value: {val}")
-            return addr
-        except Exception as e:
-            self._dbg(f"Skyscale resolve failed: {e}")
+            anchor = bytes.fromhex(
+                "49 6B EF 1C"
+            )
+
+            addr = self.pm.pattern_scan_module(
+                anchor,
+                "Gw2-64.exe"
+            )
+
+            if not addr:
+                self._dbg(
+                    "Skyscale AOB anchor not found."
+                )
+                return None
+
+            patch_addr = addr + 0x0B
+
+            current = self.pm.read_ushort(patch_addr)
+
+            self._dbg(
+                f"Skyscale AOB resolved: "
+                f"match={hex(addr)} "
+                f"patch={hex(patch_addr)} "
+                f"value=0x{current:04X}"
+            )
+
+            if current in (
+                self.SKYSCALE_ORI,
+                self.SKYSCALE_MOD
+            ):
+                return patch_addr
+
+            self._dbg(
+                f"Skyscale unexpected patch value: "
+                f"0x{current:04X}"
+            )
+
             return None
+
+        except Exception as e:
+            self._dbg(
+                f"Skyscale resolve exception: {e}"
+            )
+            return None
+            
+    # def _resolve_skyscale_addr(self):
+    #     """
+    #     Resolve Skyscale green-bar address using the original decompiled
+    #     implementation: module base + skyscalegreenbaraddress.
+
+    #     No AOB scan is used here.
+    #     """
+    #     try:
+    #         offset = getattr(core, "skyscalegreenbaraddress", 0)
+    #         if not offset:
+    #             self._dbg("Skyscale: skyscalegreenbaraddress is not set")
+    #             return None
+
+    #         addr = self.pm.base_address + offset
+    #         self._dbg(
+    #             f"Skyscale resolved: base={hex(self.pm.base_address)} "
+    #             f"offset={hex(offset)} addr={hex(addr)}"
+    #         )
+    #         return addr
+
+    #     except Exception as e:
+    #         self._dbg(f"Skyscale resolve exception: {e}")
+    #         return None
 
     # Mount stamina chain — only option without CE code bytes
     # Chain: [base_core_address] +152 +16 +912 +12 = stamina float

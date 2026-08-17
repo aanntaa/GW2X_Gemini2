@@ -405,7 +405,7 @@ class GW2X_Logic:
         self.auto_tp_interact_object = False
         self.auto_tp_interact_vista = False
 
-        self._esp_enabled = {"esp_player": False, "esp_npc": False, "esp_path": False, "esp_health": False}
+        self._esp_enabled = {"esp_player": True, "esp_npc": True, "esp_path": True, "esp_health": True}
         self._clarity_enabled = True
 
         self._recover_npc_dictionary()

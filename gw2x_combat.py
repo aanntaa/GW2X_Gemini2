@@ -2,6 +2,12 @@ import time
 import threading
 import os
 
+try:
+    import gw2x_combat_bridge as combat_bridge
+except Exception as _combat_bridge_err:
+    combat_bridge = None
+    print(f"[CombatBridge] Import failed: {_combat_bridge_err}")
+
 class CombatMacroEngine:
     def __init__(self, presskey_func, keydown_func, keyup_func, window_title="Guild Wars 2"):
         # UI Bridges
@@ -147,6 +153,8 @@ class CombatMacroEngine:
     def stop(self, key):
         self.running[key] = False
         self.paused[key] = False
+        if combat_bridge is not None:
+            combat_bridge.release_all()
 
     def pause(self, key):
         self.paused[key] = True
@@ -216,8 +224,18 @@ class CombatMacroEngine:
 
             # --- 3. PRESS KEY ---
             hex_code = self._get_hex_code(skill_name)
+
+            print(f"[DEBUG] Skill: {skill_name}")
+            print(f"[DEBUG] Hex Code: {hex_code}")
+
             if hex_code is not None:
-                self.presskey(self.window_title, hex_code)
+                print(f"[DEBUG] DIK scan code: 0x{hex_code:02X}")
+
+                if hex_code is not None:
+                    print(f"[DEBUG] DIK scan code: 0x{hex_code:02X}")
+                    self.presskey(self.window_title, hex_code)
+            else:
+                print(f"[ERROR] No hex code found for {skill_name}")
 
             # --- 4. HANDLE DELAY ---
             sleep_sec = delay_ms / 1000.0

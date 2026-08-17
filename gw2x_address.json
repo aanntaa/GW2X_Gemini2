@@ -1,7 +1,7 @@
 {
-    "pointer_base_offset": "0x32617D0",
+    "pointer_base_offset": "0x289CC901",
     "pointer_offsets": ["0x0"],
     "coord_y_extra": "0x4",
     "coord_z_extra": "0x8",
-    "version_hint": "2026-03-8"
+    "version_hint": "2026-08-14"
 }

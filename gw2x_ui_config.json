@@ -1,10 +1,10 @@
 {
-  "transparency": 0.8297872340425532,
+  "transparency": 0.6340425531914893,
   "always_on_top": true,
   "positions": {
     "main": {
-      "x": 2819,
-      "y": 12,
+      "x": 2700,
+      "y": 78,
       "w": 140,
       "h": 292
     },
@@ -15,26 +15,26 @@
       "h": 441
     },
     "category:Teleport Hub": {
-      "x": 2964,
-      "y": 12,
+      "x": 2845,
+      "y": 78,
       "w": 200,
       "h": 183
     },
     "category:Combat": {
-      "x": 2956,
-      "y": 208,
+      "x": 2845,
+      "y": 78,
       "w": 200,
       "h": 81
     },
     "Combat Macro": {
-      "x": 2596,
-      "y": 409,
+      "x": 2573,
+      "y": 487,
       "w": 212,
       "h": 276
     },
     "category:Movement": {
-      "x": 2964,
-      "y": 12,
+      "x": 2845,
+      "y": 78,
       "w": 200,
       "h": 132
     },
@@ -165,20 +165,20 @@
       "h": 650
     },
     "Main Teleporter": {
-      "x": 2521,
-      "y": 866,
+      "x": 2377,
+      "y": 572,
       "w": 397,
       "h": 507
     },
     "Object Teleporter": {
-      "x": 2648,
-      "y": 885,
+      "x": 2259,
+      "y": 809,
       "w": 525,
       "h": 425
     },
     "category:Visuals": {
-      "x": 2964,
-      "y": 12,
+      "x": 2845,
+      "y": 78,
       "w": 200,
       "h": 132
     },
@@ -189,8 +189,8 @@
       "h": 250
     },
     "GW2X ESP": {
-      "x": 2638,
-      "y": 510,
+      "x": 2547,
+      "y": 571,
       "w": 300,
       "h": 400
     },
@@ -465,20 +465,20 @@
       "h": 300
     },
     "Player Enhancement": {
-      "x": 2212,
-      "y": 577,
+      "x": 3160,
+      "y": 709,
       "w": 254,
       "h": 452
     },
     "Mount Enhancement": {
-      "x": 2247,
-      "y": 299,
+      "x": 2246,
+      "y": 300,
       "w": 192,
       "h": 300
     },
     "category:Fish & Skiff": {
-      "x": 2964,
-      "y": 12,
+      "x": 2845,
+      "y": 78,
       "w": 200,
       "h": 81
     },
@@ -939,8 +939,8 @@
       "h": 325
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Gardening.tps": {
-      "x": 3044,
-      "y": 6,
+      "x": 2109,
+      "y": 373,
       "w": 176,
       "h": 325
     },
@@ -999,8 +999,8 @@
       "h": 325
     },
     "Live Entities": {
-      "x": 2837,
-      "y": 409,
+      "x": 2785,
+      "y": 462,
       "w": 343,
       "h": 436
     },
@@ -1015,18 +1015,41 @@
       "y": 153,
       "w": 176,
       "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\1. Farm_Keyfarm Human.tps": {
+      "x": 2969,
+      "y": 12,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\50 Festivals\\Festival of The Four Winds\\Festival of The Four Winds_Labyrinthine Cliffs Loot Round1.tps": {
+      "x": 2602,
+      "y": 635,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\50 Festivals\\Festival of The Four Winds\\Festival of The Four Winds_Labyrinthine Cliffs Time Trial Flying Dolyak.tps": {
+      "x": 2599,
+      "y": 572,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\50 Festivals\\Festival of The Four Winds\\Festival of The Four Winds_Labyrinthine Cliffs Tornflier.tps": {
+      "x": 2969,
+      "y": 12,
+      "w": 176,
+      "h": 325
     }
   },
   "allow_resize": false,
   "open_windows": [
-    "category:Settings",
+    "Player Enhancement",
     "Combat Macro",
-    "General Settings",
-    "Object Teleporter",
     "category:Movement",
     "All Teleports",
     "Live Entities",
-    "Mount Enhancement"
+    "General Settings",
+    "category:Settings"
   ],
   "inputs": {
     "dir_dist": "80000",
@@ -1048,24 +1071,26 @@
     "auto_start_mode": "start",
     "map_tab_scroll": 0,
     "vis_fog": 1,
-    "esp_player": 0,
+    "esp_player": 1,
     "esp_npc": 0,
     "esp_path": 0,
     "esp_health": 0,
+    "trainer_visibility_mode": "follow",
+    "hide_when_gw2_unfocused": true,
     "auto_tp_retry": false,
     "auto_tp_retry_count": "2",
     "auto_tp_start_from": "beginning",
     "auto_tp_direction": "forward",
     "auto_tp_order": "sequential",
-    "last_hub_tab_idx": 2,
-    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\10 Living World\\Season 4 (Path of Fire)\\Domain of Istan\\Domain of Istan_Ancient-weapons.tps",
+    "last_hub_tab_idx": 1,
+    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Gardening.tps",
     "auto_tp_open": false,
     "last_auto_tp_index": 0,
     "last_obj_tab_idx": 0,
     "hk_next": "F9",
     "hk_prev": "F10",
-    "chat_x": "170",
-    "chat_y": "1378",
+    "chat_x": "246",
+    "chat_y": "1374",
     "map_tp_hotkey": {
       "mods": [],
       "key": 4,
@@ -1078,21 +1103,17 @@
     },
     "tps_nav_hotkeys": {
       "next": {
-        "mods": [
-          18
-        ],
-        "key": 50,
-        "text": "Alt+2"
+        "mods": [],
+        "key": 34,
+        "text": "Key_22"
       },
       "back": {
-        "mods": [
-          18
-        ],
-        "key": 49,
-        "text": "Alt+1"
+        "mods": [],
+        "key": 33,
+        "text": "Key_21"
       }
     },
-    "live_src_NPCs": "shadow",
+    "live_src_NPCs": "",
     "live_exc_NPCs": "mini,",
     "live_src_Objects": "",
     "live_exc_Objects": "",
