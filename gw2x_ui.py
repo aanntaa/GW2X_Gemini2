@@ -22,7 +22,6 @@ import gw2x_logic
 import gw2x_fishing
 import gw2x_core as core
 from gw2x_combat import CombatMacroEngine
-from gw2x_core import presskey, send_background_key
 from gw2x_movement import MovementModule
 from datetime import datetime
 
@@ -110,12 +109,6 @@ class GW2X_UI:
         
         # --- LOAD SETTINGS ---
         cfg = data.load_ui_settings()
-
-        # ESP must NEVER auto-enable on trainer launch.
-        # Ignore any ESP state persisted by an older session/config.
-        cfg_inputs = cfg.setdefault("inputs", {})
-        for _esp_key in ("esp_player", "esp_npc", "esp_path", "esp_health"):
-            cfg_inputs[_esp_key] = 0
         
         self.transparency = float(cfg.get("transparency", 0.95))
         self.always_on_top = tk.BooleanVar(value=cfg.get("always_on_top", True))
@@ -204,9 +197,24 @@ class GW2X_UI:
                 
         # --- INIT COMBAT MACRO FILES ---
         self.init_combat_macro_files()
+
+        # Create the engine before build_ui(). A persisted Combat Macro window
+        # can be restored from build_ui and needs this object immediately.
+        self.combat_macro = CombatMacroEngine(
+            presskey_func=lambda win, key: core.presskey(win, key, 0.05),
+            keydown_func=core.send_background_down,
+            keyup_func=core.send_background_up,
+            window_title="Guild Wars 2"
+        )
+        self.combat_macro.initialize_mappings("gw2x_key_config.txt", "skills.map")
+        self.combat_macro.set_skill_key_hotkey(self.skill_key_hotkey)
+        self.macro_state = {"A": False, "B": False}
+        self.macro_hotkeys = cfg.get(
+            "macro_hotkeys", {"A_TOGGLE": "<F6>", "B_TOGGLE": "<F8>"}
+        )
         
-        # === CRITICAL FIX: DEFINE live_running HERE ===
-        self.live_running = True 
+        # Worker threads read plain Python values, not Tk variables.
+        self.live_running = True
         
         self.save_combat_log_var = tk.BooleanVar(value=False)
         self.relog_char_select_x = 1720
@@ -250,27 +258,6 @@ class GW2X_UI:
         self._expanded_map_groups = set()
         self.map_file_windows = {}
         
-        # --- PERBAIKAN: Gunakan lambda untuk membuang argumen 'win' ---
-        # CombatEngine mengirim (window, key), tapi input_driver cuma butuh (key)
-        self.combat_macro = CombatMacroEngine(
-            # Fungsi tap (tekan & lepas)
-            presskey_func=lambda win, key: core.send_background_key(win, hex(key) if isinstance(key, int) else key),
-            
-            # Fungsi tahan (down)
-            keydown_func=lambda win, key: core.send_background_down(win, hex(key) if isinstance(key, int) else key),
-            
-            # Fungsi lepas (up)
-            keyup_func=lambda win, key: core.send_background_up(win, hex(key) if isinstance(key, int) else key),
-            
-            window_title="Guild Wars 2"
-        )
-        
-        # [FIX] Load the key config and skill map files!
-        self.combat_macro.initialize_mappings("gw2x_key_config.txt", "skills.map")
-        self.macro_state = {"A": False, "B": False}
-        self.macro_hotkeys = cfg.get("macro_hotkeys", {"A_TOGGLE": "<F6>", "B_TOGGLE": "<F8>"})
-        self.combat_macro.set_skill_key_hotkey(self.skill_key_hotkey)
-
         if self.logic and self.skill_key_hotkey:
             self.logic.move_fwd_scan  = getattr(self.skill_key_hotkey, "MOVE_FORWARD", None)
             self.logic.move_back_scan = getattr(self.skill_key_hotkey, "MOVE_BACK", None)
@@ -1889,13 +1876,11 @@ class GW2X_UI:
         tk.Label(main_frame, text="Entity ESP", bg="#121212", fg="#e67e22", font=("Segoe UI", 9, "bold")).pack(anchor="w", pady=(0, 5))
         
         for text, key in options:
-            # Session always starts with ESP OFF. User may enable it manually afterwards.
-            var = tk.IntVar(value=0)
-            self.saved_inputs[key] = 0
+            var = tk.IntVar(value=self.saved_inputs.get(key, 0))
             
-            # Explicitly apply OFF when the ESP window is first constructed.
+            # FIX: Sync state to logic on UI load
             if self.logic:
-                self.logic.toggle_esp(key, False)
+                self.logic.toggle_esp(key, var.get())
 
             def on_change(k=key, v=var, t=text):
                 self.saved_inputs[k] = v.get()
@@ -3404,6 +3389,10 @@ class GW2X_UI:
      
     def _build_tab_events(self, parent):
         parent._event_rows = []
+        parent._event_probe_selected = getattr(parent, "_event_probe_selected", None)
+        parent._event_probe_bind_sequence = None
+        parent._event_probe_bind_guid = ""
+        parent._event_probe_bind_event = None
 
         # ── Filter bar ────────────────────────────────────────────────────────
         filter_bar = tk.Frame(parent, bg="#1a1a1a")
@@ -3459,23 +3448,20 @@ class GW2X_UI:
             if not self.logic:
                 return
             try:
-                ents = core.shared_entities.read_entities() if hasattr(core, 'shared_entities') and core.shared_entities else []
-                print(f"[EventDebug] Total IPC entities: {len(ents)}")
-                # Show ALL non-player entities with their attitude
-                for e in ents:
-                    if e.get("type") != 0:  # skip players
-                        print(f"  type={e.get('type')} att={e.get('raw_attitude')} "
-                            f"name={e.get('real_name','?')[:30]} "
-                            f"x={e.get('x',0):.0f} z={e.get('z',0):.0f}")
-                # Also show current map events from DB
-                mid = self.logic.current_map_id
-                with EventDetector._db_lock:
-                    evs = EventDetector._event_db.get(int(mid), [])
-                culls = [ev for ev in evs if 'cull' in ev.get('name','').lower()]
-                print(f"[EventDebug] 'Cull' events for map {mid}:")
-                for ev in culls:
-                    print(f"  cx={ev['cx_m']:.0f} cz={ev['cz_m']:.0f} r={ev['radius_m']:.0f} name={ev['name']}")
-            except Exception as ex:
+                state = core.get_live_event_status()
+                records = state.get("records", [])
+                print(
+                    f"[EventDebug] Live feed available={state.get('available')} "
+                    f"fresh={state.get('fresh')} source={state.get('source')} "
+                    f"records={len(records)} scanned={state.get('objects_scanned', 0)}")
+                for record in records:
+                    print(
+                        f"  id=0x{int(record.get('runtime_id', 0)):X} "
+                        f"xyz=({record.get('map_x', 0):.4f}, "
+                        f"{record.get('map_y', 0):.4f}, {record.get('map_z', 0):.4f}) "
+                        f"slot={record.get('array_index')} "
+                        f"object=0x{int(record.get('object_ptr', 0)):X}")
+            except Exception:
                 import traceback; traceback.print_exc()
 
         tk.Button(
@@ -3483,6 +3469,52 @@ class GW2X_UI:
             relief="flat", font=("Segoe UI", 7),
             command=_debug_ipc
         ).pack(side=tk.RIGHT, padx=2)
+
+        # ── Event lifecycle memory probe ─────────────────────────────────────
+        # The list is driven by the DLL coordinate feed. Capture Active also
+        # binds a GUID when several events share the same static center.
+        probe_frame = tk.Frame(parent, bg="#18242b", padx=5, pady=4)
+        probe_frame.pack(fill=tk.X, padx=4, pady=(3, 1))
+
+        parent._event_probe_title_var = tk.StringVar(
+            value="Probe: choose one event with the 'use' button")
+        tk.Label(
+            probe_frame, textvariable=parent._event_probe_title_var,
+            bg="#18242b", fg="#8fb7c9", font=("Segoe UI", 7),
+            anchor="w"
+        ).pack(fill=tk.X)
+
+        probe_buttons = tk.Frame(probe_frame, bg="#18242b")
+        probe_buttons.pack(fill=tk.X, pady=(2, 1))
+        probe_btn_style = {
+            "bg": "#24404d", "fg": "#d5edf7", "activebackground": "#31586a",
+            "activeforeground": "white", "relief": "flat",
+            "font": ("Segoe UI", 7), "padx": 5, "pady": 2,
+        }
+        tk.Button(
+            probe_buttons, text="Capture Inactive", **probe_btn_style,
+            command=lambda: self._send_event_probe_command(parent, "inactive")
+        ).pack(side=tk.LEFT, padx=(0, 2))
+        tk.Button(
+            probe_buttons, text="Capture Active / Bind", **probe_btn_style,
+            command=lambda: self._send_event_probe_command(parent, "active")
+        ).pack(side=tk.LEFT, padx=2)
+        tk.Button(
+            probe_buttons, text="Verify Inactive", **probe_btn_style,
+            command=lambda: self._send_event_probe_command(parent, "verify")
+        ).pack(side=tk.LEFT, padx=2)
+        tk.Button(
+            probe_buttons, text="Reset", **probe_btn_style,
+            command=lambda: self._send_event_probe_command(parent, "reset")
+        ).pack(side=tk.LEFT, padx=2)
+
+        parent._event_probe_status_var = tk.StringVar(value="Connecting to Event Probe...")
+        parent._event_probe_status_label = tk.Label(
+            probe_frame, textvariable=parent._event_probe_status_var,
+            bg="#18242b", fg="#7f9ba8", font=("Segoe UI", 7),
+            anchor="w", justify="left", wraplength=540
+        )
+        parent._event_probe_status_label.pack(fill=tk.X)
 
         # ── Scrollable list ───────────────────────────────────────────────────
         list_container = tk.Frame(parent, bg="#121212")
@@ -3524,15 +3556,107 @@ class GW2X_UI:
         dist_var.trace_add("write", _on_filter)
 
         self._refresh_event_tab(parent)
+        parent.after(100, lambda: self._poll_event_probe_status(parent))
 
         def _auto():
             try:
                 if parent.winfo_exists():
                     self._refresh_event_tab(parent)
-                    parent.after(30000, _auto)
+                    parent.after(1500, _auto)
             except Exception:
                 pass
-        parent.after(15000, _auto)
+        parent.after(1000, _auto)
+
+    def _select_event_probe_target(self, parent, event_entry):
+        guid = str(event_entry.get("guid", "")).strip()
+        if not guid:
+            return
+        parent._event_probe_selected = dict(event_entry)
+        name = event_entry.get("name") or f"[{guid[:8]}]"
+        if hasattr(parent, "_event_probe_title_var"):
+            parent._event_probe_title_var.set(f"Probe: {name}  [{guid[:8]}]")
+
+    def _send_event_probe_command(self, parent, command):
+        selected = getattr(parent, "_event_probe_selected", None)
+        if command != "reset" and not selected:
+            if hasattr(parent, "_event_probe_status_var"):
+                parent._event_probe_status_var.set(
+                    "Choose one event with 'use' before capturing.")
+            return
+
+        guid = selected.get("guid", "") if selected else ""
+        try:
+            ok, message = core.send_event_probe_command(command, guid)
+        except Exception as exc:
+            ok, message = False, f"Event Probe request failed: {exc}"
+
+        if ok and command == "active":
+            try:
+                queued = core.get_event_probe_status()
+                parent._event_probe_bind_sequence = int(
+                    queued.get("request_sequence", 0) or 0)
+                parent._event_probe_bind_guid = str(guid).upper()
+                parent._event_probe_bind_event = dict(selected)
+            except Exception:
+                parent._event_probe_bind_sequence = None
+                parent._event_probe_bind_guid = ""
+                parent._event_probe_bind_event = None
+
+        if hasattr(parent, "_event_probe_status_var"):
+            parent._event_probe_status_var.set(message)
+        if hasattr(parent, "_event_probe_status_label"):
+            parent._event_probe_status_label.config(
+                fg="#8fd18f" if ok else "#e08a8a")
+
+    def _poll_event_probe_status(self, parent):
+        try:
+            if not parent.winfo_exists():
+                return
+            state = core.get_event_probe_status()
+            if not state.get("available"):
+                text = state.get("message") or (
+                    "Event Probe mapping unavailable; inject the rebuilt DLL")
+                color = "#e08a8a"
+            else:
+                inactive = int(state.get("inactive_blocks", 0))
+                active = int(state.get("active_blocks", 0))
+                verify = int(state.get("verify_blocks", 0))
+                candidates = int(state.get("candidates", 0))
+                message = state.get("message", "")
+                # Must match Event Probe V2's kProbeMaxBlocks in DataExtractor.cpp.
+                cap_note = "  • scan cap reached" if max(inactive, active, verify) >= 20000 else ""
+                text = (
+                    f"{message}  [I{inactive} A{active} V{verify} C{candidates}]"
+                    f"{cap_note}")
+                color = "#d6b45f" if cap_note else (
+                    "#8fd18f" if state.get("status") == "success" else "#7f9ba8")
+
+                pending = getattr(parent, "_event_probe_bind_sequence", None)
+                completed = int(state.get("completed_sequence", 0) or 0)
+                if (pending and completed == int(pending) and
+                        state.get("status") == "success"):
+                    bind_event = getattr(parent, "_event_probe_bind_event", None)
+                    parent._event_probe_bind_sequence = None
+                    parent._event_probe_bind_guid = ""
+                    parent._event_probe_bind_event = None
+                    if bind_event and self.logic:
+                        bind_ok, bind_message = self.logic.bind_event_runtime_id(bind_event)
+                        text = f"{text}  • {bind_message}"
+                        color = "#8fd18f" if bind_ok else "#e08a8a"
+
+            if hasattr(parent, "_event_probe_status_var"):
+                parent._event_probe_status_var.set(text)
+            if hasattr(parent, "_event_probe_status_label"):
+                parent._event_probe_status_label.config(fg=color)
+        except Exception as exc:
+            if hasattr(parent, "_event_probe_status_var"):
+                parent._event_probe_status_var.set(f"Event Probe status error: {exc}")
+        finally:
+            try:
+                if parent.winfo_exists():
+                    parent.after(500, lambda: self._poll_event_probe_status(parent))
+            except Exception:
+                pass
 
     def _refresh_event_tab(self, parent):
         if not hasattr(parent, "_event_scroll_frame"):
@@ -3590,17 +3714,30 @@ class GW2X_UI:
                 continue
             if query:
                 name_match = query in ev.get("name", "").lower()
-                npc_match  = any(query in n.lower()
-                                for n in ev.get("matched_npcs", []))
-                if not name_match and not npc_match:
+                if not name_match:
                     continue
             filtered.append(ev)
 
         total      = len(all_events)
         shown      = min(len(filtered), DISPLAY_LIMIT)
         active_cnt = sum(1 for e in all_events if e.get("likely_active"))
+        bind_needed = sum(1 for e in all_events if e.get("needs_runtime_id"))
+        if all_events:
+            feed_available = bool(all_events[0].get("live_feed_available"))
+            feed_fresh = bool(all_events[0].get("live_feed_fresh"))
+            feed_source = all_events[0].get("live_feed_source", "unresolved")
+        else:
+            live_state = core.get_live_event_status()
+            feed_available = bool(live_state.get("available"))
+            feed_fresh = bool(live_state.get("fresh"))
+            feed_source = live_state.get("source", "unresolved")
+        feed_text = (
+            f"DLL {feed_source}" if feed_available and feed_fresh else
+            "DLL stale" if feed_available else "DLL offline")
+        bind_text = f"  •  {bind_needed} need ID" if bind_needed else ""
         self._event_status_var.set(
-            f"{shown}/{total} shown  •  {active_cnt} active  •  map {self.logic.current_map_id}"
+            f"{shown}/{total} shown  •  {active_cnt} active{bind_text}  •  "
+            f"{feed_text}  •  map {self.logic.current_map_id}"
         )
 
         if not filtered:
@@ -3615,12 +3752,14 @@ class GW2X_UI:
             name          = ev.get("name", f"[{ev['guid'][:8]}]")
             likely_active = ev.get("likely_active", False)
             dist_m        = ev.get("dist_m", 999999)
-            matched_npcs  = ev.get("matched_npcs", [])
             has_loc       = ev.get("cx_m") is not None
+            needs_id      = ev.get("needs_runtime_id", False)
 
             # Color strip
             if likely_active:
                 strip_col = "#00ff66"
+            elif needs_id:
+                strip_col = "#aa7dff"
             elif dist_m < 500:
                 strip_col = "#ffcc00"
             else:
@@ -3630,11 +3769,19 @@ class GW2X_UI:
                         cursor="hand2" if has_loc else "arrow")
             row.pack(fill=tk.X, pady=1)
 
-            tk.Frame(row, width=4, bg=strip_col).pack(side=tk.LEFT, fill=tk.Y)
+            color_strip_frame = tk.Frame(row, width=4, bg=strip_col)
+            color_strip_frame.pack(side=tk.LEFT, fill=tk.Y)
 
             text_block = tk.Frame(row, bg="#1e1e1e")
             text_block.pack(side=tk.LEFT, fill=tk.BOTH, expand=True,
                             padx=(6, 6), pady=3)
+
+            tk.Button(
+                row, text="use", bg="#243640", fg="#8fb7c9",
+                activebackground="#31586a", activeforeground="white",
+                relief="flat", font=("Segoe UI", 7), padx=4, pady=1,
+                command=lambda ev=ev: self._select_event_probe_target(parent, ev)
+            ).pack(side=tk.RIGHT, padx=(2, 4), pady=3)
 
             tk.Label(
                 text_block, text=name, bg="#1e1e1e",
@@ -3643,20 +3790,22 @@ class GW2X_UI:
                 anchor="w", wraplength=300, justify="left"
             ).pack(anchor="w")
 
-            # Sub-line: distance + matched NPC
+            # Sub-line: distance + actual DLL detection state
             sub_parts = []
             if dist_m < 999999:
                 sub_parts.append(f"{dist_m:.0f}m away")
-            if likely_active and matched_npcs:
-                npc_str = matched_npcs[0].get("name", "?")  # was matched_npcs[0] directly
-                if len(matched_npcs) > 1:
-                    npc_str += f" +{len(matched_npcs)-1}"
-                sub_parts.append(npc_str)
+            if likely_active:
+                runtime_id = ev.get("live_runtime_id")
+                id_text = f"0x{int(runtime_id):X}" if runtime_id else "center match"
+                sub_parts.append(f"DLL live • ID {id_text}")
+            elif needs_id:
+                sub_parts.append("Live center found • select this event, then Capture Active / Bind")
             if sub_parts:
                 tk.Label(
                     text_block, text="  •  ".join(sub_parts),
                     bg="#1e1e1e",
-                    fg="#00cc55" if likely_active else "#555555",
+                    fg="#00cc55" if likely_active else (
+                        "#aa7dff" if needs_id else "#555555"),
                     font=("Segoe UI", 7), anchor="w"
                 ).pack(anchor="w")
 
@@ -3673,8 +3822,6 @@ class GW2X_UI:
                 for child in text_block.winfo_children():
                     child.bind("<Button-1>", _tp)
 
-                color_strip_frame = tk.Frame(row, width=4, bg=strip_col)
-                color_strip_frame.pack(side=tk.LEFT, fill=tk.Y)
                 # Hover highlight
                 def _enter(e, r=row, strip=color_strip_frame):
                     r.config(bg="#2a2a2a")
@@ -6623,7 +6770,7 @@ RethrowDelay = "1.0"
 
     def update_combat_key(self):
         try:
-            with open("GW2X_SKILL_KEY_CONFIG.txt", "r", encoding="utf-8") as f:
+            with open("gw2x_key_config.txt", "r", encoding="utf-8") as f:
                 contents = f.read()
         except FileNotFoundError:
             messagebox.showerror("Error", "Skill key config not found")
@@ -6689,7 +6836,9 @@ RethrowDelay = "1.0"
         # --- 3. START LOGIC ---
         self._force_stop_macro("B") # Pastikan Macro B mati dulu
 
-        self.combat_macro.start("A")
+        if not self.combat_macro.start("A"):
+            self.show_center_notification("MACRO A: FAILED TO START", "#ff4444")
+            return
         self.macro_state["A"] = True
         self.macro_paused["A"] = False
         print("[Macro A] START")
@@ -6732,7 +6881,9 @@ RethrowDelay = "1.0"
         # --- 3. START LOGIC ---
         self._force_stop_macro("A") # Pastikan Macro A mati dulu
 
-        self.combat_macro.start("B")
+        if not self.combat_macro.start("B"):
+            self.show_center_notification("MACRO B: FAILED TO START", "#ff4444")
+            return
         self.macro_state["B"] = True
         self.macro_paused["B"] = False
         print("[Macro B] START")
@@ -6756,6 +6907,11 @@ RethrowDelay = "1.0"
             self.show_center_notification("MACRO B: PAUSED", "#ffcc00")
            
     def update_macro_ui_state(self, key, run_lbl, toggle_btn, pause_btn):
+        # The engine stops itself after repeated transport/config failures.
+        if self.macro_state[key] and not self.combat_macro.running.get(key, False):
+            self.macro_state[key] = False
+            self.macro_paused[key] = False
+
         is_running = self.macro_state[key]
         is_paused = self.macro_paused[key]
         
@@ -6856,22 +7012,24 @@ RethrowDelay = "1.0"
         dlg.after(100, poll)
 
     def _run_auto_combat_loops(self):
-        """Loop background untuk Auto Attack & Tab"""
+        """Run Auto Attack/Tab without reading Tk state from this worker."""
         def loop():
             while getattr(self, "live_running", True):
                 # 1. Auto Tab Logic
-                if getattr(self, "auto_tab_active", None) and self.auto_tab_active.get():
+                if getattr(self, "_auto_tab_enabled", False):
                     tab_key = getattr(self.skill_key_hotkey, "TAB", "0F")
                     try:
-                        core.send_background_key("Guild Wars 2", hex(int(tab_key, 16)))
-                    except: pass
+                        core.presskey("Guild Wars 2", tab_key, 0.05)
+                    except Exception as exc:
+                        print(f"[AutoTab] Background input error: {exc}")
                 
                 # 2. Auto Attack (Skill 1) Logic
-                if getattr(self, "auto_attack_active", None) and self.auto_attack_active.get():
+                if getattr(self, "_auto_attack_enabled", False):
                     s1_key = getattr(self.skill_key_hotkey, "SKILL_1", "02")
                     try:
-                        core.send_background_key("Guild Wars 2", hex(int(s1_key, 16)))
-                    except: pass
+                        core.presskey("Guild Wars 2", s1_key, 0.05)
+                    except Exception as exc:
+                        print(f"[AutoAttack] Background input error: {exc}")
                 
                 # Interval (sesuaikan jika terlalu cepat/lambat)
                 time.sleep(0.25) 
@@ -6963,6 +7121,20 @@ RethrowDelay = "1.0"
             self.auto_attack_active = tk.BooleanVar(value=False)
         if not hasattr(self, "auto_tab_active"):
             self.auto_tab_active = tk.BooleanVar(value=False)
+
+        if not hasattr(self, "_auto_assist_traces_installed"):
+            self._auto_attack_enabled = bool(self.auto_attack_active.get())
+            self._auto_tab_enabled = bool(self.auto_tab_active.get())
+
+            def sync_auto_attack(*_):
+                self._auto_attack_enabled = bool(self.auto_attack_active.get())
+
+            def sync_auto_tab(*_):
+                self._auto_tab_enabled = bool(self.auto_tab_active.get())
+
+            self.auto_attack_active.trace_add("write", sync_auto_attack)
+            self.auto_tab_active.trace_add("write", sync_auto_tab)
+            self._auto_assist_traces_installed = True
 
         # Start thread logic if not running
         if not hasattr(self, "_auto_combat_thread_started"):
@@ -7096,8 +7268,16 @@ RethrowDelay = "1.0"
             tk.Checkbutton(boon_frame, text="Quickness", variable=quick_var, bg="#121212", fg="#dddddd", selectcolor="#121212", activebackground="#121212").pack(side=tk.LEFT)
             tk.Checkbutton(boon_frame, text="Alacrity", variable=alac_var, bg="#121212", fg="#dddddd", selectcolor="#121212", activebackground="#121212").pack(side=tk.LEFT, padx=(10, 0))
 
-            self.combat_macro.macros[key]["quickness"] = quick_var
-            self.combat_macro.macros[key]["alacrity"] = alac_var
+            def sync_boons(*_):
+                self.combat_macro.set_boon_state(
+                    key,
+                    quickness=quick_var.get(),
+                    alacrity=alac_var.get(),
+                )
+
+            quick_var.trace_add("write", sync_boons)
+            alac_var.trace_add("write", sync_boons)
+            sync_boons()
 
             # Load Button
             tk.Button(row1, text="📂", command=lambda: load_and_update(file_lbl), bg="#222", fg="#ddd", relief="flat", width=3).pack(side=tk.RIGHT, padx=(5, 0))

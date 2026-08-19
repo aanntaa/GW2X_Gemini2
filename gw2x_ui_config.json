@@ -3,8 +3,8 @@
   "always_on_top": true,
   "positions": {
     "main": {
-      "x": 2700,
-      "y": 78,
+      "x": 156,
+      "y": 156,
       "w": 140,
       "h": 292
     },
@@ -15,8 +15,8 @@
       "h": 441
     },
     "category:Teleport Hub": {
-      "x": 2845,
-      "y": 78,
+      "x": 301,
+      "y": 156,
       "w": 200,
       "h": 183
     },
@@ -27,8 +27,8 @@
       "h": 81
     },
     "Combat Macro": {
-      "x": 2573,
-      "y": 487,
+      "x": 2477,
+      "y": 510,
       "w": 212,
       "h": 276
     },
@@ -171,8 +171,8 @@
       "h": 507
     },
     "Object Teleporter": {
-      "x": 2259,
-      "y": 809,
+      "x": 2183,
+      "y": 843,
       "w": 525,
       "h": 425
     },
@@ -189,8 +189,8 @@
       "h": 250
     },
     "GW2X ESP": {
-      "x": 2547,
-      "y": 571,
+      "x": 2346,
+      "y": 611,
       "w": 300,
       "h": 400
     },
@@ -465,8 +465,8 @@
       "h": 300
     },
     "Player Enhancement": {
-      "x": 3160,
-      "y": 709,
+      "x": 2962,
+      "y": 841,
       "w": 254,
       "h": 452
     },
@@ -795,8 +795,8 @@
       "h": 325
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Gardening.tps": {
-      "x": 3084,
-      "y": 426,
+      "x": 2211,
+      "y": 440,
       "w": 176,
       "h": 325
     },
@@ -807,8 +807,8 @@
       "h": 325
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Bjora Marches_essence looter.tps": {
-      "x": 2757,
-      "y": 482,
+      "x": 2077,
+      "y": 250,
       "w": 176,
       "h": 325
     },
@@ -999,8 +999,8 @@
       "h": 325
     },
     "Live Entities": {
-      "x": 2785,
-      "y": 462,
+      "x": 2727,
+      "y": 452,
       "w": 343,
       "h": 436
     },
@@ -1039,17 +1039,30 @@
       "y": 12,
       "w": 176,
       "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Bjora Marches_Chests.tps": {
+      "x": 2850,
+      "y": 78,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Crystal Oasis Sanctum of Nabkha JP.tps": {
+      "x": 1668,
+      "y": 333,
+      "w": 176,
+      "h": 325
     }
   },
   "allow_resize": false,
   "open_windows": [
-    "Player Enhancement",
-    "Combat Macro",
-    "category:Movement",
+    "category:Settings",
     "All Teleports",
+    "Player Enhancement",
     "Live Entities",
     "General Settings",
-    "category:Settings"
+    "Object Teleporter",
+    "Combat Macro",
+    "category:Teleport Hub"
   ],
   "inputs": {
     "dir_dist": "80000",
@@ -1083,10 +1096,10 @@
     "auto_tp_direction": "forward",
     "auto_tp_order": "sequential",
     "last_hub_tab_idx": 1,
-    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Gardening.tps",
+    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Start- Seitung Province Jade Chest.tps",
     "auto_tp_open": false,
     "last_auto_tp_index": 0,
-    "last_obj_tab_idx": 0,
+    "last_obj_tab_idx": 1,
     "hk_next": "F9",
     "hk_prev": "F10",
     "chat_x": "246",
@@ -1103,17 +1116,21 @@
     },
     "tps_nav_hotkeys": {
       "next": {
-        "mods": [],
-        "key": 34,
-        "text": "Key_22"
+        "mods": [
+          18
+        ],
+        "key": 49,
+        "text": "Alt+1"
       },
       "back": {
-        "mods": [],
-        "key": 33,
-        "text": "Key_21"
+        "mods": [
+          18
+        ],
+        "key": 50,
+        "text": "Alt+2"
       }
     },
-    "live_src_NPCs": "",
+    "live_src_NPCs": "1",
     "live_exc_NPCs": "mini,",
     "live_src_Objects": "",
     "live_exc_Objects": "",

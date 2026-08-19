@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "builds": {
+    "205655": {
+      "985EBBAD-66FA-4F9D-9AA0-02A06EC24E68": {
+        "center": [
+          -23.6807,
+          -6082.4,
+          -2629.6
+        ],
+        "map_id": 929,
+        "runtime_id": 9224,
+        "source": "probe-confirmed"
+      }
+    }
+  }
+}

@@ -354,11 +354,520 @@ class MumbleData:
                 "is_map_open": is_map_open,
                 "ui_state": ctx.uiState,
                 "tick": link.uiTick,
+                "build_id": ctx.buildId,
+                "process_id": ctx.processId,
                 "player_x": ctx.playerX,
                 "player_y": ctx.playerY,
                 "mount_index": ctx.mountIndex
             }
         except Exception: return None
+
+
+# ==========================================================
+# DLL EVENT PROBE CONTROL (ABI V1)
+# ==========================================================
+
+class EventProbeControlV1(ctypes.Structure):
+    """Exact layout shared with DataExtractor.cpp (372 bytes, packed)."""
+    _pack_ = 1
+    _fields_ = [
+        ("magic", ctypes.c_uint32),
+        ("version", ctypes.c_uint16),
+        ("struct_size", ctypes.c_uint16),
+        ("request_sequence", ctypes.c_int32),
+        ("completed_sequence", ctypes.c_int32),
+        ("status", ctypes.c_int32),
+        ("command", ctypes.c_uint32),
+        ("client_build_id", ctypes.c_uint32),
+        ("guid", ctypes.c_char * 40),
+        ("message", ctypes.c_char * 256),
+        ("inactive_block_count", ctypes.c_uint32),
+        ("active_block_count", ctypes.c_uint32),
+        ("verify_block_count", ctypes.c_uint32),
+        ("candidate_count", ctypes.c_uint32),
+        ("build_timestamp", ctypes.c_uint32),
+        ("image_size", ctypes.c_uint32),
+        ("process_id", ctypes.c_uint32),
+        ("snapshot_bytes", ctypes.c_uint32),
+        ("map_id", ctypes.c_uint32),
+        ("player_x", ctypes.c_float),
+        ("player_y", ctypes.c_float),
+        ("player_z", ctypes.c_float),
+    ]
+
+
+if ctypes.sizeof(EventProbeControlV1) != 372:
+    raise RuntimeError("GW2X Event Probe ABI layout mismatch")
+
+
+class EventProbeBridge:
+    TAG_NAME = "GW2X_EVENT_PROBE_CONTROL_V1"
+    MAGIC = 0x31505645  # "EVP1"
+    VERSION = 1
+    FILE_MAP_WRITE = 0x0002
+    FILE_MAP_READ = 0x0004
+
+    COMMANDS = {
+        "inactive": 1,
+        "active": 2,
+        "verify": 3,
+        "reset": 4,
+    }
+    STATUS_NAMES = {
+        0: "idle",
+        1: "busy",
+        2: "success",
+        3: "error",
+    }
+
+    def __init__(self):
+        self.handle = None
+        self.view = None
+        self.control = None
+        self.kernel32 = None
+        self.last_error = "Event Probe mapping unavailable; inject the rebuilt DLL"
+        self._connect_error_logged = False
+        self._lock = threading.Lock()
+
+    def close(self):
+        with self._lock:
+            self._close_unlocked()
+
+    def _close_unlocked(self):
+        try:
+            if self.kernel32 and self.view:
+                self.kernel32.UnmapViewOfFile(ctypes.c_void_p(self.view))
+        except Exception:
+            pass
+        try:
+            if self.kernel32 and self.handle:
+                self.kernel32.CloseHandle(ctypes.c_void_p(self.handle))
+        except Exception:
+            pass
+        self.control = None
+        self.view = None
+        self.handle = None
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
+
+    def connect(self):
+        with self._lock:
+            return self._connect_unlocked()
+
+    def _connect_unlocked(self):
+        if self.control is not None:
+            try:
+                if (self.control.magic == self.MAGIC and
+                        self.control.version == self.VERSION and
+                        self.control.struct_size == ctypes.sizeof(EventProbeControlV1)):
+                    expected_pid = int(_last_logged_pid or 0)
+                    if not expected_pid or self.control.process_id == expected_pid:
+                        return True
+            except Exception:
+                pass
+            self._close_unlocked()
+
+        try:
+            self.kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            self.kernel32.OpenFileMappingW.argtypes = [
+                wintypes.DWORD, wintypes.BOOL, wintypes.LPCWSTR]
+            self.kernel32.OpenFileMappingW.restype = ctypes.c_void_p
+            self.kernel32.MapViewOfFile.argtypes = [
+                ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD,
+                wintypes.DWORD, ctypes.c_size_t]
+            self.kernel32.MapViewOfFile.restype = ctypes.c_void_p
+            self.kernel32.UnmapViewOfFile.argtypes = [ctypes.c_void_p]
+            self.kernel32.UnmapViewOfFile.restype = wintypes.BOOL
+            self.kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+            self.kernel32.CloseHandle.restype = wintypes.BOOL
+
+            access = self.FILE_MAP_READ | self.FILE_MAP_WRITE
+            handle = self.kernel32.OpenFileMappingW(access, False, self.TAG_NAME)
+            if not handle:
+                raise OSError(ctypes.get_last_error(), "OpenFileMappingW failed")
+
+            view = self.kernel32.MapViewOfFile(
+                handle, access, 0, 0, ctypes.sizeof(EventProbeControlV1))
+            if not view:
+                self.kernel32.CloseHandle(ctypes.c_void_p(handle))
+                raise OSError(ctypes.get_last_error(), "MapViewOfFile failed")
+
+            control = EventProbeControlV1.from_address(view)
+            if (control.magic != self.MAGIC or
+                    control.version != self.VERSION or
+                    control.struct_size != ctypes.sizeof(EventProbeControlV1)):
+                self.kernel32.UnmapViewOfFile(ctypes.c_void_p(view))
+                self.kernel32.CloseHandle(ctypes.c_void_p(handle))
+                raise RuntimeError(
+                    f"Event Probe ABI mismatch (magic=0x{control.magic:08X}, "
+                    f"version={control.version}, size={control.struct_size})")
+
+            expected_pid = int(_last_logged_pid or 0)
+            if expected_pid and control.process_id != expected_pid:
+                actual_pid = int(control.process_id)
+                self.kernel32.UnmapViewOfFile(ctypes.c_void_p(view))
+                self.kernel32.CloseHandle(ctypes.c_void_p(handle))
+                raise RuntimeError(
+                    f"Event Probe belongs to GW2 PID {actual_pid}, selected PID is {expected_pid}")
+
+            self.handle = handle
+            self.view = int(view)
+            self.control = control
+            self.last_error = ""
+            if not self._connect_error_logged:
+                print(f"[EventProbe] Connected to DLL control (PID {control.process_id}).")
+            self._connect_error_logged = False
+            return True
+        except Exception as exc:
+            self._close_unlocked()
+            self.last_error = str(exc) or "Event Probe mapping unavailable"
+            if not self._connect_error_logged:
+                print(f"[EventProbe] {self.last_error}")
+                self._connect_error_logged = True
+            return False
+
+    @staticmethod
+    def _decode_text(value):
+        return bytes(value).split(b"\x00", 1)[0].decode("utf-8", errors="replace")
+
+    def read_status(self):
+        with self._lock:
+            if not self._connect_unlocked():
+                return {
+                    "available": False,
+                    "status": "unavailable",
+                    "message": self.last_error,
+                    "inactive_blocks": 0,
+                    "active_blocks": 0,
+                    "verify_blocks": 0,
+                    "candidates": 0,
+                }
+
+            try:
+                c = self.control
+                if c.magic != self.MAGIC:
+                    raise RuntimeError("DLL unloaded or Event Probe mapping became stale")
+                return {
+                    "available": True,
+                    "status": self.STATUS_NAMES.get(int(c.status), f"status-{int(c.status)}"),
+                    "message": self._decode_text(c.message),
+                    "inactive_blocks": int(c.inactive_block_count),
+                    "active_blocks": int(c.active_block_count),
+                    "verify_blocks": int(c.verify_block_count),
+                    "candidates": int(c.candidate_count),
+                    "request_sequence": int(c.request_sequence),
+                    "completed_sequence": int(c.completed_sequence),
+                    "process_id": int(c.process_id),
+                    "build_timestamp": int(c.build_timestamp),
+                    "image_size": int(c.image_size),
+                    "snapshot_bytes": int(c.snapshot_bytes),
+                    "map_id": int(c.map_id),
+                }
+            except Exception as exc:
+                self.last_error = str(exc)
+                self._close_unlocked()
+                return {
+                    "available": False,
+                    "status": "unavailable",
+                    "message": self.last_error,
+                    "inactive_blocks": 0,
+                    "active_blocks": 0,
+                    "verify_blocks": 0,
+                    "candidates": 0,
+                }
+
+    def send_command(self, command, guid="", map_id=0, build_id=0,
+                     player_position=(0.0, 0.0, 0.0)):
+        command_id = self.COMMANDS.get(str(command).lower())
+        if command_id is None:
+            return False, f"Unknown Event Probe command: {command}"
+
+        if command_id != self.COMMANDS["reset"]:
+            import uuid
+            try:
+                guid = str(uuid.UUID(str(guid))).upper()
+            except Exception:
+                return False, "Select an event with a valid GUID first"
+        else:
+            guid = str(guid or "")
+
+        with self._lock:
+            if not self._connect_unlocked():
+                return False, self.last_error
+
+            c = self.control
+            request = int(c.request_sequence)
+            completed = int(c.completed_sequence)
+            if request != completed or int(c.status) == 1:
+                return False, "Event Probe is still processing the previous capture"
+
+            try:
+                px, py, pz = player_position or (0.0, 0.0, 0.0)
+                c.command = command_id
+                c.client_build_id = int(build_id or 0)
+                c.guid = guid.encode("ascii", errors="ignore")[:39]
+                c.map_id = int(map_id or 0)
+                c.player_x = float(px)
+                c.player_y = float(py)
+                c.player_z = float(pz)
+
+                next_sequence = max(request, completed) + 1
+                if next_sequence <= 0 or next_sequence > 0x7FFFFFFF:
+                    next_sequence = 1
+
+                # request_sequence is naturally aligned at byte offset 8.  An
+                # aligned 32-bit store is atomic on the x64 client; it is written
+                # last so the DLL never observes a partially prepared request.
+                ctypes.c_int32.from_address(
+                    self.view + EventProbeControlV1.request_sequence.offset
+                ).value = next_sequence
+                return True, "Event Probe command queued"
+            except Exception as exc:
+                return False, f"Event Probe request failed: {exc}"
+
+
+# ==========================================================
+# DLL LIVE EVENT-COORDINATE FEED (ABI V1)
+# ==========================================================
+
+class LiveEventCoordinateV1(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("runtime_id", ctypes.c_uint32),
+        ("map_x", ctypes.c_float),
+        ("map_y", ctypes.c_float),
+        ("map_z", ctypes.c_float),
+        ("object_ptr", ctypes.c_uint64),
+        ("cc_offset", ctypes.c_uint16),
+        ("array_offset", ctypes.c_uint16),
+        ("array_index", ctypes.c_uint16),
+        ("coordinate_offset", ctypes.c_uint16),
+    ]
+
+
+class LiveEventControlV1(ctypes.Structure):
+    _pack_ = 1
+    MAX_RECORDS = 128
+    _fields_ = [
+        ("magic", ctypes.c_uint32),
+        ("version", ctypes.c_uint16),
+        ("struct_size", ctypes.c_uint16),
+        ("sequence", ctypes.c_int32),
+        ("process_id", ctypes.c_uint32),
+        ("build_timestamp", ctypes.c_uint32),
+        ("image_size", ctypes.c_uint32),
+        ("last_update_tick", ctypes.c_uint64),
+        ("record_count", ctypes.c_uint32),
+        ("objects_scanned", ctypes.c_uint32),
+        ("flags", ctypes.c_uint32),
+        ("reserved", ctypes.c_uint32),
+        ("records", LiveEventCoordinateV1 * MAX_RECORDS),
+    ]
+
+
+if ctypes.sizeof(LiveEventCoordinateV1) != 32:
+    raise RuntimeError("GW2X Live Event record ABI layout mismatch")
+if ctypes.sizeof(LiveEventControlV1) != 4144:
+    raise RuntimeError("GW2X Live Event control ABI layout mismatch")
+
+
+class LiveEventBridge:
+    TAG_NAME = "GW2X_LIVE_EVENTS_V1"
+    MAGIC = 0x3156454C  # "LEV1"
+    VERSION = 1
+    FILE_MAP_READ = 0x0004
+    STALE_AFTER_MS = 3000
+
+    def __init__(self):
+        self.handle = None
+        self.view = None
+        self.control = None
+        self.kernel32 = None
+        self.last_error = "Live Event mapping unavailable; inject the rebuilt DLL"
+        self._connect_error_logged = False
+        self._lock = threading.Lock()
+
+    def close(self):
+        with self._lock:
+            self._close_unlocked()
+
+    def _close_unlocked(self):
+        try:
+            if self.kernel32 and self.view:
+                self.kernel32.UnmapViewOfFile(ctypes.c_void_p(self.view))
+        except Exception:
+            pass
+        try:
+            if self.kernel32 and self.handle:
+                self.kernel32.CloseHandle(ctypes.c_void_p(self.handle))
+        except Exception:
+            pass
+        self.control = None
+        self.view = None
+        self.handle = None
+
+    def _connect_unlocked(self):
+        if self.control is not None:
+            try:
+                expected_pid = int(_last_logged_pid or 0)
+                if (self.control.magic == self.MAGIC and
+                        self.control.version == self.VERSION and
+                        self.control.struct_size == ctypes.sizeof(LiveEventControlV1) and
+                        (not expected_pid or self.control.process_id == expected_pid)):
+                    return True
+            except Exception:
+                pass
+            self._close_unlocked()
+
+        try:
+            self.kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            self.kernel32.OpenFileMappingW.argtypes = [
+                wintypes.DWORD, wintypes.BOOL, wintypes.LPCWSTR]
+            self.kernel32.OpenFileMappingW.restype = ctypes.c_void_p
+            self.kernel32.MapViewOfFile.argtypes = [
+                ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD,
+                wintypes.DWORD, ctypes.c_size_t]
+            self.kernel32.MapViewOfFile.restype = ctypes.c_void_p
+            self.kernel32.UnmapViewOfFile.argtypes = [ctypes.c_void_p]
+            self.kernel32.UnmapViewOfFile.restype = wintypes.BOOL
+            self.kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+            self.kernel32.CloseHandle.restype = wintypes.BOOL
+            self.kernel32.GetTickCount64.argtypes = []
+            self.kernel32.GetTickCount64.restype = ctypes.c_uint64
+
+            handle = self.kernel32.OpenFileMappingW(
+                self.FILE_MAP_READ, False, self.TAG_NAME)
+            if not handle:
+                raise OSError(ctypes.get_last_error(), "OpenFileMappingW failed")
+            view = self.kernel32.MapViewOfFile(
+                handle, self.FILE_MAP_READ, 0, 0,
+                ctypes.sizeof(LiveEventControlV1))
+            if not view:
+                self.kernel32.CloseHandle(ctypes.c_void_p(handle))
+                raise OSError(ctypes.get_last_error(), "MapViewOfFile failed")
+
+            control = LiveEventControlV1.from_address(view)
+            if (control.magic != self.MAGIC or
+                    control.version != self.VERSION or
+                    control.struct_size != ctypes.sizeof(LiveEventControlV1)):
+                self.kernel32.UnmapViewOfFile(ctypes.c_void_p(view))
+                self.kernel32.CloseHandle(ctypes.c_void_p(handle))
+                raise RuntimeError(
+                    f"Live Event ABI mismatch (magic=0x{control.magic:08X}, "
+                    f"version={control.version}, size={control.struct_size})")
+
+            expected_pid = int(_last_logged_pid or 0)
+            if expected_pid and control.process_id != expected_pid:
+                actual_pid = int(control.process_id)
+                self.kernel32.UnmapViewOfFile(ctypes.c_void_p(view))
+                self.kernel32.CloseHandle(ctypes.c_void_p(handle))
+                raise RuntimeError(
+                    f"Live Event feed belongs to GW2 PID {actual_pid}, "
+                    f"selected PID is {expected_pid}")
+
+            self.handle = handle
+            self.view = int(view)
+            self.control = control
+            self.last_error = ""
+            if not self._connect_error_logged:
+                print(f"[LiveEvent] Connected to DLL feed (PID {control.process_id}).")
+            self._connect_error_logged = False
+            return True
+        except Exception as exc:
+            self._close_unlocked()
+            self.last_error = str(exc) or "Live Event mapping unavailable"
+            if not self._connect_error_logged:
+                print(f"[LiveEvent] {self.last_error}")
+                self._connect_error_logged = True
+            return False
+
+    def read_snapshot(self):
+        with self._lock:
+            if not self._connect_unlocked():
+                return {
+                    "available": False, "fresh": False,
+                    "message": self.last_error, "records": [],
+                    "record_count": 0, "objects_scanned": 0,
+                }
+
+            try:
+                snapshot = None
+                sequence_offset = LiveEventControlV1.sequence.offset
+                for _ in range(4):
+                    sequence_before = ctypes.c_int32.from_address(
+                        self.view + sequence_offset).value
+                    if sequence_before & 1:
+                        time.sleep(0)
+                        continue
+                    raw = ctypes.string_at(
+                        self.view, ctypes.sizeof(LiveEventControlV1))
+                    sequence_after = ctypes.c_int32.from_address(
+                        self.view + sequence_offset).value
+                    if (sequence_before == sequence_after and
+                            not (sequence_after & 1)):
+                        snapshot = LiveEventControlV1.from_buffer_copy(raw)
+                        break
+                if snapshot is None:
+                    return {
+                        "available": True, "fresh": False,
+                        "message": "Live Event feed is updating", "records": [],
+                        "record_count": 0, "objects_scanned": 0,
+                    }
+                if snapshot.magic != self.MAGIC:
+                    raise RuntimeError("DLL unloaded or Live Event feed became stale")
+
+                now = int(self.kernel32.GetTickCount64())
+                update_tick = int(snapshot.last_update_tick)
+                age_ms = max(0, now - update_tick) if update_tick else 0
+                fresh = bool(update_tick and age_ms <= self.STALE_AFTER_MS)
+                count = min(int(snapshot.record_count), LiveEventControlV1.MAX_RECORDS)
+                records = []
+                if fresh:
+                    for index in range(count):
+                        record = snapshot.records[index]
+                        records.append({
+                            "runtime_id": int(record.runtime_id),
+                            "map_x": float(record.map_x),
+                            "map_y": float(record.map_y),
+                            "map_z": float(record.map_z),
+                            "object_ptr": int(record.object_ptr),
+                            "cc_offset": int(record.cc_offset),
+                            "array_offset": int(record.array_offset),
+                            "array_index": int(record.array_index),
+                            "coordinate_offset": int(record.coordinate_offset),
+                        })
+
+                flags = int(snapshot.flags)
+                source = "primary" if flags & 0x2 else (
+                    "fallback" if flags & 0x4 else "unresolved")
+                return {
+                    "available": True,
+                    "fresh": fresh,
+                    "message": "Live Event feed ready" if fresh else "Live Event feed is stale",
+                    "records": records,
+                    "record_count": count if fresh else 0,
+                    "objects_scanned": int(snapshot.objects_scanned),
+                    "flags": flags,
+                    "source": source,
+                    "truncated": bool(flags & 0x8),
+                    "age_ms": age_ms,
+                    "process_id": int(snapshot.process_id),
+                    "build_timestamp": int(snapshot.build_timestamp),
+                    "image_size": int(snapshot.image_size),
+                    "sequence": int(snapshot.sequence),
+                }
+            except Exception as exc:
+                self.last_error = str(exc)
+                self._close_unlocked()
+                return {
+                    "available": False, "fresh": False,
+                    "message": self.last_error, "records": [],
+                    "record_count": 0, "objects_scanned": 0,
+                }
 
 # ===============================
 # SHARED MEMORY IPC (ENTITY LIST)
@@ -609,11 +1118,14 @@ class NpcEntity(ctypes.Structure):
 pm = None
 mumble = None
 shared_entities = None
+event_probe = None
+live_events = None
 stamina_thread = None
 skyscale_thread = None
 _skyscale_addr = None
 current_hwnd = None
 _last_logged_pid = None  
+_GW2_WINDOW_RESOLVER_BUILD = "HWND-FIX-20260818-R1"
 _last_map_hover = {
     "map_x": None,
     "map_y": None,
@@ -687,24 +1199,222 @@ def list_gw2_processes():
 
     return processes
 
+def _pmdbg_mapped_hwnd_for_pid(pid):
+    """Return the exact GW2 HWND published by the debug DLL, if available."""
+    reader = globals().get("_pmdbg_read_snapshot")
+    if not callable(reader):
+        return 0
+
+    try:
+        snapshot, _ = reader()
+        if snapshot is None or not snapshot.ready:
+            return 0
+        if int(snapshot.dll_pid) != int(pid):
+            return 0
+
+        hwnd = int(snapshot.hwnd_value or 0)
+        if not hwnd or not win32gui.IsWindow(hwnd):
+            return 0
+
+        import win32process
+        _, owner_pid = win32process.GetWindowThreadProcessId(hwnd)
+        return hwnd if int(owner_pid) == int(pid) else 0
+    except Exception:
+        # The DLL is optional. Normal same-PID window selection remains available.
+        return 0
+
+
+def _score_gw2_window_candidate(
+    class_name,
+    title,
+    width,
+    height,
+    owner_hwnd,
+    visible,
+    enabled,
+    is_mapped=False,
+):
+    """Score a top-level window, or return None for known non-game windows."""
+    class_lower = (class_name or "").strip().lower()
+    title_lower = (title or "").strip().lower()
+
+    # The injected DLL's AllocConsole window has the same PID as GW2. It must
+    # never become the PostMessage target.
+    if (
+        class_lower == "consolewindowclass"
+        or "debug console" in title_lower
+        or "kx vision" in title_lower and "console" in title_lower
+        or "dummywindow" in class_lower
+    ):
+        return None
+
+    score = 1_000_000 if is_mapped else 0
+    if "arenanet" in class_lower or "dx_window" in class_lower:
+        score += 50_000
+    if title_lower == "guild wars 2":
+        score += 30_000
+    elif "guild wars 2" in title_lower:
+        score += 15_000
+    if visible:
+        score += 500
+    if not owner_hwnd:
+        score += 200
+    if enabled:
+        score += 100
+
+    # A render window is normally the largest top-level window in the GW2 PID.
+    # Cap this component so class/title identity remains more important.
+    area = max(0, int(width)) * max(0, int(height))
+    score += min(area // 1000, 5_000)
+    return score
+
+
+def _usable_gw2_hwnd(hwnd, pid):
+    """Check that a cached HWND still belongs to GW2 and is not its console."""
+    if not hwnd:
+        return False
+    try:
+        import win32process
+
+        if not win32gui.IsWindow(hwnd):
+            return False
+        _, owner_pid = win32process.GetWindowThreadProcessId(hwnd)
+        if int(owner_pid) != int(pid):
+            return False
+
+        class_name = win32gui.GetClassName(hwnd)
+        title = win32gui.GetWindowText(hwnd)
+        return _score_gw2_window_candidate(
+            class_name,
+            title,
+            0,
+            0,
+            0,
+            True,
+            True,
+            int(hwnd) == _pmdbg_mapped_hwnd_for_pid(pid),
+        ) is not None
+    except Exception:
+        return False
+
+
 def get_hwnd_from_pid(pid):
-    import win32gui
+    """Resolve the GW2 render HWND, never an arbitrary last same-PID window."""
     import win32process
 
-    hwnd_result = None
+    pid = int(pid)
+    mapped_hwnd = _pmdbg_mapped_hwnd_for_pid(pid)
+    candidates = []
 
     def callback(hwnd, _):
-        nonlocal hwnd_result
-        _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
-        if found_pid == pid and win32gui.IsWindowVisible(hwnd):
-            hwnd_result = hwnd
+        try:
+            _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+            if int(found_pid) != pid:
+                return True
+
+            class_name = win32gui.GetClassName(hwnd)
+            title = win32gui.GetWindowText(hwnd)
+            visible = bool(win32gui.IsWindowVisible(hwnd))
+            enabled = bool(win32gui.IsWindowEnabled(hwnd))
+            owner_hwnd = int(win32gui.GetWindow(hwnd, 4) or 0)  # GW_OWNER
+            left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+            width = max(0, right - left)
+            height = max(0, bottom - top)
+            score = _score_gw2_window_candidate(
+                class_name,
+                title,
+                width,
+                height,
+                owner_hwnd,
+                visible,
+                enabled,
+                int(hwnd) == mapped_hwnd,
+            )
+            candidates.append({
+                "hwnd": int(hwnd),
+                "class": class_name,
+                "title": title,
+                "width": width,
+                "height": height,
+                "visible": visible,
+                "owner": owner_hwnd,
+                "score": score,
+                "mapped": int(hwnd) == mapped_hwnd,
+            })
+        except Exception as exc:
+            print(
+                f"[WindowSelect] skipped hwnd=0x{int(hwnd):X}: {exc}"
+            )
         return True
 
     win32gui.EnumWindows(callback, None)
-    return hwnd_result
+
+    # Some display modes can temporarily hide a valid mapped render HWND from
+    # EnumWindows. Preserve the DLL's exact HWND as a last-resort candidate.
+    if mapped_hwnd and not any(c["hwnd"] == mapped_hwnd for c in candidates):
+        try:
+            candidates.append({
+                "hwnd": mapped_hwnd,
+                "class": win32gui.GetClassName(mapped_hwnd),
+                "title": win32gui.GetWindowText(mapped_hwnd),
+                "width": 0,
+                "height": 0,
+                "visible": bool(win32gui.IsWindowVisible(mapped_hwnd)),
+                "owner": 0,
+                "score": 1_000_000,
+                "mapped": True,
+            })
+        except Exception:
+            pass
+
+    for candidate in candidates:
+        score_text = "REJECT" if candidate["score"] is None else str(candidate["score"])
+        print(
+            "[WindowSelect] candidate "
+            f"hwnd=0x{candidate['hwnd']:X} score={score_text} "
+            f"mapped={int(candidate['mapped'])} visible={int(candidate['visible'])} "
+            f"size={candidate['width']}x{candidate['height']} "
+            f"class={candidate['class']!r} title={candidate['title']!r}"
+        )
+
+    eligible = [c for c in candidates if c["score"] is not None]
+    if not eligible:
+        print(
+            f"[WindowSelect] {_GW2_WINDOW_RESOLVER_BUILD} found no usable "
+            f"GW2 window for pid={pid}"
+        )
+        return None
+
+    selected = max(eligible, key=lambda c: (c["score"], c["hwnd"]))
+    source = "DLL_MAP" if selected["mapped"] else "PID_SCORE"
+    print(
+        f"[WindowSelect] {_GW2_WINDOW_RESOLVER_BUILD} selected "
+        f"hwnd=0x{selected['hwnd']:X} source={source} "
+        f"class={selected['class']!r} title={selected['title']!r}"
+    )
+    return selected["hwnd"]
+
+
+def ensure_gw2_hwnd():
+    """Return a freshly validated render HWND before posting background input."""
+    global current_hwnd
+
+    pid = _last_logged_pid or getattr(pm, "process_id", None)
+    if not pid:
+        return None
+    if _usable_gw2_hwnd(current_hwnd, pid):
+        return current_hwnd
+
+    previous = int(current_hwnd or 0)
+    current_hwnd = get_hwnd_from_pid(pid)
+    print(
+        "[WindowSelect] corrected cached target "
+        f"old=0x{previous:X} new=0x{int(current_hwnd or 0):X}"
+    )
+    return current_hwnd
 
 def connect(pid=None):
-    global pm, mumble, shared_entities, _last_logged_pid, current_hwnd
+    global pm, mumble, shared_entities, event_probe, live_events, _last_logged_pid, current_hwnd
     import pymem
 
     try:
@@ -717,6 +1427,18 @@ def connect(pid=None):
 
             mumble = MumbleData()
             shared_entities = SharedEntityData()
+            if event_probe is not None:
+                try:
+                    event_probe.close()
+                except Exception:
+                    pass
+            event_probe = EventProbeBridge()
+            if live_events is not None:
+                try:
+                    live_events.close()
+                except Exception:
+                    pass
+            live_events = LiveEventBridge()
                     
             # --- ARCDPS BRIDGE INIT ---
             if BridgeNameLookup is not None:
@@ -745,6 +1467,50 @@ def connect(pid=None):
         pm = None
         current_hwnd = None
         return None
+
+
+def get_event_probe_status():
+    """Return the current DLL probe state without blocking the UI."""
+    global event_probe
+    if event_probe is None:
+        event_probe = EventProbeBridge()
+    return event_probe.read_status()
+
+
+def send_event_probe_command(command, guid=""):
+    """Queue one capture/reset request using current Mumble map/build/XYZ data."""
+    global event_probe
+    if event_probe is None:
+        event_probe = EventProbeBridge()
+
+    map_id = 0
+    build_id = 0
+    position = (0.0, 0.0, 0.0)
+    try:
+        data = mumble.read() if mumble else None
+        if data:
+            map_id = int(data.get("map_id", 0) or 0)
+            build_id = int(data.get("build_id", 0) or 0)
+            position = tuple(data.get("pos", position))
+    except Exception:
+        pass
+
+    return event_probe.send_command(
+        command, guid=guid, map_id=map_id,
+        build_id=build_id, player_position=position)
+
+
+def get_live_event_status():
+    """Return a consistent snapshot of actual live event-coordinate records."""
+    global live_events
+    if live_events is None:
+        live_events = LiveEventBridge()
+    return live_events.read_snapshot()
+
+
+def get_live_event_records():
+    """Compatibility helper used by gw2x_logic.EventDetector."""
+    return get_live_event_status()
 
 def get_addr(base_offset, offsets):
     if not pm: return 0
@@ -1410,8 +2176,406 @@ def get_last_map_hover():
 # ===============================
 # BACKGROUND INPUT (UPDATED)
 # ===============================
-PostMessage = ctypes.windll.user32.PostMessageW
-MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
+_PMDBG_BUILD_ID = "PMDBG-20260818-R1"
+_PMDBG_MESSAGE_NAME = "GW2X_POSTMESSAGE_DIAG_V1"
+_PMDBG_MAPPING_NAME = "Local\\GW2X_POSTMESSAGE_DIAG_V1"
+_PMDBG_MAGIC = 0x31444D50  # "PMD1"
+_PMDBG_VERSION = 1
+_PMDBG_FILE_MAP_READ = 0x0004
+_PMDBG_ENABLED = os.environ.get("GW2X_PMDBG", "1").strip().lower() not in {
+    "0", "false", "off", "no"
+}
+
+_pmdbg_user32 = ctypes.WinDLL("user32", use_last_error=True)
+_pmdbg_kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+
+PostMessage = _pmdbg_user32.PostMessageW
+PostMessage.argtypes = [
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.WPARAM,
+    wintypes.LPARAM,
+]
+PostMessage.restype = wintypes.BOOL
+
+MapVirtualKey = _pmdbg_user32.MapVirtualKeyW
+MapVirtualKey.argtypes = [wintypes.UINT, wintypes.UINT]
+MapVirtualKey.restype = wintypes.UINT
+
+_pmdbg_register_message = _pmdbg_user32.RegisterWindowMessageW
+_pmdbg_register_message.argtypes = [wintypes.LPCWSTR]
+_pmdbg_register_message.restype = wintypes.UINT
+
+_pmdbg_is_window = _pmdbg_user32.IsWindow
+_pmdbg_is_window.argtypes = [wintypes.HWND]
+_pmdbg_is_window.restype = wintypes.BOOL
+
+_pmdbg_get_foreground_window = _pmdbg_user32.GetForegroundWindow
+_pmdbg_get_foreground_window.argtypes = []
+_pmdbg_get_foreground_window.restype = wintypes.HWND
+
+_pmdbg_get_window_thread_process_id = _pmdbg_user32.GetWindowThreadProcessId
+_pmdbg_get_window_thread_process_id.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(wintypes.DWORD),
+]
+_pmdbg_get_window_thread_process_id.restype = wintypes.DWORD
+
+_pmdbg_open_file_mapping = _pmdbg_kernel32.OpenFileMappingW
+_pmdbg_open_file_mapping.argtypes = [
+    wintypes.DWORD,
+    wintypes.BOOL,
+    wintypes.LPCWSTR,
+]
+_pmdbg_open_file_mapping.restype = wintypes.HANDLE
+
+_pmdbg_map_view = _pmdbg_kernel32.MapViewOfFile
+_pmdbg_map_view.argtypes = [
+    wintypes.HANDLE,
+    wintypes.DWORD,
+    wintypes.DWORD,
+    wintypes.DWORD,
+    ctypes.c_size_t,
+]
+_pmdbg_map_view.restype = ctypes.c_void_p
+
+_pmdbg_unmap_view = _pmdbg_kernel32.UnmapViewOfFile
+_pmdbg_unmap_view.argtypes = [ctypes.c_void_p]
+_pmdbg_unmap_view.restype = wintypes.BOOL
+
+_pmdbg_close_handle = _pmdbg_kernel32.CloseHandle
+_pmdbg_close_handle.argtypes = [wintypes.HANDLE]
+_pmdbg_close_handle.restype = wintypes.BOOL
+
+_PMDBG_REGISTERED_MESSAGE = _pmdbg_register_message(_PMDBG_MESSAGE_NAME)
+
+
+class _PostMessageDiagShared(ctypes.Structure):
+    """Must match PostMessageDiagShared in D3DRenderHook_WndProc.cpp."""
+    _fields_ = [
+        ("magic", ctypes.c_uint32),
+        ("version", ctypes.c_uint32),
+        ("ready", ctypes.c_int32),
+        ("dll_pid", ctypes.c_uint32),
+        ("hwnd_value", ctypes.c_uint64),
+        ("original_wndproc", ctypes.c_uint64),
+        ("current_wndproc", ctypes.c_uint64),
+        ("wndproc_thread_id", ctypes.c_uint32),
+        ("window_thread_id", ctypes.c_uint32),
+        ("probe_count", ctypes.c_int32),
+        ("total_key_down", ctypes.c_int32),
+        ("total_key_up", ctypes.c_int32),
+        ("tagged_key_down", ctypes.c_int32),
+        ("tagged_key_up", ctypes.c_int32),
+        ("forwarded_tagged", ctypes.c_int32),
+        ("last_probe_seq", ctypes.c_int32),
+        ("last_probe_vk", ctypes.c_int32),
+        ("last_probe_phase", ctypes.c_int32),
+        ("last_message", ctypes.c_int32),
+        ("last_key_vk", ctypes.c_int32),
+        ("last_focused", ctypes.c_int32),
+        ("last_forward_result", ctypes.c_int64),
+        ("last_foreground_hwnd", ctypes.c_int64),
+        ("last_error", ctypes.c_int32),
+        ("last_tick", ctypes.c_int32),
+        ("build_id", ctypes.c_char * 32),
+    ]
+
+
+if ctypes.sizeof(_PostMessageDiagShared) != 152:
+    print(
+        f"[PMDBG-PY] ERROR shared layout is "
+        f"{ctypes.sizeof(_PostMessageDiagShared)} bytes, expected 152"
+    )
+
+_pmdbg_send_lock = threading.Lock()
+_pmdbg_timer_lock = threading.Lock()
+_pmdbg_timer = None
+_pmdbg_sequence = 0
+_pmdbg_verbose_remaining = 40
+_pmdbg_target_logged = None
+_pmdbg_marker_ready = False
+_pmdbg_marker_hwnd = 0
+
+
+def _pmdbg_window_details(hwnd):
+    """Return safe target-window details without changing focus."""
+    details = {
+        "hwnd": int(hwnd or 0),
+        "valid": False,
+        "pid": 0,
+        "tid": 0,
+        "class": "",
+        "title": "",
+        "foreground": int(_pmdbg_get_foreground_window() or 0),
+    }
+    if not hwnd:
+        return details
+
+    try:
+        details["valid"] = bool(_pmdbg_is_window(hwnd))
+        process_id = wintypes.DWORD(0)
+        details["tid"] = int(
+            _pmdbg_get_window_thread_process_id(hwnd, ctypes.byref(process_id))
+        )
+        details["pid"] = int(process_id.value)
+        details["class"] = win32gui.GetClassName(hwnd)
+        details["title"] = win32gui.GetWindowText(hwnd)
+    except Exception as exc:
+        details["detail_error"] = str(exc)
+    return details
+
+
+def _pmdbg_read_snapshot():
+    """Read the diagnostic mapping created by the injected DLL."""
+    ctypes.set_last_error(0)
+    mapping = _pmdbg_open_file_mapping(
+        _PMDBG_FILE_MAP_READ,
+        False,
+        _PMDBG_MAPPING_NAME,
+    )
+    if not mapping:
+        return None, ctypes.get_last_error()
+
+    view = None
+    try:
+        ctypes.set_last_error(0)
+        view = _pmdbg_map_view(
+            mapping,
+            _PMDBG_FILE_MAP_READ,
+            0,
+            0,
+            ctypes.sizeof(_PostMessageDiagShared),
+        )
+        if not view:
+            return None, ctypes.get_last_error()
+
+        raw = ctypes.string_at(view, ctypes.sizeof(_PostMessageDiagShared))
+        return _PostMessageDiagShared.from_buffer_copy(raw), 0
+    finally:
+        if view:
+            _pmdbg_unmap_view(view)
+        _pmdbg_close_handle(mapping)
+
+
+def _pmdbg_marker_is_ready(hwnd):
+    """Send markers only when the matching debug DLL mapping exists.
+
+    This keeps non-DLL mode on the exact original PostMessage-only path.
+    """
+    global _pmdbg_marker_ready, _pmdbg_marker_hwnd
+    numeric_hwnd = int(hwnd or 0)
+    if _pmdbg_marker_ready and _pmdbg_marker_hwnd == numeric_hwnd:
+        return True
+
+    snapshot, _ = _pmdbg_read_snapshot()
+    if (
+        snapshot is not None
+        and snapshot.magic == _PMDBG_MAGIC
+        and snapshot.version == _PMDBG_VERSION
+        and snapshot.ready
+        and int(snapshot.hwnd_value) == numeric_hwnd
+    ):
+        _pmdbg_marker_ready = True
+        _pmdbg_marker_hwnd = numeric_hwnd
+        return True
+    return False
+
+
+def debug_postmessage_status():
+    """Print an end-to-end Python -> DLL WndProc diagnostic snapshot."""
+    target = int(ensure_gw2_hwnd() or 0)
+    window = _pmdbg_window_details(target)
+    print(
+        "[PMDBG-PY] TARGET "
+        f"hwnd=0x{target:X} valid={int(window['valid'])} "
+        f"pid={window['pid']} tid={window['tid']} "
+        f"foreground=0x{window['foreground']:X} "
+        f"class={window['class']!r} title={window['title']!r}"
+    )
+
+    snapshot, error = _pmdbg_read_snapshot()
+    if snapshot is None:
+        print(
+            "[PMDBG-PY] DLL_MAP_MISSING "
+            f"error={error}. The debug DLL is not loaded, its WndProc is not "
+            "installed on this window, or the build is still the old DLL."
+        )
+        return None
+
+    build_id = bytes(snapshot.build_id).split(b"\0", 1)[0].decode(
+        "ascii", errors="replace"
+    )
+    tagged_total = int(snapshot.tagged_key_down + snapshot.tagged_key_up)
+    probe_count = int(snapshot.probe_count)
+    forwarded = int(snapshot.forwarded_tagged)
+
+    print(
+        "[PMDBG-PY] DLL "
+        f"build={build_id!r} magic=0x{snapshot.magic:08X} "
+        f"version={snapshot.version} ready={snapshot.ready} "
+        f"pid={snapshot.dll_pid} hwnd=0x{snapshot.hwnd_value:X} "
+        f"wndprocTid={snapshot.wndproc_thread_id} "
+        f"windowTid={snapshot.window_thread_id}"
+    )
+    print(
+        "[PMDBG-PY] PATH "
+        f"probes={probe_count} "
+        f"totalDown/Up={snapshot.total_key_down}/{snapshot.total_key_up} "
+        f"taggedDown/Up={snapshot.tagged_key_down}/{snapshot.tagged_key_up} "
+        f"forwarded={forwarded} lastSeq={snapshot.last_probe_seq} "
+        f"lastMsg=0x{snapshot.last_message & 0xFFFFFFFF:04X} "
+        f"lastVK=0x{snapshot.last_key_vk & 0xFFFFFFFF:02X} "
+        f"focused={snapshot.last_focused} "
+        f"result={snapshot.last_forward_result} error={snapshot.last_error}"
+    )
+    print(
+        "[PMDBG-PY] WNDPROC "
+        f"original=0x{snapshot.original_wndproc:X} "
+        f"current=0x{snapshot.current_wndproc:X} "
+        f"foreground=0x{snapshot.last_foreground_hwnd & 0xFFFFFFFFFFFFFFFF:X}"
+    )
+
+    problem = None
+    if snapshot.magic != _PMDBG_MAGIC or snapshot.version != _PMDBG_VERSION:
+        problem = "BAD_LAYOUT: Python and DLL debugger versions do not match."
+    elif build_id != _PMDBG_BUILD_ID:
+        problem = "OLD_DLL: loaded DLL does not contain this debugger build."
+    elif not snapshot.ready:
+        problem = "DLL_NOT_READY: diagnostic mapping exists but WndProc is not ready."
+    elif int(snapshot.hwnd_value) != target:
+        problem = (
+            "HWND_MISMATCH: Python posts to a different window than the DLL "
+            "WndProc hook."
+        )
+    elif int(snapshot.dll_pid) != int(window["pid"]):
+        problem = "PID_MISMATCH: selected HWND is not owned by the injected process."
+    elif not snapshot.original_wndproc:
+        problem = "NO_ORIGINAL_WNDPROC: DLL did not retain GW2's original WndProc."
+    elif probe_count == 0:
+        problem = "NO_PROBE: Python diagnostic messages did not reach the DLL WndProc."
+    elif probe_count - tagged_total > 2:
+        problem = (
+            "KEY_MISSING: diagnostic markers arrive, but their WM_KEYDOWN/UP "
+            "messages do not arrive."
+        )
+    elif tagged_total - forwarded > 1:
+        problem = "NOT_FORWARDED: DLL receives tagged keys but does not forward them."
+    elif tagged_total > 0 and forwarded >= tagged_total:
+        problem = (
+            "PATH_OK: PostMessage reached the DLL and the DLL called GW2's "
+            "original WndProc. If the skill still does nothing, the failure is "
+            "after the original WndProc."
+        )
+
+    if problem:
+        print(f"[PMDBG-PY] DIAGNOSIS {problem}")
+    return snapshot
+
+
+def _pmdbg_report_worker():
+    global _pmdbg_timer
+    try:
+        debug_postmessage_status()
+    except Exception as exc:
+        print(f"[PMDBG-PY] Reporter error: {exc}")
+    finally:
+        with _pmdbg_timer_lock:
+            _pmdbg_timer = None
+
+
+def _pmdbg_schedule_report():
+    global _pmdbg_timer
+    if not _PMDBG_ENABLED:
+        return
+    with _pmdbg_timer_lock:
+        if _pmdbg_timer is not None:
+            return
+        _pmdbg_timer = threading.Timer(0.20, _pmdbg_report_worker)
+        _pmdbg_timer.daemon = True
+        _pmdbg_timer.start()
+
+
+def _pmdbg_log_target_once(hwnd):
+    global _pmdbg_target_logged
+    numeric_hwnd = int(hwnd or 0)
+    if _pmdbg_target_logged == numeric_hwnd:
+        return
+    _pmdbg_target_logged = numeric_hwnd
+    details = _pmdbg_window_details(hwnd)
+    print(
+        "[PMDBG-PY] USING_TARGET "
+        f"hwnd=0x{numeric_hwnd:X} valid={int(details['valid'])} "
+        f"pid={details['pid']} tid={details['tid']} "
+        f"class={details['class']!r} title={details['title']!r}"
+    )
+
+
+def _pmdbg_post_key(hwnd, message, scan_code, vk_code, lparam, phase):
+    """Post one ordinary key message with an adjacent diagnostic marker."""
+    global _pmdbg_sequence, _pmdbg_verbose_remaining
+
+    with _pmdbg_send_lock:
+        _pmdbg_sequence = (_pmdbg_sequence + 1) & 0x7FFFFFFF
+        if _pmdbg_sequence == 0:
+            _pmdbg_sequence = 1
+        sequence = _pmdbg_sequence
+
+        marker_ok = None
+        marker_error = 0
+        marker_active = _PMDBG_ENABLED and _pmdbg_marker_is_ready(hwnd)
+        if marker_active:
+            if _PMDBG_REGISTERED_MESSAGE:
+                payload = (int(vk_code) & 0xFFFF) | ((int(phase) & 0xFF) << 16)
+                ctypes.set_last_error(0)
+                marker_ok = bool(
+                    PostMessage(
+                        hwnd,
+                        _PMDBG_REGISTERED_MESSAGE,
+                        sequence,
+                        payload,
+                    )
+                )
+                marker_error = 0 if marker_ok else ctypes.get_last_error()
+            else:
+                marker_ok = False
+                marker_error = ctypes.get_last_error()
+
+        ctypes.set_last_error(0)
+        key_ok = bool(PostMessage(hwnd, message, vk_code, lparam))
+        key_error = 0 if key_ok else ctypes.get_last_error()
+
+    _pmdbg_log_target_once(hwnd)
+    if _PMDBG_ENABLED and (
+        _pmdbg_verbose_remaining > 0
+        or not key_ok
+        or (marker_active and not marker_ok)
+    ):
+        _pmdbg_verbose_remaining = max(0, _pmdbg_verbose_remaining - 1)
+        phase_name = "DOWN" if phase == 1 else "UP"
+        if not marker_active:
+            marker_status = "SKIP(no matching debug DLL map)"
+        else:
+            marker_status = (
+                f"{'OK' if marker_ok else 'FAIL'}({marker_error})"
+            )
+        print(
+            "[PMDBG-PY] POST "
+            f"seq={sequence} phase={phase_name} "
+            f"scan=0x{int(scan_code):02X} vk=0x{int(vk_code):02X} "
+            f"marker={marker_status} "
+            f"key={'OK' if key_ok else 'FAIL'}({key_error})"
+        )
+
+    _pmdbg_schedule_report()
+    return key_ok
+
+
+print(
+    f"[PMDBG-PY] Loaded {_PMDBG_BUILD_ID}; "
+    f"enabled={int(_PMDBG_ENABLED)} message=0x{_PMDBG_REGISTERED_MESSAGE:04X}"
+)
+
 WM_KEYDOWN = 0x0100
 WM_KEYUP = 0x0101
 WM_CHAR = 0x0102       # <--- ADDED THIS
@@ -1429,46 +2593,73 @@ def get_virtual_key(scan_code_hex):
             scan_code = int(scan_code_hex, 16)
         vk_code = MapVirtualKey(scan_code, 1) # MAPVK_VSC_TO_VK
         return scan_code, vk_code
-    except:
+    except Exception as exc:
+        if _PMDBG_ENABLED:
+            print(f"[PMDBG-PY] Invalid scan code {scan_code_hex!r}: {exc}")
         return 0, 0
 
 def send_background_down(window_title, hex_scan_code):
     """Mengirim sinyal KEY DOWN ke window tertentu tanpa fokus"""
     try:
-        hwnd = current_hwnd
-        if not hwnd: return
+        hwnd = ensure_gw2_hwnd()
+        if not hwnd:
+            print("[PMDBG-PY] DOWN blocked: current_hwnd is empty")
+            return False
         
         scan_code, vk_code = get_virtual_key(hex_scan_code)
-        if vk_code == 0: return
+        if vk_code == 0:
+            print(f"[PMDBG-PY] DOWN blocked: scan={hex_scan_code!r} maps to VK 0")
+            return False
 
         lparam = 1 | (scan_code << 16)
-        PostMessage(hwnd, WM_KEYDOWN, vk_code, lparam)
+        return _pmdbg_post_key(
+            hwnd,
+            WM_KEYDOWN,
+            scan_code,
+            vk_code,
+            lparam,
+            1,
+        )
     except Exception as e:
         print(f"[BgInput] Down Error: {e}")
+        return False
 
 def send_background_up(window_title, hex_scan_code):
     """Mengirim sinyal KEY UP ke window tertentu tanpa fokus"""
     try:
-        hwnd = current_hwnd
-        if not hwnd: return
+        hwnd = ensure_gw2_hwnd()
+        if not hwnd:
+            print("[PMDBG-PY] UP blocked: current_hwnd is empty")
+            return False
 
         scan_code, vk_code = get_virtual_key(hex_scan_code)
-        if vk_code == 0: return
+        if vk_code == 0:
+            print(f"[PMDBG-PY] UP blocked: scan={hex_scan_code!r} maps to VK 0")
+            return False
 
         lparam = 1 | (scan_code << 16) | (1 << 30) | (1 << 31)
-        PostMessage(hwnd, WM_KEYUP, vk_code, lparam)
+        return _pmdbg_post_key(
+            hwnd,
+            WM_KEYUP,
+            scan_code,
+            vk_code,
+            lparam,
+            2,
+        )
     except Exception as e:
         print(f"[BgInput] Up Error: {e}")
+        return False
 
 def send_background_key(window_title, hex_scan_code, duration=0.05):
     """Tekan dan Lepas (Tap) di background"""
-    send_background_down(window_title, hex_scan_code)
+    down_ok = send_background_down(window_title, hex_scan_code)
     time.sleep(float(duration))
-    send_background_up(window_title, hex_scan_code)
+    up_ok = send_background_up(window_title, hex_scan_code)
+    return bool(down_ok and up_ok)
 
 def presskey(window_title, hex_key_code, duration=0.05):
     """Wrapper fungsi presskey agar gw2x_ui.py tidak error Import."""
-    send_background_key(window_title, hex_key_code, duration)
+    return send_background_key(window_title, hex_key_code, duration)
 
 def send_chat_message(window_title, text):
     """

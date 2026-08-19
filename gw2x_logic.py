@@ -5,6 +5,7 @@ import math
 import random
 import ctypes
 import json
+import struct
 import win32gui
 import gw2x_config
 import gw2x_core as core
@@ -24,23 +25,45 @@ def is_valid_coord(v):
 
 class EventDetector:
     """
-    Detects active map events by spatial matching:
-    - event_details.json  → static event locations (one-time download, cached to disk)
-    - IPC entities        → hostile NPC positions from C++ DLL
-    - match NPC inside event radius → event is active
+    Detects actual live map-event records exposed by the rebuilt DLL.
+
+    Static event_details data supplies the GUID/name/location. The DLL supplies
+    only records currently loaded in GW2's live-event collection. A build-scoped
+    runtime-ID binding disambiguates events that share one location.
     """
     _cache_path = None
-    _event_db   = {}      # { map_id(int): [{guid, name, cx_m, cz_m, radius_m}] }
+    _runtime_id_path = None
+    _event_db   = {}      # { map_id(int): [{guid, name, raw_xyz, converted coords}] }
     _raw_cache  = {}      # { map_id(int): map_rect, continent_rect } — fetched lazily
     _db_lock    = threading.Lock()
+    _runtime_lock = threading.Lock()
+    _runtime_ids = {"version": 1, "builds": {}}
+    _runtime_ids_loaded = False
     _fetched    = False
     _building   = False
+
+    # Confirmed by four inactive -> active -> inactive captures on build
+    # 205655. Other builds are learned explicitly with Capture Active.
+    _confirmed_runtime_ids = {
+        "205655": {
+            "985EBBAD-66FA-4F9D-9AA0-02A06EC24E68": {
+                "runtime_id": 0x2408,
+                "map_id": 929,
+                "center": [-23.6807, -6082.4, -2629.6],
+                "source": "probe-confirmed",
+            },
+        },
+    }
 
     def __init__(self):
         import os
         EventDetector._cache_path = os.path.join(
             os.path.dirname(__file__), "event_db_cache.json")
+        EventDetector._runtime_id_path = os.path.join(
+            os.path.dirname(__file__), "event_runtime_ids.json")
+        self.current_map_id = 0
         self._load_cache()
+        self._load_runtime_ids()
         if not EventDetector._fetched and not EventDetector._building:
             threading.Thread(target=self._build_db, daemon=True).start()
 
@@ -58,6 +81,14 @@ class EventDetector:
                 os.remove(EventDetector._cache_path)
                 return
             db = {int(k): v for k, v in raw.items()}
+            # V4 needs the exact raw float32 center to match the DLL feed. A
+            # V3 cache cannot be upgraded losslessly from converted meters.
+            if any(
+                    "raw_x" not in ev or "raw_y" not in ev or "raw_z" not in ev
+                    for events in db.values() for ev in events):
+                print("[EventDetector] Pre-V4 cache detected — deleting, will rebuild")
+                os.remove(EventDetector._cache_path)
+                return
             with EventDetector._db_lock:
                 EventDetector._event_db = db
             EventDetector._fetched = True
@@ -65,6 +96,45 @@ class EventDetector:
             print(f"[EventDetector] Cache loaded: {len(db)} maps, {total} events")
         except Exception as e:
             print(f"[EventDetector] Cache load error: {e}")
+
+    def _load_runtime_ids(self):
+        if EventDetector._runtime_ids_loaded:
+            return
+        merged = {"version": 1, "builds": {}}
+        try:
+            if os.path.exists(EventDetector._runtime_id_path):
+                with open(EventDetector._runtime_id_path, "r", encoding="utf-8") as f:
+                    loaded = json.load(f)
+                if isinstance(loaded, dict) and isinstance(loaded.get("builds"), dict):
+                    merged = loaded
+        except Exception as exc:
+            print(f"[EventDetector] Runtime-ID cache load error: {exc}")
+
+        builds = merged.setdefault("builds", {})
+        for build, bindings in EventDetector._confirmed_runtime_ids.items():
+            target = builds.setdefault(build, {})
+            for guid, binding in bindings.items():
+                target.setdefault(guid, dict(binding))
+        with EventDetector._runtime_lock:
+            EventDetector._runtime_ids = merged
+            EventDetector._runtime_ids_loaded = True
+
+    def _save_runtime_ids(self):
+        path = EventDetector._runtime_id_path
+        temp_path = path + ".tmp"
+        try:
+            with EventDetector._runtime_lock:
+                payload = json.loads(json.dumps(EventDetector._runtime_ids))
+            with open(temp_path, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2, sort_keys=True)
+            os.replace(temp_path, path)
+        except Exception as exc:
+            print(f"[EventDetector] Runtime-ID cache save error: {exc}")
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except Exception:
+                pass
 
     def _save_cache(self):
         try:
@@ -175,6 +245,10 @@ class EventDetector:
                 db[mid].append({
                     "guid":     guid,
                     "name":     name,
+                    "map_id":   int(mid),
+                    "raw_x":    float(center[0]),
+                    "raw_y":    float(center[1]),
+                    "raw_z":    float(center[2]) if len(center) > 2 else 0.0,
                     "cx_m":     cx_m,
                     "cz_m":     cz_m,
                     "radius_m": radius_m,
@@ -196,6 +270,81 @@ class EventDetector:
             threading.Thread(target=self._build_db, daemon=True).start()
 
     # ── Runtime detection ─────────────────────────────────────────────────
+    @staticmethod
+    def _float32_bits(value):
+        return struct.unpack("<I", struct.pack("<f", float(value)))[0]
+
+    @classmethod
+    def _center_key(cls, item, prefix="raw_"):
+        try:
+            if prefix:
+                values = (item[prefix + "x"], item[prefix + "y"], item[prefix + "z"])
+            else:
+                values = (item["map_x"], item["map_y"], item["map_z"])
+            return tuple(cls._float32_bits(value) for value in values)
+        except (KeyError, TypeError, ValueError, OverflowError):
+            return None
+
+    @staticmethod
+    def _current_build_id():
+        try:
+            mumble_data = core.mumble.read() if core.mumble else None
+            return int((mumble_data or {}).get("build_id", 0) or 0)
+        except Exception:
+            return 0
+
+    @classmethod
+    def _binding_for(cls, build_id, guid):
+        with cls._runtime_lock:
+            binding = cls._runtime_ids.get("builds", {}).get(
+                str(int(build_id or 0)), {}).get(str(guid).upper())
+            return dict(binding) if isinstance(binding, dict) else None
+
+    def bind_runtime_id(self, event_entry):
+        """Bind the selected active event to its build-specific runtime ID."""
+        if not event_entry:
+            return False, "Choose an event first"
+        guid = str(event_entry.get("guid", "")).upper().strip()
+        center_key = self._center_key(event_entry)
+        if not guid or center_key is None:
+            return False, "Selected event has no V4 raw-center data; refresh the event cache"
+
+        status = core.get_live_event_status()
+        if not status.get("available"):
+            return False, status.get("message", "Live Event DLL feed unavailable")
+        if not status.get("fresh"):
+            return False, status.get("message", "Live Event DLL feed is stale")
+
+        matches = [record for record in status.get("records", [])
+                   if self._center_key(record, prefix="") == center_key]
+        runtime_ids = sorted({int(record.get("runtime_id", 0))
+                              for record in matches if int(record.get("runtime_id", 0)) > 0})
+        if not runtime_ids:
+            return False, "That event center is not live now; wait until the event is active"
+        if len(runtime_ids) != 1:
+            values = ", ".join(f"0x{value:X}" for value in runtime_ids)
+            return False, f"Multiple live IDs share this center ({values}); capture another cycle"
+
+        build_id = self._current_build_id()
+        if not build_id:
+            return False, "GW2 build ID is unavailable from MumbleLink"
+        runtime_id = runtime_ids[0]
+        binding = {
+            "runtime_id": runtime_id,
+            "map_id": int(event_entry.get("map_id", self.current_map_id) or 0),
+            "center": [float(event_entry["raw_x"]), float(event_entry["raw_y"]),
+                       float(event_entry["raw_z"])],
+            "learned_at": datetime.now().isoformat(timespec="seconds"),
+            "source": "capture-active",
+        }
+        with EventDetector._runtime_lock:
+            builds = EventDetector._runtime_ids.setdefault("builds", {})
+            builds.setdefault(str(build_id), {})[guid] = binding
+        self._save_runtime_ids()
+        print(f"[EventDetector] Bound {guid[:8]} to runtime ID 0x{runtime_id:X} "
+              f"for build {build_id}")
+        return True, f"Bound live runtime ID 0x{runtime_id:X} for build {build_id}"
+
     def get_active_events(self, active_only=True, documented_only=False):
         map_id = self.current_map_id
         if not map_id or not EventDetector._fetched:
@@ -207,95 +356,73 @@ class EventDetector:
         if not map_events:
             return []
 
-        # Get ALL entities — hostile, friendly, objects
-        all_ents = []
-        try:
-            if hasattr(core, 'shared_entities') and core.shared_entities:
-                all_ents = core.shared_entities.read_entities() or []
-        except Exception:
-            pass
+        feed = core.get_live_event_status()
+        live_records = feed.get("records", []) if feed.get("fresh") else []
+        records_by_center = {}
+        for record in live_records:
+            key = self._center_key(record, prefix="")
+            if key is not None:
+                records_by_center.setdefault(key, []).append(record)
 
-        # Player position for distance sorting
+        events_by_center = {}
+        for event in map_events:
+            key = self._center_key(event)
+            if key is not None:
+                events_by_center.setdefault(key, []).append(event)
+        build_id = self._current_build_id()
+
         player_mx, player_mz = None, None
         try:
             if core.mumble:
-                d = core.mumble.read()
-                if d:
-                    pos = d.get("pos", (0, 0, 0))
+                mumble_data = core.mumble.read()
+                if mumble_data:
+                    pos = mumble_data.get("pos", (0, 0, 0))
                     player_mx, player_mz = pos[0], pos[2]
         except Exception:
             pass
 
-        SCALE = 1.23
         result = []
-
         for ev in map_events:
             entry = dict(ev)
-
-            # Distance from player
+            entry["map_id"] = map_id_int
             if player_mx is not None and ev.get("cx_m") is not None:
                 dx = player_mx - ev["cx_m"]
                 dz = player_mz - ev["cz_m"]
-                entry["dist_m"] = math.sqrt(dx*dx + dz*dz)
+                entry["dist_m"] = math.sqrt(dx * dx + dz * dz)
             else:
                 entry["dist_m"] = 999999
 
-            # Spatial match: ALL entities within event radius
-            spatially_matched = []
-            for ent in all_ents:
-                ex = ent["x"] / SCALE
-                ez = ent["z"] / SCALE
-                dx = ex - ev["cx_m"]
-                dz = ez - ev["cz_m"]
-                dist = math.sqrt(dx*dx + dz*dz)
-                if dist <= ev["radius_m"] * 1.5:
-                    spatially_matched.append({
-                        "name": ent.get("real_name", "?"),
-                        "type": ent.get("type"),
-                        "att":  ent.get("raw_attitude"),
-                        "x":    ent["x"],
-                        "y":    ent["y"],
-                        "z":    ent["z"],
-                        "dist_m": round(dist, 1),
-                    })
+            center_key = self._center_key(ev)
+            center_records = records_by_center.get(center_key, [])
+            binding = self._binding_for(build_id, ev.get("guid", ""))
+            runtime_id = int((binding or {}).get("runtime_id", 0) or 0)
+            matched_record = None
+            if runtime_id:
+                matched_record = next(
+                    (record for record in center_records
+                     if int(record.get("runtime_id", 0)) == runtime_id), None)
+            elif center_key is not None and len(events_by_center.get(center_key, [])) == 1:
+                # A unique static center is safe without an explicit ID binding.
+                matched_record = center_records[0] if len(center_records) == 1 else None
 
-            # Name correlation: extract keywords from event name,
-            # check if any spatially-matched entity name contains them
-            name_matched = []
-            if spatially_matched:
-                # Extract meaningful words from event name (skip short/common words)
-                SKIP = {"the","a","an","and","or","to","in","of","for",
-                        "at","by","from","with","as","on","up","its",
-                        "nearby","all","from","while","they"}
-                keywords = [w.lower() for w in ev["name"].replace("."," ").split()
-                        if len(w) > 3 and w.lower() not in SKIP]
-
-                for ent in spatially_matched:
-                    ent_name_lower = ent["name"].lower()
-                    # Check if any keyword appears in entity name
-                    if any(kw in ent_name_lower for kw in keywords):
-                        name_matched.append(ent)
-
-            # Event is "likely active" if:
-            # - Named entity found in radius (strong signal), OR
-            # - Has hostile NPCs in radius (att=1), OR
-            # - Has any non-object entities in radius if no name match
-            hostile_in_range = [e for e in spatially_matched
-                            if e["att"] == 1 and e["type"] == 1]
-
-            if name_matched:
-                entry["likely_active"] = True
-                entry["matched_npcs"]  = name_matched
-            elif hostile_in_range:
-                entry["likely_active"] = True
-                entry["matched_npcs"]  = hostile_in_range
-            else:
-                entry["likely_active"] = False
-                entry["matched_npcs"]  = []
-
+            entry["matched_npcs"] = []  # retained for older UI/teleport callers
+            entry["likely_active"] = matched_record is not None
+            entry["live_feed_available"] = bool(feed.get("available"))
+            entry["live_feed_fresh"] = bool(feed.get("fresh"))
+            entry["live_feed_source"] = feed.get("source", "unavailable")
+            entry["live_center_present"] = bool(center_records)
+            entry["center_event_count"] = len(events_by_center.get(center_key, []))
+            entry["needs_runtime_id"] = bool(
+                center_records and not runtime_id and entry["center_event_count"] > 1)
+            entry["bound_runtime_id"] = runtime_id or None
+            entry["live_runtime_id"] = (
+                int(matched_record.get("runtime_id", 0)) if matched_record else None)
+            entry["detection_source"] = (
+                "dll-runtime-id" if matched_record and runtime_id else
+                "dll-unique-center" if matched_record else "none")
             result.append(entry)
 
-        result.sort(key=lambda e: e["dist_m"])
+        result.sort(key=lambda event: event["dist_m"])
         return result
             
 class GW2X_Logic:
@@ -405,7 +532,7 @@ class GW2X_Logic:
         self.auto_tp_interact_object = False
         self.auto_tp_interact_vista = False
 
-        self._esp_enabled = {"esp_player": False, "esp_npc": False, "esp_path": False, "esp_health": False}
+        self._esp_enabled = {"esp_player": True, "esp_npc": True, "esp_path": True, "esp_health": True}
         self._clarity_enabled = True
 
         self._recover_npc_dictionary()
@@ -691,68 +818,16 @@ class GW2X_Logic:
         return filtered
     
     def get_active_events(self, active_only=True, documented_only=False):
-        map_id = self.current_map_id
-        if not map_id or not EventDetector._fetched:
-            return []
+        self.event_detector.current_map_id = self.current_map_id
+        return self.event_detector.get_active_events(
+            active_only=active_only, documented_only=documented_only)
 
-        map_id_int = int(map_id)
-        with EventDetector._db_lock:
-            map_events = list(EventDetector._event_db.get(map_id_int, []))
+    def bind_event_runtime_id(self, event_entry):
+        self.event_detector.current_map_id = self.current_map_id
+        return self.event_detector.bind_runtime_id(event_entry)
 
-        if not map_events:
-            return []
-
-        hostile_npcs = []
-        try:
-            if hasattr(core, 'shared_entities') and core.shared_entities:
-                all_ents = core.shared_entities.read_entities() or []
-                hostile_npcs = [e for e in all_ents
-                            if e.get("type") == 1 and e.get("raw_attitude") == 0]
-        except Exception:
-            pass
-
-        player_mx, player_mz = None, None
-        try:
-            if core.mumble:
-                d = core.mumble.read()
-                if d:
-                    pos = d.get("pos", (0, 0, 0))
-                    player_mx = pos[0]
-                    player_mz = pos[2]
-        except Exception:
-            pass
-
-        SCALE = 1.23
-        result = []
-        for ev in map_events:
-            entry = dict(ev)
-
-            if player_mx is not None and ev.get("cx_m") is not None:
-                dx = player_mx - ev["cx_m"]
-                dz = player_mz - ev["cz_m"]
-                entry["dist_m"] = math.sqrt(dx*dx + dz*dz)
-            else:
-                entry["dist_m"] = 999999
-
-            matched = []
-            for npc in hostile_npcs:
-                dx = (npc["x"] / SCALE) - ev["cx_m"]
-                dz = (npc["z"] / SCALE) - ev["cz_m"]
-                dist = math.sqrt(dx*dx + dz*dz)
-                if dist <= ev["radius_m"] * 1.5:
-                    matched.append({
-                        "name": npc.get("real_name", "?"),
-                        "x":    npc["x"],   # game visual units (IPC)
-                        "y":    npc["y"],
-                        "z":    npc["z"],
-                    })
-            entry["matched_npcs"] = matched
-            entry["likely_active"] = len(matched) > 0
-
-            result.append(entry)
-
-        result.sort(key=lambda e: e["dist_m"])
-        return result
+    def get_live_event_status(self):
+        return core.get_live_event_status()
 
 
     def is_event_db_ready(self):
