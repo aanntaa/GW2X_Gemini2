@@ -116,6 +116,80 @@ class MapTargetResolver:
             return ent["y"] + 0.5 # +0.5m agar tidak mendarat di dalam hitbox
             
         return None
+
+    def get_nearest_entity_near(self, target_x_meter, target_z_meter,
+                                radius=180.0, exclude_name=""):
+        """Return the best loaded entity near a rendered commander tag.
+
+        Priority is a confirmed commander, then another player, then the
+        absolute nearest remaining entity. The local character is excluded by
+        Mumble identity so the hover-stage player cannot select itself.
+        """
+        if not core.shared_entities:
+            return None
+        try:
+            candidates = []
+            for ent in core.shared_entities.read_entities():
+                name = str(ent.get("real_name") or "")
+                if exclude_name and name.casefold() == exclude_name.casefold():
+                    continue
+                dist = math.hypot(
+                    ent["x"] - target_x_meter,
+                    ent["z"] - target_z_meter,
+                )
+                if dist <= radius:
+                    if ent.get("is_commander"):
+                        priority = 0
+                    elif ent.get("type", -1) == 0:
+                        priority = 1
+                    else:
+                        priority = 2
+                    candidates.append((priority, dist, ent))
+            if not candidates:
+                return None
+            candidates.sort(key=lambda item: (item[0], item[1]))
+            priority, dist, ent = candidates[0]
+            kind = (
+                "COMMANDER" if priority == 0 else
+                "PLAYER" if priority == 1 else
+                "ENTITY"
+            )
+            print(
+                f"[CommanderTP] Nearest [{kind}] "
+                f"{ent.get('real_name', ent.get('id', '?'))} "
+                f"at {dist:.1f}m from rendered tag"
+            )
+            return {
+                "x": float(ent["x"]),
+                "y": float(ent["y"]) + 0.5,
+                "z": float(ent["z"]),
+                "distance": float(dist),
+                "kind": kind,
+                "name": ent.get("real_name") or str(ent.get("id", "?")),
+            }
+        except Exception as exc:
+            print(f"[CommanderTP] Nearest-entity scan failed: {exc}")
+            return None
+
+    def get_commander_fallback_height(self, map_id, target_x_meter,
+                                      target_z_meter, current_y_meter,
+                                      hover=False):
+        """Nearest static terrain hint without opening a selection dialog."""
+        best = None
+        for marker in getattr(data, "ALL_MAP_MARKERS", []) or []:
+            if marker.get("map_id") != map_id:
+                continue
+            coord = marker.get("coord")
+            if not coord or len(coord) < 3:
+                continue
+            dist = math.hypot(
+                coord[0] - target_x_meter,
+                coord[2] - target_z_meter,
+            )
+            if dist <= 800.0 and (best is None or dist < best[0]):
+                best = (dist, float(coord[1]))
+        base_y = best[1] if best is not None else float(current_y_meter)
+        return base_y + (60.0 if hover else 0.5)
             
     def _prompt_user_selection(self, candidates, current_y_meter):
         """Membuat temporary Tkinter window untuk memilih target snap."""

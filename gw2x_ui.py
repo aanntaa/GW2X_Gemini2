@@ -1997,6 +1997,423 @@ class GW2X_UI:
             command=self.prompt_mouse_tp_hotkey 
         )
         self.btn_mouse_tp_hk.pack(side=tk.RIGHT, padx=2)
+
+        # --- MAP-CLOSED COMMANDER / MAP-ICON TELEPORT (KX-Vision V63) ---
+        commander_row = tk.Frame(frame, bg="#102410")
+        commander_row.pack(fill=tk.X, pady=5, padx=5)
+
+        self.commander_tp_status = tk.StringVar(
+            value="Map-closed remote tracker ready"
+        )
+
+        def finish_commander_tp(ok, msg):
+            self.btn_commander_tp.config(
+                state=tk.NORMAL,
+                text="TP to Commander",
+                bg="#145214" if ok else "#5a1818",
+            )
+            self.commander_tp_status.set(msg)
+            if not ok:
+                messagebox.showerror("Commander Teleport", msg)
+
+        def commander_tp_worker(result, point):
+            try:
+                ok, msg = self.logic.teleport_to_commander(
+                    result=result, point=point
+                )
+            except Exception as exc:
+                ok, msg = False, f"Commander teleport failed: {exc}"
+            self.root.after(0, lambda: finish_commander_tp(ok, msg))
+
+        def start_selected_commander(result, point, dialog=None):
+            if dialog is not None:
+                dialog.destroy()
+            number = point.get("candidate_number", "?")
+            self.btn_commander_tp.config(
+                state=tk.DISABLED,
+                text=f"Teleporting to #{number}...",
+                bg="#6a5200",
+            )
+            self.commander_tp_status.set("Refreshing exact commander XYZ")
+            threading.Thread(
+                target=commander_tp_worker,
+                args=(result, point),
+                name="GW2X-CommanderTP",
+                daemon=True,
+            ).start()
+
+        def show_commander_choices(result, msg):
+            points = result.get("points", [])
+            dialog = tk.Toplevel(self.root)
+            dialog.title("Choose Commander")
+            dialog.geometry("520x420")
+            dialog.configure(bg="#121212")
+            dialog.attributes("-topmost", True)
+            dialog.transient(self.root)
+
+            tk.Label(
+                dialog,
+                text=f"{len(points)} commander candidates found",
+                bg="#121212", fg="#ff9cff",
+                font=("Segoe UI", 11, "bold"),
+            ).pack(fill=tk.X, padx=12, pady=(12, 2))
+            tk.Label(
+                dialog,
+                text="Choose by direction and distance. The world map may stay closed.",
+                bg="#121212", fg="#aaaaaa",
+                font=("Segoe UI", 8),
+            ).pack(fill=tk.X, padx=12, pady=(0, 8))
+
+            canvas = tk.Canvas(dialog, bg="#121212", highlightthickness=0)
+            scrollbar = ttk.Scrollbar(
+                dialog, orient="vertical", command=canvas.yview
+            )
+            choices = tk.Frame(canvas, bg="#121212")
+            choices.bind(
+                "<Configure>",
+                lambda event: canvas.configure(
+                    scrollregion=canvas.bbox("all")
+                ),
+            )
+            canvas.create_window((0, 0), window=choices, anchor="nw")
+            canvas.configure(yscrollcommand=scrollbar.set)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=(8, 0))
+
+            for point in points:
+                number = point.get("candidate_number", "?")
+                direction = point.get("direction", "?")
+                distance = point.get("distance_m")
+                distance_text = (
+                    f"~{distance:.0f}m" if distance is not None else "distance unknown"
+                )
+                commander_name = (point.get("live_name") or
+                                  "Remote commander (name unavailable in packet)")
+                source = point.get("source", "Map packet")
+                label = (
+                    f"Commander #{number}: {commander_name}  •  "
+                    f"{direction}  •  {distance_text}\n"
+                    f"XYZ: {point['x']:.2f}, {point['y']:.2f}, "
+                    f"{point['z']:.2f}  •  {source}  •  "
+                    f"ID 0x{point['logical_id']:X}"
+                )
+                tk.Button(
+                    choices,
+                    text=label,
+                    anchor="w",
+                    justify=tk.LEFT,
+                    bg="#2a1830",
+                    fg="#ffe8ff",
+                    activebackground="#56305f",
+                    activeforeground="white",
+                    relief="flat",
+                    font=("Segoe UI", 9),
+                    command=lambda p=point: start_selected_commander(
+                        result, p, dialog
+                    ),
+                ).pack(fill=tk.X, padx=4, pady=3)
+
+            def cancel_choice():
+                try:
+                    if dialog.winfo_exists():
+                        dialog.destroy()
+                    if (self.btn_commander_tp and
+                            self.btn_commander_tp.winfo_exists()):
+                        self.btn_commander_tp.config(
+                            state=tk.NORMAL,
+                            text="TP to Commander",
+                            bg="#145214",
+                        )
+                    self.commander_tp_status.set(
+                        "Commander selection cancelled"
+                    )
+                except tk.TclError:
+                    # The containing trainer window may already be destroyed.
+                    pass
+
+            dialog.protocol("WM_DELETE_WINDOW", cancel_choice)
+
+        def commander_scan_worker():
+            try:
+                result, msg = self.logic.scan_commanders()
+            except Exception as exc:
+                result, msg = None, f"Commander scan failed: {exc}"
+
+            def finish_scan():
+                if not result:
+                    finish_commander_tp(False, msg)
+                else:
+                    self.commander_tp_status.set(msg)
+                    show_commander_choices(result, msg)
+
+            self.root.after(0, finish_scan)
+
+        def start_commander_tp():
+            self.btn_commander_tp.config(
+                state=tk.DISABLED,
+                text="Reading registry...",
+                bg="#6a5200",
+            )
+            self.commander_tp_status.set("Reading map-wide commander packets")
+            threading.Thread(
+                target=commander_scan_worker,
+                name="GW2X-CommanderScan",
+                daemon=True,
+            ).start()
+
+        def finish_marker_tp(ok, msg):
+            self.btn_squad_marker_tp.config(
+                state=tk.NORMAL,
+                text="TP to Map/NPC Icon",
+                bg="#164466" if ok else "#5a1818",
+            )
+            self.commander_tp_status.set(msg)
+            if not ok:
+                messagebox.showerror("Map/NPC Icon Teleport", msg)
+
+        def marker_tp_worker(result, point):
+            try:
+                ok, msg = self.logic.teleport_to_map_icon(
+                    result=result, point=point
+                )
+            except Exception as exc:
+                ok, msg = False, f"Map/NPC icon teleport failed: {exc}"
+            self.root.after(0, lambda: finish_marker_tp(ok, msg))
+
+        def start_selected_marker(result, point, dialog=None):
+            if dialog is not None:
+                dialog.destroy()
+            self.btn_squad_marker_tp.config(
+                state=tk.DISABLED, text="Teleporting...", bg="#6a5200"
+            )
+            threading.Thread(
+                target=marker_tp_worker, args=(result, point),
+                name="GW2X-SquadMarkerTP", daemon=True,
+            ).start()
+
+        def show_marker_choices(result):
+            points = result.get("points", [])
+            dialog = tk.Toplevel(self.root)
+            dialog.title("Choose Map/NPC Icon")
+            dialog.geometry("680x540")
+            dialog.configure(bg="#121212")
+            dialog.attributes("-topmost", True)
+            dialog.transient(self.root)
+
+            header_text = tk.StringVar()
+            tk.Label(
+                dialog, textvariable=header_text,
+                bg="#121212", fg="#88ccff",
+                font=("Segoe UI", 11, "bold"),
+            ).pack(fill=tk.X, padx=12, pady=(10, 4))
+
+            controls = tk.Frame(dialog, bg="#121212")
+            controls.pack(fill=tk.X, padx=12, pady=(0, 8))
+            search_var = tk.StringVar()
+            status_var = tk.StringVar(value="All records")
+            distance_var = tk.StringVar(value="All distances")
+
+            tk.Label(controls, text="Search", bg="#121212", fg="#cccccc").grid(
+                row=0, column=0, sticky="w")
+            search_entry = tk.Entry(
+                controls, textvariable=search_var, bg="#202020", fg="white",
+                insertbackground="white", relief="flat")
+            search_entry.grid(row=1, column=0, sticky="ew", padx=(0, 8))
+            tk.Label(controls, text="Type", bg="#121212", fg="#cccccc").grid(
+                row=0, column=1, sticky="w")
+            status_box = ttk.Combobox(
+                controls, textvariable=status_var, state="readonly", width=22,
+                values=("All records", "Active events", "Inactive event areas",
+                        "NPC/map icons", "Cached records"))
+            status_box.grid(row=1, column=1, sticky="ew", padx=(0, 8))
+            tk.Label(controls, text="Distance", bg="#121212", fg="#cccccc").grid(
+                row=0, column=2, sticky="w")
+            distance_box = ttk.Combobox(
+                controls, textvariable=distance_var, state="readonly", width=16,
+                values=("All distances", "Within 100 m", "Within 250 m",
+                        "Within 500 m", "Within 800 m", "Within 1000 m"))
+            distance_box.grid(row=1, column=2, sticky="ew")
+            controls.columnconfigure(0, weight=1)
+
+            canvas = tk.Canvas(dialog, bg="#121212", highlightthickness=0)
+            scrollbar = ttk.Scrollbar(
+                dialog, orient="vertical", command=canvas.yview
+            )
+            choices = tk.Frame(canvas, bg="#121212")
+            choices.bind(
+                "<Configure>",
+                lambda event: canvas.configure(scrollregion=canvas.bbox("all")),
+            )
+            choices_window = canvas.create_window(
+                (0, 0), window=choices, anchor="nw")
+            canvas.bind(
+                "<Configure>",
+                lambda event: canvas.itemconfigure(
+                    choices_window, width=max(event.width, 1)),
+            )
+            canvas.configure(yscrollcommand=scrollbar.set)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=(8, 0))
+
+            distance_limits = {
+                "Within 100 m": 100.0, "Within 250 m": 250.0,
+                "Within 500 m": 500.0, "Within 800 m": 800.0,
+                "Within 1000 m": 1000.0,
+            }
+
+            def matches_status(point):
+                selected = status_var.get()
+                if selected == "Active events":
+                    return bool(point.get("event_name") or
+                                point.get("active_event_icon"))
+                if selected == "Inactive event areas":
+                    return bool(point.get("possible_event_name"))
+                if selected == "NPC/map icons":
+                    return not point.get("event_name") and not point.get(
+                        "possible_event_name") or bool(point.get("npc_name"))
+                if selected == "Cached records":
+                    return bool(point.get("cached"))
+                return True
+
+            def render_choices(*_args):
+                for child in choices.winfo_children():
+                    child.destroy()
+                query = search_var.get().strip().casefold()
+                limit = distance_limits.get(distance_var.get())
+                visible = []
+                for point in points:
+                    distance = float(point.get("distance_m", 0.0) or 0.0)
+                    if limit is not None and distance > limit:
+                        continue
+                    if not matches_status(point):
+                        continue
+                    haystack = " ".join(str(value) for value in (
+                        point.get("event_name", ""),
+                        point.get("possible_event_name", ""),
+                        point.get("npc_name", ""),
+                        point.get("direction", ""),
+                        f"{int(point.get('logical_id', 0)):X}",
+                        f"{int(point.get('key_a', 0)):X}",
+                    )).casefold()
+                    if query and query not in haystack:
+                        continue
+                    visible.append(point)
+
+                header_text.set(
+                    f"Showing {len(visible)} of {len(points)} map/NPC records")
+                if not visible:
+                    tk.Label(
+                        choices, text="No records match these filters.",
+                        bg="#121212", fg="#aaaaaa",
+                    ).pack(fill=tk.X, padx=12, pady=20)
+                    return
+
+                for point in visible:
+                    distance = float(point.get("distance_m", 0.0) or 0.0)
+                    merged = len(point.get("merged_logical_ids", []))
+                    layer_text = (f"  •  {merged} layers merged"
+                                  if merged > 1 else "")
+                    cache_text = (f"  •  cached "
+                                  f"{point.get('cache_age_seconds', 0):.0f}s"
+                                  if point.get("cached") else "")
+                    event_name = point.get("event_name")
+                    possible_event = point.get("possible_event_name")
+                    npc_name = point.get("npc_name")
+                    if event_name:
+                        title = (f"ACTIVE EVENT: {event_name} "
+                                 f"(Level {point.get('event_level', '?')})")
+                    elif (point.get("active_event_icon") and
+                          possible_event):
+                        title = (f"LIVE EVENT ICON NEAR: {possible_event} "
+                                 "(identity unverified)")
+                    elif point.get("active_event_icon") and npc_name:
+                        title = f"ACTIVE EVENT OBJECTIVE: {npc_name}"
+                    elif point.get("active_event_icon"):
+                        title = ("ACTIVE EVENT OBJECTIVE: "
+                                 f"icon 0x{int(point.get('icon_code', 0)):X}")
+                    elif npc_name:
+                        title = f"NPC: {npc_name}"
+                    elif possible_event:
+                        title = (f"INACTIVE EVENT AREA: {possible_event} "
+                                 f"(Level {point.get('possible_event_level', '?')})")
+                    else:
+                        title = f"Map/NPC icon #{point.get('candidate_number', '?')}"
+                    ambiguity = (
+                        f"\nNearby inactive event area: {possible_event}"
+                        if npc_name and possible_event else "")
+                    label = (
+                        f"{title}{ambiguity}\n"
+                        f"Record ID 0x{point['logical_id']:X}  •  "
+                        f"{point.get('direction', '?')}  •  ~{distance:.0f}m\n"
+                        f"XYZ: {point['x']:.2f}, {point['y']:.2f}, "
+                        f"{point['z']:.2f}  •  Key: {point['key_a']:X}"
+                        f"{layer_text}{cache_text}"
+                    )
+                    tk.Button(
+                        choices, text=label, anchor="w", justify=tk.LEFT,
+                        bg="#183044", fg="#e8f6ff",
+                        activebackground="#285878", activeforeground="white",
+                        relief="flat", font=("Segoe UI", 9),
+                        command=lambda p=point: start_selected_marker(
+                            result, p, dialog),
+                    ).pack(fill=tk.X, padx=12, pady=3)
+
+            search_var.trace_add("write", render_choices)
+            status_box.bind("<<ComboboxSelected>>", render_choices)
+            distance_box.bind("<<ComboboxSelected>>", render_choices)
+            render_choices()
+
+        def marker_scan_worker():
+            try:
+                result, msg = self.logic.scan_map_icons()
+            except Exception as exc:
+                result, msg = None, f"Map/NPC icon scan failed: {exc}"
+            def finish_scan():
+                if not result:
+                    finish_marker_tp(False, msg)
+                else:
+                    self.commander_tp_status.set(msg)
+                    show_marker_choices(result)
+            self.root.after(0, finish_scan)
+
+        def start_marker_tp():
+            self.btn_squad_marker_tp.config(
+                state=tk.DISABLED, text="Reading registry...", bg="#6a5200"
+            )
+            self.commander_tp_status.set("Reading map/NPC icon packets")
+            threading.Thread(
+                target=marker_scan_worker,
+                name="GW2X-SquadMarkerScan", daemon=True,
+            ).start()
+
+        self.btn_commander_tp = tk.Button(
+            commander_row,
+            text="TP to Commander",
+            command=start_commander_tp,
+            bg="#145214",
+            fg="#e8ffe8",
+            relief="flat",
+            font=("Segoe UI", 9, "bold"),
+        )
+        self.btn_commander_tp.pack(fill=tk.X)
+        self.btn_squad_marker_tp = tk.Button(
+            commander_row,
+            text="TP to Map/NPC Icon",
+            command=start_marker_tp,
+            bg="#164466",
+            fg="#e8f6ff",
+            relief="flat",
+            font=("Segoe UI", 9, "bold"),
+        )
+        self.btn_squad_marker_tp.pack(fill=tk.X, pady=(3, 0))
+        tk.Label(
+            commander_row,
+            textvariable=self.commander_tp_status,
+            bg="#102410",
+            fg="#a8d8a8",
+            font=("Segoe UI", 8),
+            anchor="w",
+        ).pack(fill=tk.X, padx=4, pady=(2, 3))
         
         # 3. The Hotkey Config Button (Right, small)
         self.btn_map_hotkey = tk.Button(

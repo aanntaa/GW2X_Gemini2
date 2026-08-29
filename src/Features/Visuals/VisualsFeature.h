@@ -1,0 +1,46 @@
+#pragma once
+
+#include "../../Core/Architecture/IFeature.h"
+#include "Core/MasterRenderer.h"
+#include "Settings/VisualsSettings.h"
+#include <memory>
+
+namespace kx {
+
+class Camera;
+class EntityManager;
+struct MumbleLinkData;
+
+/**
+ * @brief Core visual rendering feature wrapping the MasterRenderer.
+ * 
+ * This feature handles ESP rendering for players, NPCs, objects, and other entities.
+ * It owns the MasterRenderer instance and provides the UI tabs for ESP configuration.
+ */
+class VisualsFeature : public IFeature {
+public:
+    VisualsFeature();
+    ~VisualsFeature() override = default;
+
+    bool Initialize(const ServiceContext& ctx) override;
+    void Shutdown() override;
+    void Update(float deltaTime, const FrameGameData& frameData, const ServiceContext& ctx) override;
+    void RenderDrawList(ImDrawList* drawList, const ServiceContext& ctx) override;
+    void OnMenuRender() override;
+    const char* GetName() const override { return "Visuals"; }
+    
+    void LoadSettings(const nlohmann::json& j) override;
+    void SaveSettings(nlohmann::json& j) override;
+
+private:
+    static constexpr const char* SettingsKey = "visuals";
+    
+    std::unique_ptr<MasterRenderer> m_masterRenderer;
+    VisualsConfiguration m_settings;
+    
+    // Non-owning pointers to services (populated during Initialize)
+    EntityManager* m_entityManager = nullptr;
+    Camera* m_camera = nullptr;
+};
+
+} // namespace kx

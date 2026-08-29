@@ -1,10 +1,10 @@
 {
-  "transparency": 0.6340425531914893,
+  "transparency": 0.6170212765957448,
   "always_on_top": true,
   "positions": {
     "main": {
-      "x": 156,
-      "y": 156,
+      "x": 260,
+      "y": 260,
       "w": 140,
       "h": 292
     },
@@ -15,26 +15,26 @@
       "h": 441
     },
     "category:Teleport Hub": {
-      "x": 301,
-      "y": 156,
+      "x": 405,
+      "y": 260,
       "w": 200,
       "h": 183
     },
     "category:Combat": {
-      "x": 2845,
-      "y": 78,
+      "x": 2877,
+      "y": 61,
       "w": 200,
       "h": 81
     },
     "Combat Macro": {
-      "x": 2477,
-      "y": 510,
+      "x": 2855,
+      "y": 930,
       "w": 212,
       "h": 276
     },
     "category:Movement": {
-      "x": 2845,
-      "y": 78,
+      "x": 2877,
+      "y": 61,
       "w": 200,
       "h": 132
     },
@@ -165,20 +165,20 @@
       "h": 650
     },
     "Main Teleporter": {
-      "x": 2377,
-      "y": 572,
+      "x": 2414,
+      "y": 538,
       "w": 397,
       "h": 507
     },
     "Object Teleporter": {
-      "x": 2183,
-      "y": 843,
+      "x": 2268,
+      "y": 878,
       "w": 525,
       "h": 425
     },
     "category:Visuals": {
-      "x": 2845,
-      "y": 78,
+      "x": 2728,
+      "y": 60,
       "w": 200,
       "h": 132
     },
@@ -189,8 +189,8 @@
       "h": 250
     },
     "GW2X ESP": {
-      "x": 2346,
-      "y": 611,
+      "x": 2344,
+      "y": 613,
       "w": 300,
       "h": 400
     },
@@ -675,8 +675,8 @@
       "h": 650
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\04 End of Dragons\\Meta Train\\Meta Train_Seitung Province META.tps": {
-      "x": 2265,
-      "y": 796,
+      "x": 2140,
+      "y": 521,
       "w": 176,
       "h": 325
     },
@@ -987,8 +987,8 @@
       "h": 325
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\20 Game Modes\\WvW\\WvW_WvW_Eternal Battlegrounds.tps": {
-      "x": 2495,
-      "y": 330,
+      "x": 2248,
+      "y": 448,
       "w": 176,
       "h": 325
     },
@@ -999,8 +999,8 @@
       "h": 325
     },
     "Live Entities": {
-      "x": 2727,
-      "y": 452,
+      "x": 2844,
+      "y": 824,
       "w": 343,
       "h": 436
     },
@@ -1051,17 +1051,39 @@
       "y": 333,
       "w": 176,
       "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\20 Game Modes\\WvW\\Eternal Battlegrounds\\Eternal Battlegrounds_Camps.tps": {
+      "x": 2414,
+      "y": 111,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\20 Game Modes\\WvW\\Eternal Battlegrounds\\Eternal Battlegrounds_SMC.tps": {
+      "x": 2604,
+      "y": 109,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\20 Game Modes\\WvW\\Green Alpine Borderlands\\Alpine Borderlands Camp.tps": {
+      "x": 2485,
+      "y": 116,
+      "w": 176,
+      "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\07 Visions of Eternity\\Starlit Weald\\Starlit Weald_Rifts.tps": {
+      "x": 2882,
+      "y": 61,
+      "w": 176,
+      "h": 325
     }
   },
   "allow_resize": false,
   "open_windows": [
-    "category:Settings",
     "All Teleports",
-    "Player Enhancement",
+    "Main Teleporter",
     "Live Entities",
+    "category:Settings",
     "General Settings",
-    "Object Teleporter",
-    "Combat Macro",
     "category:Teleport Hub"
   ],
   "inputs": {
@@ -1086,7 +1108,7 @@
     "vis_fog": 1,
     "esp_player": 1,
     "esp_npc": 0,
-    "esp_path": 0,
+    "esp_path": 1,
     "esp_health": 0,
     "trainer_visibility_mode": "follow",
     "hide_when_gw2_unfocused": true,
@@ -1095,11 +1117,11 @@
     "auto_tp_start_from": "beginning",
     "auto_tp_direction": "forward",
     "auto_tp_order": "sequential",
-    "last_hub_tab_idx": 1,
-    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Start- Seitung Province Jade Chest.tps",
+    "last_hub_tab_idx": 0,
+    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\04 End of Dragons\\Meta Train\\Meta Train_Seitung Province META.tps",
     "auto_tp_open": false,
     "last_auto_tp_index": 0,
-    "last_obj_tab_idx": 1,
+    "last_obj_tab_idx": 2,
     "hk_next": "F9",
     "hk_prev": "F10",
     "chat_x": "246",
@@ -1130,7 +1152,7 @@
         "text": "Alt+2"
       }
     },
-    "live_src_NPCs": "1",
+    "live_src_NPCs": "",
     "live_exc_NPCs": "mini,",
     "live_src_Objects": "",
     "live_exc_Objects": "",

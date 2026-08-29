@@ -285,15 +285,88 @@ class MumbleData:
         self.link_name = None
         self.size_link = ctypes.sizeof(Link)
         self.size_context = ctypes.sizeof(Context)
-        self.find_active_link()  
+        self._next_resolve_time = 0.0
+        self._last_failure_log = 0.0
+        self._failure_reported = False
+        self._candidate_names = []
+        self.find_active_link(force=True)
 
-    def find_active_link(self):
+    @staticmethod
+    def _selected_process_mumble_name():
+        """Read the selected GW2 process's exact custom -mumble argument."""
+        pid = int(_last_logged_pid or 0)
+        if not pid:
+            return None
+        try:
+            import psutil
+            args = psutil.Process(pid).cmdline()
+        except Exception:
+            return None
+        for index, arg in enumerate(args):
+            text = str(arg).strip()
+            folded = text.casefold()
+            if folded == "-mumble" and index + 1 < len(args):
+                value = str(args[index + 1]).strip()
+                return value or None
+            for prefix in ("-mumble=", "-mumble:"):
+                if folded.startswith(prefix):
+                    value = text[len(prefix):].strip()
+                    return value or None
+        return None
+
+    def _mapping_candidates(self):
+        custom = self._selected_process_mumble_name()
+        base = []
+        if custom:
+            base.append(custom)
+        base.extend(["MumbleLink", "MumbleLink_0"])
+        base.extend(f"MumbleLink_{i}" for i in range(1, 65))
+        # Common multibox launcher convention; the selected process's command
+        # line remains authoritative and is attempted first.
+        base.extend(f"GW2MumbleLink{i}" for i in range(0, 33))
+        candidates = []
+        for name in base:
+            for variant in (name, f"Local\\{name}", f"Global\\{name}"):
+                if variant not in candidates:
+                    candidates.append(variant)
+        return candidates
+
+    @staticmethod
+    def _mapping_exists(name):
+        """Probe a named mapping without accidentally creating an empty one."""
+        try:
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            open_mapping = kernel32.OpenFileMappingW
+            open_mapping.argtypes = [wintypes.DWORD, wintypes.BOOL,
+                                     wintypes.LPCWSTR]
+            open_mapping.restype = wintypes.HANDLE
+            close_handle = kernel32.CloseHandle
+            close_handle.argtypes = [wintypes.HANDLE]
+            close_handle.restype = wintypes.BOOL
+            handle = open_mapping(0x0004, False, name)
+            if not handle:
+                return False
+            close_handle(handle)
+            return True
+        except Exception:
+            return False
+
+    def find_active_link(self, force=False):
         global _last_logged_pid
 
-        candidates = ["MumbleLink", "MumbleLink_0"] + [f"MumbleLink_{i}" for i in range(1, 6)]
+        now = time.monotonic()
+        if not force and now < self._next_resolve_time:
+            return False
+        self._next_resolve_time = now + 1.0
+        expected_pid = int(_last_logged_pid or 0)
+        candidates = self._mapping_candidates()
+        self._candidate_names = candidates
 
         for name in candidates:
+            mm = None
             try:
+                if not self._mapping_exists(name):
+                    continue
                 mm = mmap.mmap(-1, 5460, tagname=name, access=mmap.ACCESS_READ)
                 mm.seek(0)
 
@@ -304,19 +377,35 @@ class MumbleData:
                 ctx = Context.from_buffer_copy(raw_context)
 
                 # 🔥 ONLY ACCEPT LINK MATCHING SELECTED PID
-                if ctx.processId == _last_logged_pid:
+                if expected_pid and int(ctx.processId) == expected_pid:
                     self.mm = mm
                     self.link_name = name
-                    print(f"[Core] Connected to Mumble Link: {name} (PID Match)")
-                    return
+                    self._failure_reported = False
+                    print(f"[Core] Connected to Mumble Link: {name} (PID {expected_pid})")
+                    return True
 
-            except:
+                mm.close()
+
+            except Exception:
+                if mm is not None:
+                    try:
+                        mm.close()
+                    except Exception:
+                        pass
                 continue
 
-        print("[Core] No matching Mumble Link found.")
+        if not self._failure_reported:
+            self._last_failure_log = now
+            self._failure_reported = True
+            custom = self._selected_process_mumble_name()
+            print(
+                f"[Core] No Mumble Link for selected PID {expected_pid}; "
+                f"process -mumble={custom!r}. Optional features will retry silently."
+            )
+        return False
 
     def read(self):
-        if not self.mm: 
+        if not self.mm:
             self.find_active_link()
             if not self.mm: return None
 
@@ -328,16 +417,31 @@ class MumbleData:
             raw_context = self.mm.read(self.size_context)
             ctx = Context.from_buffer_copy(raw_context)
 
+            expected_pid = int(_last_logged_pid or 0)
+            if expected_pid and int(ctx.processId) != expected_pid:
+                try:
+                    self.mm.close()
+                except Exception:
+                    pass
+                self.mm = None
+                self.link_name = None
+                self.find_active_link(force=True)
+                return None
+
             # Bit 1 = Map Open (1 << 0)
             is_map_open = (ctx.uiState & 1) != 0 
             
             map_id = 0
             world_id = 0
+            character_name = ""
+            commander = False
             try:
                 if link.identity:
                     j = json.loads(link.identity)
                     map_id = j.get('map_id', 0)
                     world_id = j.get('world', 0)
+                    character_name = j.get('name', '')
+                    commander = bool(j.get('commander', False))
             except: pass
                 
             if map_id == 0: map_id = ctx.mapId
@@ -348,6 +452,8 @@ class MumbleData:
                 "fCameraFront": (link.fCameraFront[0], link.fCameraFront[1], link.fCameraFront[2]),
                 "map_id": map_id,
                 "world_id": world_id,
+                "character_name": character_name,
+                "commander": commander,
                 "map_center_x": ctx.mapCenterX,
                 "map_center_y": ctx.mapCenterY,
                 "map_scale": ctx.mapScale,
@@ -360,7 +466,60 @@ class MumbleData:
                 "player_y": ctx.playerY,
                 "mount_index": ctx.mountIndex
             }
-        except Exception: return None
+        except Exception:
+            try:
+                if self.mm:
+                    self.mm.close()
+            except Exception:
+                pass
+            self.mm = None
+            self.link_name = None
+            return None
+
+    def read_all_links(self):
+        """Read every live PID-distinct GW2 MumbleLink without selecting one."""
+        results = []
+        seen_pids = set()
+        for mapping_name in self._mapping_candidates():
+            mm = None
+            try:
+                if not self._mapping_exists(mapping_name):
+                    continue
+                mm = mmap.mmap(-1, 5460, tagname=mapping_name,
+                               access=mmap.ACCESS_READ)
+                mm.seek(0)
+                link = Link.from_buffer_copy(mm.read(self.size_link))
+                ctx = Context.from_buffer_copy(mm.read(self.size_context))
+                process_id = int(ctx.processId)
+                if not process_id or process_id in seen_pids or not int(link.uiTick):
+                    continue
+                identity = {}
+                try:
+                    identity = json.loads(link.identity) if link.identity else {}
+                except Exception:
+                    identity = {}
+                map_id = int(identity.get("map_id", 0) or ctx.mapId or 0)
+                seen_pids.add(process_id)
+                results.append({
+                    "mapping_name": mapping_name,
+                    "process_id": process_id,
+                    "map_id": map_id,
+                    "character_name": str(identity.get("name", "") or ""),
+                    "commander": bool(identity.get("commander", False)),
+                    "pos": (float(link.fAvatarPosition[0]),
+                            float(link.fAvatarPosition[1]),
+                            float(link.fAvatarPosition[2])),
+                    "tick": int(link.uiTick),
+                })
+            except Exception:
+                pass
+            finally:
+                if mm is not None:
+                    try:
+                        mm.close()
+                    except Exception:
+                        pass
+        return results
 
 
 # ==========================================================
@@ -869,6 +1028,325 @@ class LiveEventBridge:
                     "record_count": 0, "objects_scanned": 0,
                 }
 
+# =====================================================
+# MAP-CLOSED COMMANDER REGISTRY (KX-VISION V73, ABI V5)
+# =====================================================
+
+class CommanderMapBridge:
+    MAGIC = 0x35544D43  # "CMT5"
+    VERSION = 5
+    HEADER = struct.Struct("<IHHlIIIlIIIIfffll")
+    ENTRY = struct.Struct("<IIIIIfffIQQ")
+    HEADER_SIZE = 64
+    ENTRY_SIZE = 52
+    CAPACITY = 4096
+    MESSAGE_SIZE = 128
+    STRUCT_SIZE = HEADER_SIZE + ENTRY_SIZE * CAPACITY + MESSAGE_SIZE
+    FILE_MAP_READ = 0x0004
+    FILE_MAP_WRITE = 0x0002
+
+    def __init__(self, process_id):
+        self.process_id = int(process_id)
+        self.mapping_name = (
+            f"Local\\GW2X_COMMANDER_TRACKER_V5_{self.process_id}"
+        )
+        self.handle = None
+        self.view = None
+        self._lock = threading.RLock()
+        self._mumble_mm = None
+        self._mumble_name = None
+        self._last_map_source = "none"
+        self._probe_sample_sequence = 0
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        self._open_mapping = kernel32.OpenFileMappingW
+        self._open_mapping.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.LPCWSTR]
+        self._open_mapping.restype = wintypes.HANDLE
+        self._map_view = kernel32.MapViewOfFile
+        self._map_view.argtypes = [wintypes.HANDLE, wintypes.DWORD,
+                                   wintypes.DWORD, wintypes.DWORD, ctypes.c_size_t]
+        self._map_view.restype = ctypes.c_void_p
+        self._unmap_view = kernel32.UnmapViewOfFile
+        self._unmap_view.argtypes = [ctypes.c_void_p]
+        self._unmap_view.restype = wintypes.BOOL
+        self._close_handle = kernel32.CloseHandle
+        self._close_handle.argtypes = [wintypes.HANDLE]
+        self._close_handle.restype = wintypes.BOOL
+        self._map_sync_stop = threading.Event()
+        self._map_sync_thread = threading.Thread(
+            target=self._map_sync_loop,
+            name=f"GW2X-MapScope-{self.process_id}",
+            daemon=True,
+        )
+        self._map_sync_thread.start()
+
+    def close(self):
+        self._map_sync_stop.set()
+        sync_thread = self._map_sync_thread
+        if (sync_thread and sync_thread.is_alive() and
+                sync_thread is not threading.current_thread()):
+            sync_thread.join(timeout=0.25)
+        with self._lock:
+            self._close_mumble_view()
+            if self.view:
+                self._unmap_view(self.view)
+                self.view = None
+            if self.handle:
+                self._close_handle(self.handle)
+                self.handle = None
+
+    def connect(self):
+        if self.view:
+            return True
+        self.handle = self._open_mapping(
+            self.FILE_MAP_READ | self.FILE_MAP_WRITE, False, self.mapping_name
+        )
+        if not self.handle:
+            return False
+        self.view = self._map_view(
+            self.handle, self.FILE_MAP_READ | self.FILE_MAP_WRITE,
+            0, 0, self.STRUCT_SIZE
+        )
+        if not self.view:
+            self._close_handle(self.handle)
+            self.handle = None
+            return False
+        print(f"[CommanderIPC] Connected to KX-Vision V73 PID {self.process_id}.")
+        return True
+
+    def _map_sync_loop(self):
+        """Publish this PID's map continuously, independent of UI scans."""
+        last_map_id = 0
+        while not self._map_sync_stop.wait(0.02):
+            try:
+                with self._lock:
+                    if not self.connect():
+                        continue
+                    map_id = self._publish_direct_map_id()
+                if map_id and map_id != last_map_id:
+                    print(
+                        f"[CommanderMap73] PID {self.process_id} "
+                        f"published map {last_map_id} -> {map_id} "
+                        f"source={self._last_map_source}"
+                    )
+                    last_map_id = map_id
+            except Exception:
+                continue
+
+    def _close_mumble_view(self):
+        if self._mumble_mm is not None:
+            try:
+                self._mumble_mm.close()
+            except Exception:
+                pass
+        self._mumble_mm = None
+        self._mumble_name = None
+
+    def _read_pid_mumble_state(self):
+        """Read map, position, and self-tag from this PID's Mumble view."""
+        selected = getattr(mumble, "link_name", None) if mumble else None
+        if not selected:
+            self._close_mumble_view()
+            return None
+        try:
+            if self._mumble_mm is None or self._mumble_name != selected:
+                self._close_mumble_view()
+                self._mumble_mm = mmap.mmap(
+                    -1, 5460, tagname=selected, access=mmap.ACCESS_READ
+                )
+                self._mumble_name = selected
+            self._mumble_mm.seek(0)
+            link = Link.from_buffer_copy(self._mumble_mm.read(ctypes.sizeof(Link)))
+            ctx = Context.from_buffer_copy(
+                self._mumble_mm.read(ctypes.sizeof(Context))
+            )
+            if int(ctx.processId) != self.process_id or not int(link.uiTick):
+                self._close_mumble_view()
+                return None
+            identity = {}
+            try:
+                identity = json.loads(link.identity) if link.identity else {}
+            except Exception:
+                identity = {}
+            # Context.mapId is the protocol field dedicated to the current
+            # map and normally flips before the optional identity JSON.
+            return {
+                "map_id": int(ctx.mapId or identity.get("map_id", 0) or 0),
+                "pos": (float(link.fAvatarPosition[0]),
+                        float(link.fAvatarPosition[1]),
+                        float(link.fAvatarPosition[2])),
+                "commander": bool(identity.get("commander", False)),
+                "tick": int(link.uiTick),
+            }
+        except Exception:
+            self._close_mumble_view()
+            return None
+
+    def _read_pid_mumble_map_id(self):
+        """Compatibility wrapper for callers that only require map id."""
+        state = self._read_pid_mumble_state()
+        return int(state.get("map_id", 0) or 0) if state else 0
+
+    def _publish_direct_map_id(self):
+        """Publish this PID's map plus diagnostic Mumble pose/tag sample."""
+        if not self.view:
+            return 0
+        try:
+            state = self._read_pid_mumble_state()
+            map_id = int(state.get("map_id", 0) or 0) if state else 0
+            self._last_map_source = "mumble" if map_id > 0 else "none"
+            if map_id <= 0:
+                map_id = int(read_map_id_memory() or 0)
+                self._last_map_source = "direct-memory" if map_id > 0 else "none"
+            if map_id > 0:
+                ctypes.c_long.from_address(int(self.view) + 40).value = map_id
+                if state:
+                    pos_x, pos_y, pos_z = state["pos"]
+                    # Packet records use inches in X/Z/-Y order. This sample
+                    # is a proximity anchor only and never classifies entries.
+                    scale = 39.37
+                    ctypes.c_float.from_address(int(self.view) + 44).value = (
+                        pos_x * scale
+                    )
+                    ctypes.c_float.from_address(int(self.view) + 48).value = (
+                        pos_z * scale
+                    )
+                    ctypes.c_float.from_address(int(self.view) + 52).value = (
+                        -pos_y * scale
+                    )
+                    ctypes.c_long.from_address(int(self.view) + 56).value = (
+                        1 if state.get("commander") else 0
+                    )
+                    self._probe_sample_sequence = (
+                        self._probe_sample_sequence + 1
+                    ) & 0x7FFFFFFF
+                    if not self._probe_sample_sequence:
+                        self._probe_sample_sequence = 1
+                    ctypes.c_long.from_address(int(self.view) + 60).value = (
+                        self._probe_sample_sequence
+                    )
+                return map_id
+        except Exception:
+            pass
+        self._last_map_source = "none"
+        return 0
+
+    def current_map_id(self):
+        """Return the selected PID's authoritative current map."""
+        with self._lock:
+            state = self._read_pid_mumble_state()
+            map_id = int(state.get("map_id", 0) or 0) if state else 0
+            self._last_map_source = "mumble" if map_id > 0 else "none"
+            if map_id <= 0:
+                map_id = int(read_map_id_memory() or 0)
+                self._last_map_source = "direct-memory"
+            if map_id <= 0:
+                self._last_map_source = "none"
+            return map_id
+
+    @staticmethod
+    def _game_coordinates(raw_x, raw_y, raw_z):
+        # GW2 remote-map packets use inches and X/Z/Y ordering.
+        scale = 39.37
+        return raw_x / scale, -raw_z / scale, raw_y / scale
+
+    def snapshot(self):
+        with self._lock:
+            if not self.connect():
+                return {
+                    "ok": False,
+                    "message": "KX-Vision V73 map-closed registry is unavailable",
+                    "points": [], "commanders": [], "markers": [],
+                }
+            self._publish_direct_map_id()
+            try:
+                for _ in range(5):
+                    first = ctypes.string_at(self.view, self.STRUCT_SIZE)
+                    h1 = self.HEADER.unpack_from(first, 0)
+                    generation = int(h1[7])
+                    if generation & 1:
+                        time.sleep(0.002)
+                        continue
+                    second = ctypes.string_at(self.view, self.STRUCT_SIZE)
+                    h2 = self.HEADER.unpack_from(second, 0)
+                    if generation != int(h2[7]) or (int(h2[7]) & 1):
+                        continue
+                    data, header = second, h2
+                    break
+                else:
+                    return {"ok": False, "message": "Registry snapshot was busy",
+                            "points": [], "commanders": [], "markers": []}
+
+                (magic, version, header_size, ready, process_id, capacity,
+                 entry_size, _, count, map_id, map_epoch, requested_map_id,
+                 requested_raw_x, requested_raw_y, requested_raw_z,
+                 requested_commander, requested_sample_sequence) = header
+                if (magic != self.MAGIC or version != self.VERSION or
+                        header_size != self.HEADER_SIZE or not ready or
+                        process_id != self.process_id or
+                        capacity != self.CAPACITY or entry_size != self.ENTRY_SIZE):
+                    raise RuntimeError("KX-Vision V73 commander IPC ABI mismatch")
+
+                entries = []
+                for index in range(min(max(int(count), 0), self.CAPACITY)):
+                    values = self.ENTRY.unpack_from(
+                        data, self.HEADER_SIZE + index * self.ENTRY_SIZE
+                    )
+                    logical_id, key_a, key_b, key_count, icon_code = values[:5]
+                    raw_x, raw_y, raw_z, flags, tick_ms, sequence = values[5:]
+                    if not (flags & 1) or key_count < 1:
+                        continue
+                    world = self._game_coordinates(raw_x, raw_y, raw_z)
+                    entries.append({
+                        "index": index, "logical_id": logical_id,
+                        "key_a": key_a, "key_b": key_b,
+                        "key_count": key_count, "icon_code": icon_code,
+                        "flags": flags,
+                        "raw": (raw_x, raw_y, raw_z), "world": world,
+                        "x": world[0], "y": world[1], "z": world[2],
+                        "updated_tick_ms": tick_ms,
+                        "update_sequence": sequence,
+                        "map_id": int(map_id),
+                        "map_epoch": int(map_epoch),
+                    })
+                commanders = [e for e in entries if e["flags"] & 2]
+                markers = [e for e in entries if e["flags"] & 4]
+                message_offset = self.HEADER_SIZE + self.ENTRY_SIZE * self.CAPACITY
+                message = data[message_offset:message_offset + self.MESSAGE_SIZE]
+                message = message.split(b"\0", 1)[0].decode("utf-8", "replace")
+                return {
+                    "ok": True, "message": message, "entries": entries,
+                    "commanders": commanders, "markers": markers,
+                    "map_icons": markers,
+                    "points": commanders, "count": len(entries),
+                    "process_id": process_id, "map_id": int(map_id),
+                    "map_epoch": int(map_epoch),
+                    "requested_map_id": int(requested_map_id),
+                    "requested_raw": (float(requested_raw_x),
+                                      float(requested_raw_y),
+                                      float(requested_raw_z)),
+                    "requested_commander": bool(requested_commander),
+                    "requested_sample_sequence": int(requested_sample_sequence),
+                }
+            except Exception as exc:
+                self.close()
+                return {"ok": False, "message": f"Commander registry failed: {exc}",
+                        "points": [], "commanders": [], "markers": []}
+
+    def request_scan(self, timeout=2.5):
+        if not self.connect():
+            return self.snapshot()
+        wanted_map = self._publish_direct_map_id()
+        deadline = time.monotonic() + max(float(timeout), 0.05)
+        latest = self.snapshot()
+        while (wanted_map and latest.get("ok") and
+               int(latest.get("map_id", 0) or 0) != wanted_map and
+               time.monotonic() < deadline):
+            time.sleep(0.02)
+            self._publish_direct_map_id()
+            latest = self.snapshot()
+        return latest
+
 # ===============================
 # SHARED MEMORY IPC (ENTITY LIST)
 # ===============================
@@ -882,11 +1360,12 @@ class SharedEntityData:
     #   float  currentHealth (4)
     #   float  maxHealth     (4)
     #   int32  isGatherable  (4)
+    #   int32  identityFlags (bit0 local, bit1 commander)
     #   char   name[64]      (64)
-    #   Total: 100 bytes
+    #   Total: 104 bytes
     STRUCT_SIZE   = 104
     MAX_ENTITIES  = 1000
-    NAME_OFFSET   = 40   # bytes before name field (added isCommander int32)
+    NAME_OFFSET   = 40   # bytes before name field
     NAME_LEN      = 64
 
     def __init__(self):
@@ -975,7 +1454,7 @@ class SharedEntityData:
                 if len(chunk) < self.NAME_OFFSET:
                     continue
 
-                agent_id, x, y, z, ent_type, att, hp_cur, hp_max, is_gatherable, is_commander = \
+                agent_id, x, y, z, ent_type, att, hp_cur, hp_max, is_gatherable, identity_flags = \
                     struct.unpack_from("<ifffii f f i i", chunk, 0)
 
                 # --- FILTER LOGIKA ABSOLUT WAJIB DI SINI ---
@@ -1036,16 +1515,6 @@ class SharedEntityData:
                 # Gunakan display_name yang sudah ada, jangan panggil 'ent'
                 safe_name = display_name if display_name else str(agent_id)
                 
-                if is_commander:
-                    if safe_name not in _cmd_tracker:
-                        print(f"[BUKTI MUTLAK] 👑 Tag Menyala: {safe_name} (Buff ID 573 Terkunci!)")
-                        _cmd_tracker.add(safe_name)
-                else:
-                    if safe_name in _cmd_tracker:
-                        print(f"[BUKTI MUTLAK] ❌ Tag Mati: {safe_name} (Buff ID 573 Hilang)")
-                        _cmd_tracker.remove(safe_name)
-                # =========================================================
-
                 entities.append({
                     "id":           agent_id,
                     "x": x, "y": y, "z": z,
@@ -1054,7 +1523,8 @@ class SharedEntityData:
                     "hp_cur":       hp_cur,
                     "hp_max":       hp_max,
                     "is_gatherable": bool(is_gatherable),
-                    "is_commander": bool(is_commander),
+                    "is_local_player": bool(identity_flags & 1),
+                    "is_commander": bool(identity_flags & 2),
                     "real_name":    display_name,
                     "species_id":   species_id,
                     "func_label":   func_label
@@ -1118,6 +1588,7 @@ class NpcEntity(ctypes.Structure):
 pm = None
 mumble = None
 shared_entities = None
+commander_map = None
 event_probe = None
 live_events = None
 stamina_thread = None
@@ -1414,7 +1885,7 @@ def ensure_gw2_hwnd():
     return current_hwnd
 
 def connect(pid=None):
-    global pm, mumble, shared_entities, event_probe, live_events, _last_logged_pid, current_hwnd
+    global pm, mumble, shared_entities, commander_map, event_probe, live_events, _last_logged_pid, current_hwnd
     import pymem
 
     try:
@@ -1427,6 +1898,12 @@ def connect(pid=None):
 
             mumble = MumbleData()
             shared_entities = SharedEntityData()
+            if commander_map is not None:
+                try:
+                    commander_map.close()
+                except Exception:
+                    pass
+            commander_map = CommanderMapBridge(pid)
             if event_probe is not None:
                 try:
                     event_probe.close()

@@ -12,6 +12,7 @@ import gw2x_core as core
 from datetime import datetime
 import gw2x_data as data
 from gw2x_map_target import MapTargetResolver
+from gw2x_remote_identity import CommanderNameResolver, EventNameResolver
 
 
 def is_valid_coord(v):
@@ -424,7 +425,151 @@ class EventDetector:
 
         result.sort(key=lambda event: event["dist_m"])
         return result
-            
+
+
+class MapEventNameResolver:
+    """Join live map-icon packet coordinates to official GW2 event names."""
+    _lock = threading.Lock()
+    _ready = threading.Event()
+    _index = {}
+    _loading = False
+
+    def __init__(self):
+        self.cache_path = os.path.join(
+            os.path.dirname(__file__), "map_event_name_cache.json")
+        self._load_cache()
+        with self._lock:
+            if not self._index and not self._loading:
+                self.__class__._loading = True
+                threading.Thread(
+                    target=self._download_index,
+                    name="GW2X-EventNameIndex",
+                    daemon=True,
+                ).start()
+
+    @staticmethod
+    def _raw_radius(location, center):
+        radius = float(location.get("radius", 0.0) or 0.0)
+        if radius > 0.0:
+            return radius
+        points = location.get("points") or []
+        for point in points:
+            if len(point) >= 2:
+                radius = max(radius, math.hypot(
+                    float(point[0]) - center[0],
+                    float(point[1]) - center[1],
+                ))
+        z_range = location.get("z_range") or []
+        if len(z_range) >= 2:
+            radius = max(radius, abs(float(z_range[0]) - center[2]),
+                         abs(float(z_range[1]) - center[2]))
+        return radius
+
+    def _load_cache(self):
+        try:
+            with open(self.cache_path, "r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+            if int(payload.get("version", 0)) != 1:
+                return
+            maps = payload.get("maps", {})
+            parsed = {int(map_id): list(events)
+                      for map_id, events in maps.items()}
+            with self._lock:
+                self.__class__._index = parsed
+                self.__class__._ready.set()
+            print(f"[EventNames63] Loaded {sum(map(len, parsed.values()))} "
+                  f"official event names for {len(parsed)} maps.")
+        except (OSError, ValueError, TypeError):
+            pass
+
+    def _download_index(self):
+        import urllib.request
+        try:
+            request = urllib.request.Request(
+                "https://api.guildwars2.com/v1/event_details.json",
+                headers={"User-Agent": "GW2X/1.0"},
+            )
+            with urllib.request.urlopen(request, timeout=60) as response:
+                source = json.loads(response.read().decode("utf-8"))
+            index = {}
+            for guid, event in source.get("events", {}).items():
+                map_id = int(event.get("map_id", 0) or 0)
+                location = event.get("location") or {}
+                center_value = location.get("center") or []
+                if not map_id or len(center_value) < 2:
+                    continue
+                center = [float(center_value[0]), float(center_value[1]),
+                          float(center_value[2]) if len(center_value) > 2 else 0.0]
+                radius = self._raw_radius(location, center)
+                if radius <= 0.0:
+                    continue
+                index.setdefault(map_id, []).append({
+                    "guid": str(guid),
+                    "name": str(event.get("name") or "Event"),
+                    "level": int(event.get("level", 0) or 0),
+                    "center": center,
+                    "radius": radius,
+                })
+            payload = {"version": 1,
+                       "maps": {str(k): v for k, v in index.items()}}
+            temp_path = self.cache_path + ".tmp"
+            with open(temp_path, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle, separators=(",", ":"))
+            os.replace(temp_path, self.cache_path)
+            with self._lock:
+                self.__class__._index = index
+                self.__class__._ready.set()
+            print(f"[EventNames63] Downloaded {sum(map(len, index.values()))} "
+                  f"official event names for {len(index)} maps.")
+        except Exception as exc:
+            print(f"[EventNames63] Event-name index unavailable: {exc}")
+        finally:
+            with self._lock:
+                self.__class__._loading = False
+
+    def decorate(self, points, map_id, active_guids=None):
+        if not self._ready.is_set():
+            self._ready.wait(1.5)
+        with self._lock:
+            events = list(self._index.get(int(map_id or 0), []))
+        if not events:
+            return points
+        active_guids = {str(value).upper() for value in (active_guids or [])}
+        for point in points:
+            raw = point.get("raw")
+            if not raw or len(raw) < 3:
+                continue
+            px, py, pz = map(float, raw[:3])
+            matches = []
+            for event in events:
+                cx, cy, cz = event["center"]
+                distance = math.sqrt(
+                    (px - cx) ** 2 + (py - cy) ** 2 + (pz - cz) ** 2)
+                radius = max(float(event["radius"]), 1.0)
+                if distance <= radius * 1.10:
+                    matches.append((distance, event))
+            if not matches:
+                continue
+            active_matches = [
+                row for row in matches
+                if str(row[1]["guid"]).upper() in active_guids
+            ]
+            if not active_matches:
+                distance, event = min(matches, key=lambda row: row[0])
+                point["possible_event_name"] = event["name"]
+                point["possible_event_guid"] = event["guid"]
+                point["possible_event_level"] = event["level"]
+                point["possible_event_distance_m"] = distance / 39.37
+                continue
+            distance, event = min(active_matches, key=lambda row: row[0])
+            point["event_name"] = event["name"]
+            point["event_guid"] = event["guid"]
+            point["event_level"] = event["level"]
+            point["event_match_distance_m"] = distance / 39.37
+            point["source"] = "Verified active event + live map packet"
+        return points
+
+
 class GW2X_Logic:
     def __init__(self, pm, offsets, settings=None):
         self.pm = pm
@@ -435,6 +580,10 @@ class GW2X_Logic:
         self.griffoninstaboost_mod = self.offsets.get("griffoninstaboost_mod", 0)     
         self.griffoninstaboost_ori = self.offsets.get("griffoninstaboost_ori", 0)
         self.event_detector = EventDetector()
+        self.map_event_names = MapEventNameResolver()
+        self.commander_names = CommanderNameResolver()
+        self.event_names = EventNameResolver(self.map_event_names)
+        self._map_icon_cache = {}
     
         self.interact_scan = getattr(gw2x_config, "INTERACT", "21")
 
@@ -804,9 +953,6 @@ class GW2X_Logic:
             raw_att_val = ent.get('raw_attitude', 2)
             ent['att_str'] = att_map.get(raw_att_val, f"Raw:{raw_att_val}") 
 
-            if ent.get('is_commander'):
-                ent['name'] = f"[CMD] {ent['name']}"
-
             if search_query and search_query.lower() not in ent['name'].lower(): continue
             if attitude != "All" and ent['att_str'] != attitude: continue
 
@@ -1156,6 +1302,368 @@ class GW2X_Logic:
         """
         print("[MapUI] Closing map...")
         self.press_key_and_track(self.esc_scan, 0.05)
+
+    def scan_commanders(self, timeout=2.5):
+        """Read only commanders proven by the resolver-owned collection."""
+        if not core.commander_map:
+            return None, "KX-Vision V73 commander registry is not initialized"
+
+        result = core.commander_map.request_scan(timeout=timeout)
+        if not result.get("ok"):
+            return None, result.get("message", "Commander registry failed")
+        map_error = self._registry_map_error(result)
+        if map_error:
+            return None, map_error
+
+        points = list(result.get("commanders", []))
+        points = self._append_nearby_commanders(points, result)
+        if not points:
+            return None, "No active commander tag in the map-wide feed"
+        self.commander_names.decorate(points, self._read_identity_entities())
+        self._decorate_remote_points(points)
+        result["points"] = points
+        return result, f"Found {len(points)} map-wide commander(s); map stayed closed"
+
+    def scan_map_icons(self, timeout=2.5):
+        """Read all non-commander map/NPC icon records for this map."""
+        if not core.commander_map:
+            return None, "KX-Vision V73 commander registry is not initialized"
+        result = core.commander_map.request_scan(timeout=timeout)
+        if not result.get("ok"):
+            return None, result.get("message", "Map-icon registry failed")
+        map_error = self._registry_map_error(result)
+        if map_error:
+            return None, map_error
+        map_id = int(result.get("map_id", 0) or 0)
+        points = list(result.get("markers", []))
+        points = self._merge_map_icon_cache(
+            points, map_id, int(result.get("map_epoch", 0) or 0)
+        )
+        points = self._dedupe_remote_points(points)
+        if not points:
+            return None, "No map/NPC icon record is currently available"
+        self.event_detector.current_map_id = map_id
+        live_events = self.event_detector.get_active_events()
+        self._classify_proven_event_icons(points)
+        self.event_names.decorate(points, map_id, live_events)
+        self._decorate_nearby_npc_names(points)
+        self._decorate_remote_points(points)
+        result["points"] = points
+        return result, f"Found {len(points)} map/NPC icon(s); map stayed closed"
+
+    @staticmethod
+    def _classify_proven_event_icons(points):
+        """Mark only event icon codes proven by the supplied active test."""
+        proven_active = {0x83E, 0x841}
+        for point in points:
+            icon_code = int(point.get("icon_code", 0) or 0)
+            if icon_code in proven_active:
+                point["active_event_icon"] = True
+                point["active_event_icon_code"] = icon_code
+                point["event_status_source"] = "Live map event-objective icon"
+        return points
+
+    # Compatibility aliases for older UI/extensions. These records were
+    # incorrectly called squad markers in V55; they are map/NPC icons.
+    def scan_squad_markers(self, timeout=2.5):
+        return self.scan_map_icons(timeout=timeout)
+
+    def _runtime_map_id(self):
+        """Read the selected observer's PID-scoped authoritative map id."""
+        try:
+            if core.commander_map:
+                map_id = int(core.commander_map.current_map_id() or 0)
+            else:
+                map_id = int(core.read_map_id_memory() or 0)
+            if map_id > 0:
+                return map_id
+        except Exception:
+            pass
+        return 0
+
+    def _registry_map_error(self, result):
+        current_map = self._runtime_map_id()
+        registry_map = int(result.get("map_id", 0) or 0)
+        if current_map and registry_map and current_map != registry_map:
+            return (f"Remote tracker is changing maps ({registry_map} -> "
+                    f"{current_map}); wait for the current-map packets")
+        return None
+
+    @staticmethod
+    def _dedupe_remote_points(points, tolerance=1.0):
+        """Collapse layered icon records that resolve to the same world XYZ."""
+        unique = []
+        tolerance2 = float(tolerance) ** 2
+        for point in sorted(points, key=lambda p: int(
+                p.get("update_sequence", 0)), reverse=True):
+            world = point.get("world")
+            if not world:
+                continue
+            x, y, z = map(float, world)
+            duplicate = None
+            for kept in unique:
+                kx, ky, kz = map(float, kept["world"])
+                if ((x-kx)**2 + (y-ky)**2 + (z-kz)**2) <= tolerance2:
+                    duplicate = kept
+                    break
+            if duplicate is None:
+                point = dict(point)
+                point["merged_logical_ids"] = [int(point.get("logical_id", 0))]
+                unique.append(point)
+            else:
+                duplicate["merged_logical_ids"].append(
+                    int(point.get("logical_id", 0)))
+        return unique
+
+    def _merge_map_icon_cache(self, points, map_id, map_epoch, ttl=90.0):
+        """Bridge brief removals, strictly inside the current map epoch."""
+        now = time.monotonic()
+        scope = (int(map_id or 0), int(map_epoch or 0))
+        cache = self._map_icon_cache.setdefault(scope, {})
+        live_ids = set()
+        for point in points:
+            logical_id = int(point.get("logical_id", 0) or 0)
+            key_a = int(point.get("key_a", 0) or 0)
+            identity = (logical_id, key_a) if logical_id == 0 else (logical_id, 0)
+            live_ids.add(identity)
+            cache[identity] = (dict(point), now)
+        merged = []
+        for identity, (cached, seen_at) in list(cache.items()):
+            age = now - seen_at
+            if age > float(ttl):
+                cache.pop(identity, None)
+                continue
+            item = dict(cached)
+            item["cached"] = identity not in live_ids
+            item["cache_age_seconds"] = age if item["cached"] else 0.0
+            merged.append(item)
+        self._map_icon_cache = {scope: cache}
+        return merged
+
+    @staticmethod
+    def _read_identity_entities():
+        """Read the independent Live Entities snapshot."""
+        if not core.shared_entities:
+            return []
+        try:
+            return list(core.shared_entities.read_entities())
+        except Exception as exc:
+            print(f"[RemoteNames65] Entity snapshot failed: {exc}")
+            return []
+
+    def _append_nearby_commanders(self, points, result):
+        """Append ChCliCharacter-proven nearby commanders independently.
+
+        This function never promotes, edits, caches, or keys a map-packet
+        record. A nearby point is a separate local-only item with its own
+        live agent identity and current coordinates.
+        """
+        entities = self._read_identity_entities()
+        tagged = [
+            entity for entity in entities
+            if int(entity.get("type", -1)) == 0
+            and bool(entity.get("is_commander"))
+        ]
+        if not tagged:
+            return points
+
+        combined = list(points)
+        for entity in tagged:
+            world = (
+                float(entity.get("x", 0.0)),
+                float(entity.get("y", 0.0)),
+                float(entity.get("z", 0.0)),
+            )
+            # Prefer the live local-range item when a remote packet point is
+            # already at the same player. This is presentation deduplication;
+            # the two detectors remain independent.
+            kept = []
+            for point in combined:
+                if point.get("local_only"):
+                    kept.append(point)
+                    continue
+                remote = point.get("world", (float("inf"),) * 3)
+                distance2 = sum(
+                    (float(remote[index]) - world[index]) ** 2
+                    for index in range(3)
+                )
+                if distance2 > 4.0:
+                    kept.append(point)
+            combined = kept
+
+            agent_id = int(entity.get("id", 0) or 0)
+            combined.append({
+                "logical_id": 0x80000000 | (agent_id & 0x7FFFFFFF),
+                "key_a": 0,
+                "key_b": 0,
+                "key_count": 0,
+                "icon_code": 0,
+                "flags": 2,
+                "world": world,
+                "x": world[0],
+                "y": world[1],
+                "z": world[2],
+                "map_id": int(result.get("map_id", 0) or 0),
+                "map_epoch": int(result.get("map_epoch", 0) or 0),
+                "local_only": True,
+                "live_agent_id": agent_id,
+                "live_name": str(entity.get("real_name", "") or ""),
+                "source": "Independent nearby commander signature",
+            })
+        return combined
+
+    def _decorate_nearby_npc_names(self, points, max_distance=6.0):
+        """Attach an NPC name only after an exact nearby-coordinate match."""
+        if not core.shared_entities:
+            return points
+        try:
+            npcs = []
+            for entity in core.shared_entities.read_entities():
+                if int(entity.get("type", -1)) != 1:
+                    continue
+                name = str(entity.get("real_name", "") or "").strip()
+                if name and name.casefold() not in {"unknown", "unnamed"}:
+                    npcs.append(entity)
+            limit2 = float(max_distance) ** 2
+            for point in points:
+                if point.get("event_name"):
+                    continue
+                px, py, pz = map(float, point.get("world", (0.0, 0.0, 0.0)))
+                matches = []
+                for entity in npcs:
+                    distance2 = ((px-float(entity["x"])) ** 2 +
+                                 (py-float(entity["y"])) ** 2 +
+                                 (pz-float(entity["z"])) ** 2)
+                    if distance2 <= limit2:
+                        matches.append((distance2, entity))
+                if matches:
+                    distance2, entity = min(matches, key=lambda row: row[0])
+                    point["npc_name"] = str(entity.get("real_name", "")).strip()
+                    point["npc_agent_id"] = int(entity.get("id", 0) or 0)
+                    point["npc_match_distance_m"] = math.sqrt(distance2)
+                    point["source"] = "Exact nearby NPC coordinate"
+        except Exception as exc:
+            print(f"[MapIconName63] Nearby NPC join failed: {exc}")
+        return points
+
+    def _decorate_remote_points(self, points):
+        player_pos = None
+        try:
+            raw = core.read_coords_memory()
+            if raw:
+                scale = 1.2303125
+                player_pos = tuple(float(value) / scale for value in raw)
+        except Exception:
+            pass
+        if player_pos is None:
+            player_pos = core.read_coords() or (0.0, 0.0, 0.0)
+        px, py, pz = (float(player_pos[0]), float(player_pos[1]),
+                      float(player_pos[2]))
+        for point in points:
+            x, y, z = point["world"]
+            dx, dz = x - px, z - pz
+            vertical = "N" if dz > 0.5 else "S" if dz < -0.5 else ""
+            horizontal = "E" if dx > 0.5 else "W" if dx < -0.5 else ""
+            point["direction"] = vertical + horizontal or "HERE"
+            point["distance_m"] = math.sqrt(dx * dx + (y - py) ** 2 + dz * dz)
+        points.sort(key=lambda p: p["distance_m"])
+        for index, point in enumerate(points, 1):
+            point["candidate_number"] = index
+
+    def teleport_to_commander(self, result=None, point=None):
+        """Teleport to one selected commander using exact packet XYZ."""
+        if result is None:
+            result, message = self.scan_commanders()
+            if not result:
+                print(f"[CommanderTP] BLOCKED: {message}")
+                return False, message
+        if point is None:
+            point = result["points"][0]
+        if point.get("local_only"):
+            agent_id = int(point.get("live_agent_id", 0) or 0)
+            for entity in self._read_identity_entities():
+                if (int(entity.get("id", 0) or 0) == agent_id and
+                        bool(entity.get("is_commander"))):
+                    current = dict(point)
+                    world = (float(entity["x"]), float(entity["y"]),
+                             float(entity["z"]))
+                    current.update({"world": world, "x": world[0],
+                                    "y": world[1], "z": world[2]})
+                    return self._teleport_remote_point(
+                        current, "nearby commander")
+            return False, "Nearby commander is no longer tagged or in range"
+        point = self._refresh_remote_point(point, "commanders")
+        if point is None:
+            return False, "Commander record expired during a map change; scan again"
+        return self._teleport_remote_point(point, "commander")
+
+    def teleport_to_map_icon(self, result=None, point=None):
+        if result is None:
+            result, message = self.scan_map_icons()
+            if not result:
+                return False, message
+        if point is None:
+            point = result["points"][0]
+        point = self._refresh_remote_point(point, "markers")
+        if point is None:
+            return False, "Map/NPC icon expired during a map change; scan again"
+        return self._teleport_remote_point(point, "map/NPC icon")
+
+    def teleport_to_squad_marker(self, result=None, point=None):
+        return self.teleport_to_map_icon(result=result, point=point)
+
+    def _refresh_remote_point(self, point, collection):
+        latest = core.commander_map.snapshot() if core.commander_map else {}
+        if not latest.get("ok") or self._registry_map_error(latest):
+            return None
+        candidates = list(latest.get(collection, []))
+        if collection == "commanders":
+            self.commander_names.decorate(
+                candidates, self._read_identity_entities())
+        if collection != "commanders":
+            candidates = self._dedupe_remote_points(candidates)
+        logical_id = int(point.get("logical_id", -1))
+        selected_key = int(point.get("key_a", 0) or 0)
+        for candidate in candidates:
+            candidate_logical = int(candidate.get("logical_id", -2))
+            candidate_key = int(candidate.get("key_a", 0) or 0)
+            if (candidate_logical == logical_id and
+                    (logical_id != 0 or candidate_key == selected_key)):
+                return candidate
+        if collection != "commanders":
+            # Generic map records can be removed/recreated under a new logical
+            # id between opening the chooser and clicking its row. The selected
+            # packet XYZ remains valid only inside the exact same map epoch.
+            selected_map = int(point.get("map_id", 0) or 0)
+            selected_epoch = int(point.get("map_epoch", 0) or 0)
+            latest_map = int(latest.get("map_id", 0) or 0)
+            latest_epoch = int(latest.get("map_epoch", 0) or 0)
+            if (selected_map and selected_epoch and
+                    selected_map == latest_map and selected_epoch == latest_epoch):
+                fallback = dict(point)
+                fallback["source"] = "Map/NPC snapshot (same map epoch)"
+                print(
+                    "[MapIconTP63] Record ID changed before selection; "
+                    f"using same-epoch snapshot map={latest_map} "
+                    f"epoch={latest_epoch} logical=0x{logical_id:X}."
+                )
+                return fallback
+        return None
+
+    def _teleport_remote_point(self, point, kind):
+        world = point.get("world")
+        if not world or not all(math.isfinite(float(v)) for v in world):
+            return False, f"{kind.title()} has no valid XYZ"
+        x, y, z = map(float, world)
+        if not core.write_coords_raw(x, y, z):
+            return False, f"Failed to write {kind} coordinates"
+        logical_id = int(point.get("logical_id", 0))
+        message = (
+            f"Teleported to {kind} 0x{logical_id:X} at "
+            f"({x:.2f}, {y:.2f}, {z:.2f})"
+        )
+        print(f"[RemoteTP] {message}")
+        return True, message
         
     def trigger_map_teleport(self, screen_x, screen_y):
         import time
