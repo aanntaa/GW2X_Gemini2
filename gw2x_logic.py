@@ -584,6 +584,9 @@ class GW2X_Logic:
         self.commander_names = CommanderNameResolver()
         self.event_names = EventNameResolver(self.map_event_names)
         self._map_icon_cache = {}
+        self._logged_lifecycle_live_receipts = set()
+        self._logged_nearby_candidate_agents = set()
+        self._logged_fresh_live_candidate_agents = set()
     
         self.interact_scan = getattr(gw2x_config, "INTERACT", "21")
 
@@ -1306,7 +1309,7 @@ class GW2X_Logic:
     def scan_commanders(self, timeout=2.5):
         """Read only commanders proven by the resolver-owned collection."""
         if not core.commander_map:
-            return None, "KX-Vision V73 commander registry is not initialized"
+            return None, "KX-Vision V116 commander registry is not initialized"
 
         result = core.commander_map.request_scan(timeout=timeout)
         if not result.get("ok"):
@@ -1316,10 +1319,12 @@ class GW2X_Logic:
             return None, map_error
 
         points = list(result.get("commanders", []))
-        points = self._append_nearby_commanders(points, result)
+        identity_entities = self._read_identity_entities()
+        points = self._append_nearby_commanders(
+            points, result, identity_entities)
         if not points:
             return None, "No active commander tag in the map-wide feed"
-        self.commander_names.decorate(points, self._read_identity_entities())
+        self.commander_names.decorate(points, identity_entities)
         self._decorate_remote_points(points)
         result["points"] = points
         return result, f"Found {len(points)} map-wide commander(s); map stayed closed"
@@ -1327,7 +1332,7 @@ class GW2X_Logic:
     def scan_map_icons(self, timeout=2.5):
         """Read all non-commander map/NPC icon records for this map."""
         if not core.commander_map:
-            return None, "KX-Vision V73 commander registry is not initialized"
+            return None, "KX-Vision V116 commander registry is not initialized"
         result = core.commander_map.request_scan(timeout=timeout)
         if not result.get("ok"):
             return None, result.get("message", "Map-icon registry failed")
@@ -1451,24 +1456,207 @@ class GW2X_Logic:
             print(f"[RemoteNames65] Entity snapshot failed: {exc}")
             return []
 
-    def _append_nearby_commanders(self, points, result):
-        """Append ChCliCharacter-proven nearby commanders independently.
+    def _append_nearby_commanders(self, points, result, entities=None):
+        """Append independently proven nearby commanders.
 
-        This function never promotes, edits, caches, or keys a map-packet
-        record. A nearby point is a separate local-only item with its own
-        live agent identity and current coordinates.
+        A nearby point is a separate local-only item. Proof is the extractor's
+        commander signature, an exact lifecycle-name receipt, or a canonical
+        agent identity already proven by the map-wide commander registry in
+        this exact map epoch. Renderer keys/icons are deliberately irrelevant.
         """
-        entities = self._read_identity_entities()
-        tagged = [
+        if entities is None:
+            entities = self._read_identity_entities()
+        map_id = int(result.get("map_id", 0) or 0)
+        map_epoch = int(result.get("map_epoch", 0) or 0)
+        self.commander_names.set_active_map_scope(map_id, map_epoch)
+        named_players = [
             entity for entity in entities
             if int(entity.get("type", -1)) == 0
-            and bool(entity.get("is_commander"))
+            and not bool(entity.get("is_local_player"))
+            and str(entity.get("real_name", "") or "").strip().casefold()
+            not in {"", "unknown", "unnamed"}
         ]
-        if not tagged:
+        proven = {}
+        for entity in named_players:
+            if bool(entity.get("is_commander")):
+                agent_id = int(entity.get("id", 0) or 0)
+                if agent_id > 0:
+                    proven[agent_id] = (
+                        entity, "Independent nearby commander signature", False
+                    )
+
+        # Learn any exact overlap before replacing a remote representation
+        # with its local-only live-entity row. This is the handoff point that
+        # V101 lost when key/icon/synthetic-ID scope changed.
+        self.commander_names.observe_proven_agents(points, named_players)
+        current_remote_ids = {
+            int(point.get("logical_id", 0) or 0)
+            for point in points
+            if not bool(point.get("local_only"))
+            and int(point.get("logical_id", 0) or 0) > 0
+        }
+        nearby_candidates = [
+            candidate
+            for candidate in result.get("nearby_candidates", []) or []
+            if int(candidate.get("logical_id", 0) or 0) > 0
+            and int(candidate.get("map_id", 0) or 0) == map_id
+            and int(candidate.get("map_epoch", 0) or 0) == map_epoch
+        ]
+        nearby_candidate_ids = {
+            int(candidate.get("logical_id", 0) or 0)
+            for candidate in nearby_candidates
+        }
+
+        players_by_name = {}
+        for entity in named_players:
+            name_key = str(entity.get("real_name", "") or "").strip().casefold()
+            players_by_name.setdefault(name_key, []).append(entity)
+
+        active_receipt_names = []
+        for receipt in result.get("name_receipts", []) or []:
+            receipt_name = str(receipt.get("live_name", "") or "").strip()
+            if not receipt_name:
+                continue
+            active_receipt_names.append(receipt_name)
+            matches = players_by_name.get(receipt_name.casefold(), [])
+            # Exact names remain conservative when duplicates are present.
+            if len(matches) != 1:
+                continue
+            entity = matches[0]
+            agent_id = int(entity.get("id", 0) or 0)
+            if agent_id <= 0:
+                continue
+            self.commander_names.remember_agent_identity(
+                map_id, map_epoch, agent_id, receipt_name,
+                "Lifecycle commander name receipt + exact live player name",
+                entity, active_receipt_name=receipt_name,
+            )
+            proven[agent_id] = (
+                entity,
+                "Lifecycle commander name receipt + exact live player name",
+                True,
+            )
+
+        # V114 first-entry live-range proof. The DLL deliberately publishes a
+        # nearby {1,2} renderer pair as a candidate instead of commander proof:
+        # low-icon pairs can represent unrelated world/map objects. Promote it
+        # only after four independent fields agree with one live non-local
+        # player: high commander-icon family, exact agent ID, unique player,
+        # and coordinates within four metres. This solves the live-boundary
+        # blind spot without weakening the DLL's 150 m collision guard.
+        players_by_id = {}
+        for entity in named_players:
+            agent_id = int(entity.get("id", 0) or 0)
+            if agent_id > 0:
+                players_by_id.setdefault(agent_id, []).append(entity)
+        live_join_limit2 = 4.0 ** 2
+        for candidate in nearby_candidates:
+            agent_id = int(candidate.get("logical_id", 0) or 0)
+            key_a = int(candidate.get("key_a", 0) or 0)
+            key_b = int(candidate.get("key_b", 0) or 0)
+            key_count = int(candidate.get("key_count", 0) or 0)
+            icon_code = int(candidate.get("icon_code", 0) or 0)
+            if (key_count != 2 or key_a <= 0 or key_b <= 0 or
+                    key_a == key_b or not (icon_code & 0x400)):
+                continue
+            matches = players_by_id.get(agent_id, [])
+            if len(matches) != 1:
+                continue
+            entity = matches[0]
+            candidate_world = candidate.get("world")
+            if not isinstance(candidate_world, (tuple, list)) or \
+                    len(candidate_world) != 3:
+                continue
+            live_world = (
+                float(entity.get("x", 0.0)),
+                float(entity.get("y", 0.0)),
+                float(entity.get("z", 0.0)),
+            )
+            distance2 = sum(
+                (float(candidate_world[index]) - live_world[index]) ** 2
+                for index in range(3)
+            )
+            if distance2 > live_join_limit2:
+                continue
+            live_name = str(entity.get("real_name", "") or "").strip()
+            self.commander_names.remember_agent_identity(
+                map_id, map_epoch, agent_id, live_name,
+                "Exact high-icon renderer/live-agent join",
+                entity,
+            )
+            if agent_id not in proven:
+                proven[agent_id] = (
+                    entity,
+                    "Exact high-icon renderer/live-agent join",
+                    False,
+                )
+            join_key = (map_id, map_epoch, agent_id)
+            if join_key not in self._logged_fresh_live_candidate_agents:
+                self._logged_fresh_live_candidate_agents = {
+                    item for item in self._logged_fresh_live_candidate_agents
+                    if item[:2] == join_key[:2]
+                }
+                self._logged_fresh_live_candidate_agents.add(join_key)
+                print(
+                    f"[CommanderIdentity114] FRESH-LIVE-BIND "
+                    f"agent=0x{agent_id:X} name={live_name!r} "
+                    f"icon=0x{icon_code:X} keys=0x{key_a:X}/0x{key_b:X} "
+                    f"distance={distance2 ** 0.5:.2f}m "
+                    f"map={map_id} epoch={map_epoch}"
+                )
+
+        # V113's DLL keeps these receipts active until the matching remove.
+        # Their disappearance is therefore a real revocation, not a timeout.
+        self.commander_names.sync_active_receipts(
+            map_id, map_epoch, active_receipt_names)
+
+        # Carry a commander across the renderer boundary only when the same
+        # live agent ID and name were already proven in this map incarnation.
+        # This does not promote arbitrary nearby {1,2} renderer variants.
+        for entity in named_players:
+            agent_id = int(entity.get("id", 0) or 0)
+            identity = self.commander_names.lookup_agent_identity(
+                map_id, map_epoch, agent_id)
+            if not identity:
+                continue
+            current_name = str(entity.get("real_name", "") or "").strip()
+            if current_name.casefold() != str(
+                    identity.get("name", "") or "").strip().casefold():
+                continue
+            previous = proven.get(agent_id)
+            from_receipt = bool(identity.get("active_receipt_name"))
+            from_candidate = agent_id in nearby_candidate_ids
+            from_current_remote = agent_id in current_remote_ids
+            # A remembered name/agent relationship is identity enrichment,
+            # not proof that the tag is still active. Require a current DLL
+            # presence signal before creating the nearby row.
+            if not (from_receipt or from_candidate or from_current_remote):
+                continue
+            if previous is None or from_receipt:
+                proven[agent_id] = (
+                    entity,
+                    "Canonical commander agent identity across live boundary",
+                    from_receipt,
+                )
+            if from_candidate:
+                candidate_key = (map_id, map_epoch, agent_id)
+                if candidate_key not in self._logged_nearby_candidate_agents:
+                    self._logged_nearby_candidate_agents = {
+                        item for item in self._logged_nearby_candidate_agents
+                        if item[:2] == candidate_key[:2]
+                    }
+                    self._logged_nearby_candidate_agents.add(candidate_key)
+                    print(
+                        f"[CommanderIdentity103] CANDIDATE-LIVE-ACTIVE "
+                        f"agent=0x{agent_id:X} name={current_name!r} "
+                        f"map={map_id} epoch={map_epoch}"
+                    )
+
+        if not proven:
             return points
 
         combined = list(points)
-        for entity in tagged:
+        for agent_id, (entity, source, from_receipt) in proven.items():
             world = (
                 float(entity.get("x", 0.0)),
                 float(entity.get("y", 0.0)),
@@ -1482,6 +1670,8 @@ class GW2X_Logic:
                 if point.get("local_only"):
                     kept.append(point)
                     continue
+                if int(point.get("logical_id", 0) or 0) == agent_id:
+                    continue
                 remote = point.get("world", (float("inf"),) * 3)
                 distance2 = sum(
                     (float(remote[index]) - world[index]) ** 2
@@ -1491,7 +1681,6 @@ class GW2X_Logic:
                     kept.append(point)
             combined = kept
 
-            agent_id = int(entity.get("id", 0) or 0)
             combined.append({
                 "logical_id": 0x80000000 | (agent_id & 0x7FFFFFFF),
                 "key_a": 0,
@@ -1503,13 +1692,33 @@ class GW2X_Logic:
                 "x": world[0],
                 "y": world[1],
                 "z": world[2],
-                "map_id": int(result.get("map_id", 0) or 0),
-                "map_epoch": int(result.get("map_epoch", 0) or 0),
+                "map_id": map_id,
+                "map_epoch": map_epoch,
                 "local_only": True,
                 "live_agent_id": agent_id,
                 "live_name": str(entity.get("real_name", "") or ""),
-                "source": "Independent nearby commander signature",
+                "name_source": source,
+                "source": source,
             })
+            if from_receipt:
+                receipt_key = (
+                    int(result.get("map_id", 0) or 0),
+                    int(result.get("map_epoch", 0) or 0),
+                    agent_id,
+                    str(entity.get("real_name", "") or ""),
+                )
+                if receipt_key not in self._logged_lifecycle_live_receipts:
+                    self._logged_lifecycle_live_receipts = {
+                        item for item in self._logged_lifecycle_live_receipts
+                        if item[:2] == receipt_key[:2]
+                    }
+                    self._logged_lifecycle_live_receipts.add(receipt_key)
+                    print(
+                        f"[CommanderIdentity103] RECEIPT-LIVE-BIND "
+                        f"agent={agent_id} "
+                        f"name={entity.get('real_name', '')!r} "
+                        f"tagged={int(bool(entity.get('is_commander')))}"
+                    )
         return combined
 
     def _decorate_nearby_npc_names(self, points, max_distance=6.0):
@@ -1581,16 +1790,22 @@ class GW2X_Logic:
             point = result["points"][0]
         if point.get("local_only"):
             agent_id = int(point.get("live_agent_id", 0) or 0)
-            for entity in self._read_identity_entities():
-                if (int(entity.get("id", 0) or 0) == agent_id and
-                        bool(entity.get("is_commander"))):
-                    current = dict(point)
-                    world = (float(entity["x"]), float(entity["y"]),
-                             float(entity["z"]))
-                    current.update({"world": world, "x": world[0],
-                                    "y": world[1], "z": world[2]})
-                    return self._teleport_remote_point(
-                        current, "nearby commander")
+            fresh, message = self.scan_commanders(timeout=0.75)
+            if fresh:
+                for candidate in fresh.get("points", []):
+                    candidate_agent = int(
+                        candidate.get("live_agent_id", 0) or 0)
+                    candidate_logical = int(
+                        candidate.get("logical_id", 0) or 0)
+                    if (candidate_agent == agent_id or
+                            (not candidate.get("local_only") and
+                             candidate_logical == agent_id)):
+                        label = ("nearby commander" if
+                                 candidate.get("local_only") else "commander")
+                        return self._teleport_remote_point(candidate, label)
+            if message:
+                print(f"[CommanderTP103] REFRESH-BLOCKED agent=0x{agent_id:X} "
+                      f"reason={message}")
             return False, "Nearby commander is no longer tagged or in range"
         point = self._refresh_remote_point(point, "commanders")
         if point is None:

@@ -1029,16 +1029,16 @@ class LiveEventBridge:
                 }
 
 # =====================================================
-# MAP-CLOSED COMMANDER REGISTRY (KX-VISION V73, ABI V5)
+# MAP-CLOSED COMMANDER REGISTRY (KX-VISION V116, ABI V6)
 # =====================================================
 
 class CommanderMapBridge:
-    MAGIC = 0x35544D43  # "CMT5"
-    VERSION = 5
+    MAGIC = 0x36544D43  # "CMT6"
+    VERSION = 6
     HEADER = struct.Struct("<IHHlIIIlIIIIfffll")
-    ENTRY = struct.Struct("<IIIIIfffIQQ")
+    ENTRY = struct.Struct("<IIIIIfffIQQ96s")
     HEADER_SIZE = 64
-    ENTRY_SIZE = 52
+    ENTRY_SIZE = 148
     CAPACITY = 4096
     MESSAGE_SIZE = 128
     STRUCT_SIZE = HEADER_SIZE + ENTRY_SIZE * CAPACITY + MESSAGE_SIZE
@@ -1048,7 +1048,7 @@ class CommanderMapBridge:
     def __init__(self, process_id):
         self.process_id = int(process_id)
         self.mapping_name = (
-            f"Local\\GW2X_COMMANDER_TRACKER_V5_{self.process_id}"
+            f"Local\\GW2X_COMMANDER_TRACKER_V6_{self.process_id}"
         )
         self.handle = None
         self.view = None
@@ -1111,7 +1111,7 @@ class CommanderMapBridge:
             self._close_handle(self.handle)
             self.handle = None
             return False
-        print(f"[CommanderIPC] Connected to KX-Vision V73 PID {self.process_id}.")
+        print(f"[CommanderIPC] Connected to KX-Vision V116 PID {self.process_id}.")
         return True
 
     def _map_sync_loop(self):
@@ -1255,8 +1255,9 @@ class CommanderMapBridge:
             if not self.connect():
                 return {
                     "ok": False,
-                    "message": "KX-Vision V73 map-closed registry is unavailable",
+                    "message": "KX-Vision V116 map-closed registry is unavailable",
                     "points": [], "commanders": [], "markers": [],
+                    "name_receipts": [], "nearby_candidates": [],
                 }
             self._publish_direct_map_id()
             try:
@@ -1285,7 +1286,7 @@ class CommanderMapBridge:
                         header_size != self.HEADER_SIZE or not ready or
                         process_id != self.process_id or
                         capacity != self.CAPACITY or entry_size != self.ENTRY_SIZE):
-                    raise RuntimeError("KX-Vision V73 commander IPC ABI mismatch")
+                    raise RuntimeError("KX-Vision V116 commander IPC ABI mismatch")
 
                 entries = []
                 for index in range(min(max(int(count), 0), self.CAPACITY)):
@@ -1293,10 +1294,14 @@ class CommanderMapBridge:
                         data, self.HEADER_SIZE + index * self.ENTRY_SIZE
                     )
                     logical_id, key_a, key_b, key_count, icon_code = values[:5]
-                    raw_x, raw_y, raw_z, flags, tick_ms, sequence = values[5:]
+                    (raw_x, raw_y, raw_z, flags, tick_ms, sequence,
+                     commander_name_raw) = values[5:]
                     if not (flags & 1) or key_count < 1:
                         continue
                     world = self._game_coordinates(raw_x, raw_y, raw_z)
+                    commander_name = commander_name_raw.split(
+                        b"\0", 1
+                    )[0].decode("utf-8", "replace").strip()
                     entries.append({
                         "index": index, "logical_id": logical_id,
                         "key_a": key_a, "key_b": key_b,
@@ -1308,15 +1313,26 @@ class CommanderMapBridge:
                         "update_sequence": sequence,
                         "map_id": int(map_id),
                         "map_epoch": int(map_epoch),
+                        "name_receipt": bool(flags & 16),
+                        "nearby_candidate": bool(flags & 32),
+                        "live_name": commander_name or None,
+                        "name_source": (
+                            "Lifecycle key/name receipt"
+                            if commander_name else None
+                        ),
                     })
                 commanders = [e for e in entries if e["flags"] & 2]
                 markers = [e for e in entries if e["flags"] & 4]
+                name_receipts = [e for e in entries if e["flags"] & 16]
+                nearby_candidates = [e for e in entries if e["flags"] & 32]
                 message_offset = self.HEADER_SIZE + self.ENTRY_SIZE * self.CAPACITY
                 message = data[message_offset:message_offset + self.MESSAGE_SIZE]
                 message = message.split(b"\0", 1)[0].decode("utf-8", "replace")
                 return {
                     "ok": True, "message": message, "entries": entries,
                     "commanders": commanders, "markers": markers,
+                    "name_receipts": name_receipts,
+                    "nearby_candidates": nearby_candidates,
                     "map_icons": markers,
                     "points": commanders, "count": len(entries),
                     "process_id": process_id, "map_id": int(map_id),
@@ -1331,7 +1347,8 @@ class CommanderMapBridge:
             except Exception as exc:
                 self.close()
                 return {"ok": False, "message": f"Commander registry failed: {exc}",
-                        "points": [], "commanders": [], "markers": []}
+                        "points": [], "commanders": [], "markers": [],
+                        "name_receipts": [], "nearby_candidates": []}
 
     def request_scan(self, timeout=2.5):
         if not self.connect():

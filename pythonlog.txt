@@ -1,0 +1,70 @@
+
+=======================
+ GW2X Launcher
+=======================
+
+[Core] Loaded NPC database: 846 entries
+[Core] Loaded Object database: 5 maps
+[Core] Loading remote offsets...
+[PMDBG-PY] Loaded PMDBG-20260818-R1; enabled=1 message=0xC311
+[Data] INIT LOAD START
+[Waypoints] Successfully loaded 1384 waypoints.
+[Data] WAYPOINTS DONE
+[Markers] Loaded 4093 total map markers
+[Data] MARKERS DONE
+[Portals] Loaded 220 portals
+[Data] PORTALS DONE
+[Waypoints] Successfully loaded 1384 waypoints.
+[Portals] Loaded 220 portals
+[Main] Starting GW2X...
+2026-09-01 12:07:45,115 [DEBUG] Process 28068 is being debugged
+[Core] Connected to Mumble Link: GW2MumbleLink2 (PID 28068)
+[BridgeName] Loaded 680 cached names
+[WindowSelect] candidate hwnd=0x1503FC score=85753 mapped=0 visible=1 size=3440x1440 class='ArenaNet_Gr_Window_Class' title='Guild Wars 2'
+[WindowSelect] candidate hwnd=0x160A96 score=REJECT mapped=0 visible=1 size=993x519 class='ConsoleWindowClass' title='KX Vision - Debug Console'
+[WindowSelect] candidate hwnd=0x50A90 score=305 mapped=0 visible=0 size=136x39 class='Chrome_SystemMessageWindow' title=''
+[WindowSelect] candidate hwnd=0x1F09CE score=3032 mapped=0 visible=0 size=2580x1059 class='Chrome_WidgetWin_0' title=''
+[WindowSelect] candidate hwnd=0x80BA8 score=300 mapped=0 visible=0 size=0x0 class='Base_PowerMessageWindow' title=''
+[WindowSelect] candidate hwnd=0x60B58 score=300 mapped=0 visible=0 size=1x1 class='GDI+ Hook Window Class' title='GDI+ Window (Gw2-64.exe)'
+[WindowSelect] candidate hwnd=0xF0436 score=0 mapped=0 visible=0 size=0x0 class='MSCTFIME UI' title='MSCTFIME UI'
+[WindowSelect] candidate hwnd=0x80B48 score=0 mapped=0 visible=0 size=0x0 class='IME' title='Default IME'
+[WindowSelect] candidate hwnd=0x90BAA score=0 mapped=0 visible=0 size=0x0 class='IME' title='Default IME'
+[WindowSelect] candidate hwnd=0x1309E8 score=0 mapped=0 visible=0 size=0x0 class='IME' title='Default IME'
+[WindowSelect] HWND-FIX-20260818-R1 selected hwnd=0x1503FC source=PID_SCORE class='ArenaNet_Gr_Window_Class' title='Guild Wars 2'
+[Core] Attached to PID 28068
+[Core] HWND: 1377276
+[EventDetector] Cache loaded: 92 maps, 5343 events
+[EventNames63] Loaded 5416 official event names for 93 maps.
+[CommanderIPC] Connected to KX-Vision V103 PID 28068.
+[CommanderMap73] PID 28068 published map 0 -> 54 source=mumble
+[Logic] Loaded 8129 valid NPCs.
+2026-09-01 12:07:45,173 [DEBUG] Process 30568 is being debugged
+[Mem] Connected. Base: 0x7ff639120000
+[Logic] Visual memory patching dinonaktifkan secara paksa untuk menghindari crash TagList.
+[Logic] Hotkey F6 (Nearest TP) aktif.
+[MovementDBG] Griffon patch point: 0x7ff63a5535cb
+[MovementDBG] ProGlider hotkey listener started
+[DEBUG] Initializing Fishing Module with Full Diagnostics...
+[DEBUG] Config Loaded -> Cast: 02, Left: 03, Right: 04
+[Hotkey] Global background listener started.
+[MapTP] Hotkey listener thread STARTED
+[Core-IPC] SUCCESS: Connected to Shared Memory (GW2X_ENTITY_SHARED).
+[MovementDBG] Skyscale AOB resolved: match=0x7ff63a33f7e5 patch=0x7ff63a33f7f0 value=0x0FF3
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[Core-IPC] WARNING: IPC connected, but buffer is empty (all IDs are 0).
+[CommanderName100] SUMMARY remote=1 named_players=3 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[MovementDBG] Stamina chain broken at step 0 (addr=0x0)
+[MovementDBG] Stamina chain broken at step 0 (addr=0x0)
+[CommanderMap73] PID 28068 published map 54 -> 988 source=mumble
+[CommanderName100] SUMMARY remote=1 named_players=3 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[CommanderName100] SUMMARY remote=1 named_players=2 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[CommanderName100] SUMMARY remote=1 named_players=1 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[CommanderName100] SUMMARY remote=1 named_players=2 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[CommanderName100] SUMMARY remote=1 named_players=1 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[CommanderName100] SUMMARY remote=1 named_players=2 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m
+[CommanderName100] SUMMARY remote=1 named_players=3 tagged_players=0 candidates=0 bound=0 ambiguous_ids=0 radius=8.0m

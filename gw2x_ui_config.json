@@ -3,10 +3,10 @@
   "always_on_top": true,
   "positions": {
     "main": {
-      "x": 260,
-      "y": 260,
+      "x": 26,
+      "y": 26,
       "w": 140,
-      "h": 292
+      "h": 40
     },
     "All Teleports": {
       "x": 2969,
@@ -15,26 +15,26 @@
       "h": 441
     },
     "category:Teleport Hub": {
-      "x": 405,
-      "y": 260,
+      "x": 171,
+      "y": 26,
       "w": 200,
       "h": 183
     },
     "category:Combat": {
-      "x": 2877,
-      "y": 61,
+      "x": 3038,
+      "y": 64,
       "w": 200,
       "h": 81
     },
     "Combat Macro": {
-      "x": 2855,
-      "y": 930,
+      "x": 2709,
+      "y": 855,
       "w": 212,
       "h": 276
     },
     "category:Movement": {
-      "x": 2877,
-      "y": 61,
+      "x": 3038,
+      "y": 64,
       "w": 200,
       "h": 132
     },
@@ -165,20 +165,20 @@
       "h": 650
     },
     "Main Teleporter": {
-      "x": 2414,
-      "y": 538,
+      "x": 2785,
+      "y": 552,
       "w": 397,
       "h": 507
     },
     "Object Teleporter": {
-      "x": 2268,
-      "y": 878,
+      "x": 2550,
+      "y": 650,
       "w": 525,
       "h": 425
     },
     "category:Visuals": {
-      "x": 2728,
-      "y": 60,
+      "x": 327,
+      "y": 182,
       "w": 200,
       "h": 132
     },
@@ -465,8 +465,8 @@
       "h": 300
     },
     "Player Enhancement": {
-      "x": 2962,
-      "y": 841,
+      "x": 2905,
+      "y": 635,
       "w": 254,
       "h": 452
     },
@@ -477,8 +477,8 @@
       "h": 300
     },
     "category:Fish & Skiff": {
-      "x": 2845,
-      "y": 78,
+      "x": 431,
+      "y": 286,
       "w": 200,
       "h": 81
     },
@@ -569,8 +569,8 @@
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\01 Core Tyria\\Caledon Forest\\Caledon Forest_Special.tps": {
       "x": 2761,
       "y": 214,
-      "w": 450,
-      "h": 650
+      "w": 176,
+      "h": 325
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\01 Core Tyria\\Bloodtide Coast\\Bloodtide Coast_HP.tps": {
       "x": 2760,
@@ -783,8 +783,8 @@
       "h": 325
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\10 Living World\\Season 4 (Path of Fire)\\Dragonfall\\META\\META_1. Keyfarm.tps": {
-      "x": 2745,
-      "y": 781,
+      "x": 2953,
+      "y": 844,
       "w": 176,
       "h": 325
     },
@@ -999,10 +999,10 @@
       "h": 325
     },
     "Live Entities": {
-      "x": 2844,
-      "y": 824,
-      "w": 343,
-      "h": 436
+      "x": 2736,
+      "y": 239,
+      "w": 388,
+      "h": 590
     },
     "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\04 End of Dragons\\Seitung Province\\Seitung Province_Chests.tps": {
       "x": 2761,
@@ -1075,15 +1075,21 @@
       "y": 61,
       "w": 176,
       "h": 325
+    },
+    "map:C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\01 Core Tyria\\Caledon Forest\\Caledon Forest_Tiger Den.tps": {
+      "x": 280,
+      "y": 130,
+      "w": 176,
+      "h": 325
     }
   },
   "allow_resize": false,
   "open_windows": [
     "All Teleports",
-    "Main Teleporter",
-    "Live Entities",
-    "category:Settings",
     "General Settings",
+    "category:Settings",
+    "Live Entities",
+    "Combat Macro",
     "category:Teleport Hub"
   ],
   "inputs": {
@@ -1118,8 +1124,8 @@
     "auto_tp_direction": "forward",
     "auto_tp_order": "sequential",
     "last_hub_tab_idx": 0,
-    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\04 End of Dragons\\Meta Train\\Meta Train_Seitung Province META.tps",
-    "auto_tp_open": false,
+    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\10 Living World\\Season 4 (Path of Fire)\\Dragonfall\\META\\META_1. Keyfarm.tps",
+    "auto_tp_open": true,
     "last_auto_tp_index": 0,
     "last_obj_tab_idx": 2,
     "hk_next": "F9",
@@ -1159,7 +1165,7 @@
     "live_src_Players": "",
     "live_exc_Players": ""
   },
-  "expanded": true,
+  "expanded": false,
   "macro_hotkeys": {
     "A_TOGGLE": {
       "mods": [

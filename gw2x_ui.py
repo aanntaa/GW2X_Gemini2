@@ -6462,10 +6462,12 @@ class GW2X_UI:
         notebook = ttk.Notebook(win)
         notebook.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
+        tab_commanders = tk.Frame(notebook, bg="#121212")
         tab_players = tk.Frame(notebook, bg="#121212")
         tab_npcs = tk.Frame(notebook, bg="#121212")
         tab_objects = tk.Frame(notebook, bg="#121212")
 
+        notebook.add(tab_commanders, text='Commanders')
         notebook.add(tab_players, text='Players')
         notebook.add(tab_npcs, text='NPCs')
         notebook.add(tab_objects, text='Objects')
@@ -6474,40 +6476,374 @@ class GW2X_UI:
             self.live_ui_elements = {}
 
         # 3. Build Each Tab Content
+        self._build_live_commanders_tab(tab_commanders)
         self._build_live_tab(tab_players, "Players")
         self._build_live_tab(tab_npcs, "NPCs")
         self._build_live_tab(tab_objects, "Objects")
 
         # Set default tab
-        self.current_live_category = "Players"
+        self.current_live_category = "Commanders"
 
         # 4. Auto-Refresh on Tab Change
         def on_tab_change(event):
             try:
                 current_idx = notebook.index(notebook.select())
-                cats = ["Players", "NPCs", "Objects"]
+                cats = ["Commanders", "Players", "NPCs", "Objects"]
                 self.current_live_category = cats[current_idx]
-                self.refresh_live_list(self.current_live_category)
+                
+                if self.current_live_category == "Commanders":
+                    if hasattr(self, "refresh_commanders_live"):
+                        self.refresh_commanders_live()
+                else:
+                    self.refresh_live_list(self.current_live_category)
             except: pass
 
         notebook.bind("<<NotebookTabChanged>>", on_tab_change)
         
         # Trigger initial load
-        self.root.after(100, lambda: self.refresh_live_list("Players"))
+        self.root.after(100, lambda: self.refresh_commanders_live() if hasattr(self, "refresh_commanders_live") else None)
 
-        # --- NEW: MASTER LIVE POLLING LOOP ---
         def master_live_loop():
-            # Berhenti jika window ditutup
+            # Stop if window is closed
             if not win.winfo_exists(): return
             
-            # Tarik data live untuk tab yang sedang terbuka
+            # Fetch data for the active tab
             if hasattr(self, "current_live_category"):
-                self.refresh_live_list(self.current_live_category)
+                if self.current_live_category == "Commanders":
+                    if hasattr(self, "refresh_commanders_live"):
+                        self.refresh_commanders_live()
+                else:
+                    self.refresh_live_list(self.current_live_category)
                 
-            # Ulangi setiap 300ms (Cukup responsif, tidak membebani CPU)
+            # Repeat every 300ms
             win.after(300, master_live_loop) 
 
-        master_live_loop() # Jalankan loop
+        master_live_loop() # Start the loop
+
+    def _build_live_commanders_tab(self, parent):
+        if not hasattr(self, "pinned_scans"):
+            self.pinned_scans = {}
+            
+        self.commander_view_mode = "commanders"
+        self.cmd_ui_pool = []
+        self._cmd_scan_running = False
+
+        # 1. Top Controls Frame (Mode Toggles)
+        top_frame = tk.Frame(parent, bg="#102410", pady=5, padx=5)
+        top_frame.pack(fill=tk.X)
+
+        self.commander_tp_status = tk.StringVar(value="Live scanning active...")
+
+        btn_frame = tk.Frame(top_frame, bg="#102410")
+        btn_frame.pack(fill=tk.X)
+
+        def set_mode(mode):
+            self.commander_view_mode = mode
+            if mode == "commanders":
+                self.btn_view_cmd.config(bg="#145214", fg="#e8ffe8")
+                self.btn_view_mrk.config(bg="#222222", fg="#888888")
+                self.marker_filter_frame.pack_forget()
+            else:
+                self.btn_view_cmd.config(bg="#222222", fg="#888888")
+                self.btn_view_mrk.config(bg="#164466", fg="#e8f6ff")
+                self.marker_filter_frame.pack(fill=tk.X, padx=12, pady=(0, 8), before=self.cmd_sort_frame)
+            if hasattr(self, "refresh_commanders_live"):
+                self.refresh_commanders_live()
+
+        self.btn_view_cmd = tk.Button(
+            btn_frame, text="View Commanders", bg="#145214", fg="#e8ffe8",
+            relief="flat", font=("Segoe UI", 9, "bold"),
+            command=lambda: set_mode("commanders")
+        )
+        self.btn_view_cmd.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 2))
+
+        self.btn_view_mrk = tk.Button(
+            btn_frame, text="View Map/NPC Icons", bg="#222222", fg="#888888",
+            relief="flat", font=("Segoe UI", 9, "bold"),
+            command=lambda: set_mode("markers")
+        )
+        self.btn_view_mrk.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(2, 0))
+
+        tk.Label(
+            top_frame, textvariable=self.commander_tp_status, bg="#102410",
+            fg="#a8d8a8", font=("Segoe UI", 8), anchor="w"
+        ).pack(fill=tk.X, pady=(4, 0))
+
+        # 2. Header / Subheader for Results
+        self.cmd_header_var = tk.StringVar(value="0 candidates found")
+        tk.Label(
+            parent, textvariable=self.cmd_header_var, bg="#121212", fg="#ff9cff",
+            font=("Segoe UI", 11, "bold"), pady=4
+        ).pack(fill=tk.X, padx=12, pady=(12, 2))
+        
+        self.cmd_sub_var = tk.StringVar(value="Right-click to pin/unpin.")
+        tk.Label(
+            parent, textvariable=self.cmd_sub_var, bg="#121212", fg="#aaaaaa", font=("Segoe UI", 8)
+        ).pack(fill=tk.X, padx=12, pady=(0, 4))
+
+        # 3. Marker Filter Controls (Hidden initially)
+        self.marker_filter_frame = tk.Frame(parent, bg="#121212")
+        
+        search_var = tk.StringVar()
+        status_var = tk.StringVar(value="All records")
+        distance_var = tk.StringVar(value="All distances")
+
+        tk.Label(self.marker_filter_frame, text="Search", bg="#121212", fg="#cccccc").grid(row=0, column=0, sticky="w")
+        search_entry = tk.Entry(self.marker_filter_frame, textvariable=search_var, bg="#202020", fg="white", insertbackground="white", relief="flat")
+        search_entry.grid(row=1, column=0, sticky="ew", padx=(0, 8))
+        
+        tk.Label(self.marker_filter_frame, text="Type", bg="#121212", fg="#cccccc").grid(row=0, column=1, sticky="w")
+        status_opt = ttk.OptionMenu(self.marker_filter_frame, status_var, "All records", "All records", "Active events", "Inactive event areas", "NPC/map icons", "Cached records")
+        status_opt.grid(row=1, column=1, sticky="ew", padx=(0, 8))
+        
+        tk.Label(self.marker_filter_frame, text="Distance", bg="#121212", fg="#cccccc").grid(row=0, column=2, sticky="w")
+        distance_opt = ttk.OptionMenu(self.marker_filter_frame, distance_var, "All distances", "All distances", "Within 100 m", "Within 250 m", "Within 500 m", "Within 800 m", "Within 1000 m")
+        distance_opt.grid(row=1, column=2, sticky="ew")
+        self.marker_filter_frame.columnconfigure(0, weight=1)
+        
+        # 4. Sorting Controls (Universal)
+        self.cmd_sort_frame = tk.Frame(parent, bg="#121212")
+        self.cmd_sort_frame.pack(fill=tk.X, padx=12, pady=(0, 8))
+        
+        sort_var = tk.StringVar(value="Distance")
+        sort_dir_var = tk.StringVar(value="Asc")
+        
+        tk.Label(self.cmd_sort_frame, text="Sort By:", bg="#121212", fg="#cccccc").pack(side=tk.LEFT)
+        sort_opt = ttk.OptionMenu(self.cmd_sort_frame, sort_var, "Distance", "Distance", "Name")
+        sort_opt.pack(side=tk.LEFT, padx=(4, 2))
+        
+        def toggle_sort_dir():
+            if sort_dir_var.get() == "Asc":
+                sort_dir_var.set("Desc")
+                btn_sort_dir.config(text="▼")
+            else:
+                sort_dir_var.set("Asc")
+                btn_sort_dir.config(text="▲")
+            if hasattr(self, "refresh_commanders_live"):
+                self.refresh_commanders_live()
+                
+        btn_sort_dir = tk.Button(self.cmd_sort_frame, text="▲", bg="#333", fg="white", relief="flat", width=2, font=("Arial", 8), command=toggle_sort_dir)
+        btn_sort_dir.pack(side=tk.LEFT, padx=2)
+
+        # 5. Scrollable Output List
+        list_container = tk.Frame(parent, bg="#121212")
+        list_container.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+
+        canvas = tk.Canvas(list_container, bg="#121212", highlightthickness=0)
+        scrollbar = ttk.Scrollbar(list_container, orient="vertical", command=canvas.yview)
+        choices = tk.Frame(canvas, bg="#121212")
+
+        choices.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas_win = canvas.create_window((0, 0), window=choices, anchor="nw")
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig(canvas_win, width=max(e.width, 1)))
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        def _on_mousewheel(e):
+            try: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
+            except: pass
+        canvas.bind("<Enter>", lambda _: canvas.bind_all("<MouseWheel>", _on_mousewheel))
+        canvas.bind("<Leave>", lambda _: canvas.unbind_all("<MouseWheel>"))
+
+        # ==========================================
+        # Live Scanning Logic with Pooling & Sorting
+        # ==========================================
+        def start_selected_target(result, point, mode):
+            if mode == "commanders":
+                number = point.get("candidate_number", "?")
+                self.commander_tp_status.set(f"Teleporting to #{number}...")
+                func = self.logic.teleport_to_commander
+            else:
+                self.commander_tp_status.set("Teleporting to Map/NPC Icon...")
+                func = self.logic.teleport_to_map_icon
+                
+            def tp_worker():
+                try:
+                    ok, msg = func(result=result, point=point)
+                except Exception as exc:
+                    ok, msg = False, f"Teleport failed: {exc}"
+                self.root.after(0, lambda: finish_teleport(ok, msg))
+                
+            threading.Thread(target=tp_worker, daemon=True).start()
+
+        def finish_teleport(ok, msg):
+            self.commander_tp_status.set(msg)
+            if not ok:
+                messagebox.showerror("Teleport Error", msg)
+
+        def toggle_pin(p_id):
+            if p_id in self.pinned_scans:
+                del self.pinned_scans[p_id]
+            else:
+                self.pinned_scans[p_id] = True
+            if hasattr(self, "refresh_commanders_live"):
+                self.refresh_commanders_live()
+
+        distance_limits = {
+            "Within 100 m": 100.0, "Within 250 m": 250.0,
+            "Within 500 m": 500.0, "Within 800 m": 800.0,
+            "Within 1000 m": 1000.0,
+        }
+
+        def matches_status(point):
+            selected = status_var.get()
+            if selected == "Active events": return bool(point.get("event_name") or point.get("active_event_icon"))
+            if selected == "Inactive event areas": return bool(point.get("possible_event_name"))
+            if selected == "NPC/map icons": return not point.get("event_name") and not point.get("possible_event_name") or bool(point.get("npc_name"))
+            if selected == "Cached records": return bool(point.get("cached"))
+            return True
+
+        def update_ui_pool(result, msg, mode):
+            self._cmd_scan_running = False
+            self.commander_tp_status.set(msg)
+            
+            points = result.get("points", []) if result else []
+            
+            # 1. Apply Marker filters
+            if mode == "markers":
+                limit = distance_limits.get(distance_var.get())
+                query = search_var.get().strip().casefold()
+                visible = []
+                for point in points:
+                    distance = float(point.get("distance_m", 0.0) or 0.0)
+                    if limit is not None and distance > limit: continue
+                    if not matches_status(point): continue
+                    haystack = " ".join(str(value) for value in (
+                        point.get("event_name", ""), point.get("possible_event_name", ""),
+                        point.get("npc_name", ""), point.get("direction", ""),
+                        f"{int(point.get('logical_id', 0)):X}", f"{int(point.get('key_a', 0)):X}",
+                    )).casefold()
+                    if query and query not in haystack: continue
+                    visible.append(point)
+                points = visible
+                self.cmd_header_var.set(f"Showing {len(points)} map/NPC records")
+            else:
+                self.cmd_header_var.set(f"{len(points)} commander candidates found")
+
+            # 2. Apply Sorting
+            sort_by = sort_var.get()
+            is_desc = (sort_dir_var.get() == "Desc")
+            
+            def get_display_name(p):
+                if mode == "commanders":
+                    return p.get("live_name") or "Remote commander"
+                else:
+                    return p.get("event_name") or p.get("possible_event_name") or p.get("npc_name") or f"Icon #{p.get('candidate_number', '?')}"
+
+            if sort_by == "Distance":
+                points.sort(key=lambda x: float(x.get("distance_m", 0.0) or 999999.0), reverse=is_desc)
+            elif sort_by == "Name":
+                points.sort(key=lambda x: str(get_display_name(x)).lower(), reverse=is_desc)
+
+            # Python's sort is stable; sorting by pinned status last ensures pinned items stay at the top while retaining their internal sorted order.
+            points.sort(key=lambda p: str(p.get("logical_id", "")) not in self.pinned_scans)
+
+            # 3. Update Object Pool to prevent flickering
+            for i, point in enumerate(points):
+                if i >= len(self.cmd_ui_pool):
+                    row = tk.Frame(choices, bg="#2a1830")
+                    btn = tk.Button(
+                        row, text="", anchor="w", justify=tk.LEFT,
+                        relief="flat", font=("Segoe UI", 9)
+                    )
+                    btn.pack(fill=tk.X, padx=4, pady=3)
+                    self.cmd_ui_pool.append({"row": row, "btn": btn})
+                    
+                w = self.cmd_ui_pool[i]
+                
+                # Show frame if hidden
+                if not w["row"].winfo_ismapped():
+                    w["row"].pack(fill=tk.X)
+
+                l_id = str(point.get("logical_id", ""))
+                is_pinned = l_id in self.pinned_scans
+                distance = point.get("distance_m")
+                distance_text = f"~{distance:.0f}m" if distance is not None else "distance unknown"
+                pin_icon = "📌 " if is_pinned else ""
+
+                if mode == "commanders":
+                    number = point.get("candidate_number", "?")
+                    direction = point.get("direction", "?")
+                    commander_name = point.get("live_name") or "Remote commander (name unavailable in packet)"
+                    source = point.get("source", "Map packet")
+                    bg_color = "#3a2a00" if is_pinned else "#2a1830"
+                    active_bg = "#553d00" if is_pinned else "#56305f"
+                    
+                    label_text = (
+                        f"{pin_icon}Commander #{number}: {commander_name}  •  {direction}  •  {distance_text}\n"
+                        f"XYZ: {point['x']:.2f}, {point['y']:.2f}, {point['z']:.2f}  •  {source}  •  ID 0x{point['logical_id']:X}"
+                    )
+                else:
+                    merged = len(point.get("merged_logical_ids", []))
+                    layer_text = f"  •  {merged} layers merged" if merged > 1 else ""
+                    cache_text = f"  •  cached {point.get('cache_age_seconds', 0):.0f}s" if point.get("cached") else ""
+                    
+                    event_name = point.get("event_name")
+                    possible_event = point.get("possible_event_name")
+                    npc_name = point.get("npc_name")
+                    
+                    if event_name: title = f"ACTIVE EVENT: {event_name} (Level {point.get('event_level', '?')})"
+                    elif point.get("active_event_icon") and possible_event: title = f"LIVE EVENT ICON NEAR: {possible_event} (identity unverified)"
+                    elif point.get("active_event_icon") and npc_name: title = f"ACTIVE EVENT OBJECTIVE: {npc_name}"
+                    elif point.get("active_event_icon"): title = f"ACTIVE EVENT OBJECTIVE: icon 0x{int(point.get('icon_code', 0)):X}"
+                    elif npc_name: title = f"NPC: {npc_name}"
+                    elif possible_event: title = f"INACTIVE EVENT AREA: {possible_event} (Level {point.get('possible_event_level', '?')})"
+                    else: title = f"Map/NPC icon #{point.get('candidate_number', '?')}"
+                        
+                    ambiguity = f"\nNearby inactive event area: {possible_event}" if npc_name and possible_event else ""
+                    bg_color = "#3a2a00" if is_pinned else "#183044"
+                    active_bg = "#553d00" if is_pinned else "#285878"
+                    
+                    label_text = (
+                        f"{pin_icon}{title}{ambiguity}\n"
+                        f"Record ID 0x{point['logical_id']:X}  •  {point.get('direction', '?')}  •  {distance_text}\n"
+                        f"XYZ: {point['x']:.2f}, {point['y']:.2f}, {point['z']:.2f}  •  Key: {point['key_a']:X}{layer_text}{cache_text}"
+                    )
+
+                w["btn"].config(
+                    text=label_text, bg=bg_color, fg="#ffe8ff" if mode=="commanders" else "#e8f6ff",
+                    activebackground=active_bg, activeforeground="white"
+                )
+
+                # Generate unique commands
+                def make_cmd(p): return lambda: start_selected_target(result, p, mode)
+                def make_pin(pid): return lambda e: toggle_pin(pid)
+                
+                w["btn"].config(command=make_cmd(point))
+                w["btn"].bind("<Button-3>", make_pin(l_id))
+
+            # Hide unused rows
+            for i in range(len(points), len(self.cmd_ui_pool)):
+                w = self.cmd_ui_pool[i]
+                if w["row"].winfo_ismapped():
+                    w["row"].pack_forget()
+
+        def refresh_commanders_live_func():
+            # Prevent overlapping threads from launching
+            if self._cmd_scan_running: return
+            self._cmd_scan_running = True
+            mode = self.commander_view_mode
+            
+            def scan_worker():
+                try:
+                    if mode == "commanders": result, msg = self.logic.scan_commanders()
+                    else: result, msg = self.logic.scan_map_icons()
+                except Exception as exc:
+                    result, msg = None, f"Scan failed: {exc}"
+                self.root.after(0, lambda: update_ui_pool(result, msg, mode))
+                
+            threading.Thread(target=scan_worker, daemon=True).start()
+
+        # Bind to self so it can be called from outside
+        self.refresh_commanders_live = refresh_commanders_live_func
+
+        # Trigger redraw when filters change
+        search_var.trace_add("write", lambda *_: self.refresh_commanders_live())
+        status_var.trace_add("write", lambda *_: self.refresh_commanders_live())
+        distance_var.trace_add("write", lambda *_: self.refresh_commanders_live())
+        sort_var.trace_add("write", lambda *_: self.refresh_commanders_live())
 
     def _build_live_tab(self, parent, category):
         fixed_top, scroll_frame = self.create_scroll_area(parent, scroll=True)
