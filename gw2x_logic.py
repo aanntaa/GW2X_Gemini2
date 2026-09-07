@@ -587,6 +587,8 @@ class GW2X_Logic:
         self._logged_lifecycle_live_receipts = set()
         self._logged_nearby_candidate_agents = set()
         self._logged_fresh_live_candidate_agents = set()
+        self._last_live_join_scan_signature = None
+        self._logged_live_join_misses = set()
     
         self.interact_scan = getattr(gw2x_config, "INTERACT", "21")
 
@@ -1309,7 +1311,7 @@ class GW2X_Logic:
     def scan_commanders(self, timeout=2.5):
         """Read only commanders proven by the resolver-owned collection."""
         if not core.commander_map:
-            return None, "KX-Vision V116 commander registry is not initialized"
+            return None, "KX-Vision V123 commander registry is not initialized"
 
         result = core.commander_map.request_scan(timeout=timeout)
         if not result.get("ok"):
@@ -1332,7 +1334,7 @@ class GW2X_Logic:
     def scan_map_icons(self, timeout=2.5):
         """Read all non-commander map/NPC icon records for this map."""
         if not core.commander_map:
-            return None, "KX-Vision V116 commander registry is not initialized"
+            return None, "KX-Vision V123 commander registry is not initialized"
         result = core.commander_map.request_scan(timeout=timeout)
         if not result.get("ok"):
             return None, result.get("message", "Map-icon registry failed")
@@ -1537,19 +1539,51 @@ class GW2X_Logic:
                 True,
             )
 
-        # V114 first-entry live-range proof. The DLL deliberately publishes a
-        # nearby {1,2} renderer pair as a candidate instead of commander proof:
-        # low-icon pairs can represent unrelated world/map objects. Promote it
-        # only after four independent fields agree with one live non-local
-        # player: high commander-icon family, exact agent ID, unique player,
-        # and coordinates within four metres. This solves the live-boundary
-        # blind spot without weakening the DLL's 150 m collision guard.
+        # V123 first-entry live-range proof. The DLL deliberately publishes a
+        # nearby {1,2} renderer pair as a candidate instead of commander proof.
+        # Icon families vary by map (the supplied Harathi commanders use 0x163,
+        # while Dry Top used 0x4A3), so icon-family membership is not proof.
+        # Promote only after the exact non-local agent ID resolves uniquely and
+        # its live coordinates agree within four metres. This keeps ordinary
+        # paired map objects excluded without a map-specific icon assumption.
         players_by_id = {}
         for entity in named_players:
             agent_id = int(entity.get("id", 0) or 0)
             if agent_id > 0:
                 players_by_id.setdefault(agent_id, []).append(entity)
         live_join_limit2 = 4.0 ** 2
+        scan_signature = (
+            map_id, map_epoch, len(nearby_candidates), len(named_players)
+        )
+        if scan_signature != getattr(
+                self, "_last_live_join_scan_signature", None):
+            self._last_live_join_scan_signature = scan_signature
+            print(
+                f"[CommanderIdentity123] LIVE-JOIN-SCAN map={map_id} "
+                f"epoch={map_epoch} candidates={len(nearby_candidates)} "
+                f"namedPlayers={len(named_players)}"
+            )
+        self._logged_live_join_misses = {
+            item for item in getattr(self, "_logged_live_join_misses", set())
+            if item[:2] == (map_id, map_epoch)
+        }
+
+        def log_live_join_miss(agent_id, icon_code, key_a, key_b,
+                               reason, detail=""):
+            signature = (
+                map_id, map_epoch, agent_id, key_a, key_b, str(reason)
+            )
+            if signature in self._logged_live_join_misses:
+                return
+            self._logged_live_join_misses.add(signature)
+            suffix = f" {detail}" if detail else ""
+            print(
+                f"[CommanderIdentity123] LIVE-JOIN-MISS "
+                f"agent=0x{agent_id:X} icon=0x{icon_code:X} "
+                f"keys=0x{key_a:X}/0x{key_b:X} "
+                f"reason={reason}{suffix}"
+            )
+
         for candidate in nearby_candidates:
             agent_id = int(candidate.get("logical_id", 0) or 0)
             key_a = int(candidate.get("key_a", 0) or 0)
@@ -1557,15 +1591,25 @@ class GW2X_Logic:
             key_count = int(candidate.get("key_count", 0) or 0)
             icon_code = int(candidate.get("icon_code", 0) or 0)
             if (key_count != 2 or key_a <= 0 or key_b <= 0 or
-                    key_a == key_b or not (icon_code & 0x400)):
+                    key_a == key_b):
+                log_live_join_miss(
+                    agent_id, icon_code, key_a, key_b, "invalid-pair"
+                )
                 continue
             matches = players_by_id.get(agent_id, [])
             if len(matches) != 1:
+                log_live_join_miss(
+                    agent_id, icon_code, key_a, key_b,
+                    "live-agent-count", f"count={len(matches)}"
+                )
                 continue
             entity = matches[0]
             candidate_world = candidate.get("world")
             if not isinstance(candidate_world, (tuple, list)) or \
                     len(candidate_world) != 3:
+                log_live_join_miss(
+                    agent_id, icon_code, key_a, key_b, "missing-world"
+                )
                 continue
             live_world = (
                 float(entity.get("x", 0.0)),
@@ -1577,17 +1621,22 @@ class GW2X_Logic:
                 for index in range(3)
             )
             if distance2 > live_join_limit2:
+                log_live_join_miss(
+                    agent_id, icon_code, key_a, key_b,
+                    "coordinate-distance",
+                    f"distance={distance2 ** 0.5:.2f}m"
+                )
                 continue
             live_name = str(entity.get("real_name", "") or "").strip()
             self.commander_names.remember_agent_identity(
                 map_id, map_epoch, agent_id, live_name,
-                "Exact high-icon renderer/live-agent join",
+                "Exact paired renderer/live-agent join",
                 entity,
             )
             if agent_id not in proven:
                 proven[agent_id] = (
                     entity,
-                    "Exact high-icon renderer/live-agent join",
+                    "Exact paired renderer/live-agent join",
                     False,
                 )
             join_key = (map_id, map_epoch, agent_id)
@@ -1598,7 +1647,7 @@ class GW2X_Logic:
                 }
                 self._logged_fresh_live_candidate_agents.add(join_key)
                 print(
-                    f"[CommanderIdentity114] FRESH-LIVE-BIND "
+                    f"[CommanderIdentity123] FRESH-LIVE-BIND "
                     f"agent=0x{agent_id:X} name={live_name!r} "
                     f"icon=0x{icon_code:X} keys=0x{key_a:X}/0x{key_b:X} "
                     f"distance={distance2 ** 0.5:.2f}m "

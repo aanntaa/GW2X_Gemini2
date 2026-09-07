@@ -3,8 +3,8 @@
   "always_on_top": true,
   "positions": {
     "main": {
-      "x": 26,
-      "y": 26,
+      "x": 130,
+      "y": 130,
       "w": 140,
       "h": 40
     },
@@ -15,8 +15,8 @@
       "h": 441
     },
     "category:Teleport Hub": {
-      "x": 171,
-      "y": 26,
+      "x": 396,
+      "y": 71,
       "w": 200,
       "h": 183
     },
@@ -27,14 +27,14 @@
       "h": 81
     },
     "Combat Macro": {
-      "x": 2709,
-      "y": 855,
+      "x": 2936,
+      "y": 501,
       "w": 212,
       "h": 276
     },
     "category:Movement": {
-      "x": 3038,
-      "y": 64,
+      "x": 275,
+      "y": 130,
       "w": 200,
       "h": 132
     },
@@ -171,14 +171,14 @@
       "h": 507
     },
     "Object Teleporter": {
-      "x": 2550,
-      "y": 650,
+      "x": 2571,
+      "y": 40,
       "w": 525,
       "h": 425
     },
     "category:Visuals": {
-      "x": 327,
-      "y": 182,
+      "x": 396,
+      "y": 71,
       "w": 200,
       "h": 132
     },
@@ -465,8 +465,8 @@
       "h": 300
     },
     "Player Enhancement": {
-      "x": 2905,
-      "y": 635,
+      "x": 2648,
+      "y": 489,
       "w": 254,
       "h": 452
     },
@@ -477,8 +477,8 @@
       "h": 300
     },
     "category:Fish & Skiff": {
-      "x": 431,
-      "y": 286,
+      "x": 396,
+      "y": 71,
       "w": 200,
       "h": 81
     },
@@ -999,8 +999,8 @@
       "h": 325
     },
     "Live Entities": {
-      "x": 2736,
-      "y": 239,
+      "x": 9,
+      "y": 467,
       "w": 388,
       "h": 590
     },
@@ -1085,12 +1085,13 @@
   },
   "allow_resize": false,
   "open_windows": [
-    "All Teleports",
     "General Settings",
     "category:Settings",
     "Live Entities",
+    "category:Movement",
     "Combat Macro",
-    "category:Teleport Hub"
+    "All Teleports",
+    "Player Enhancement"
   ],
   "inputs": {
     "dir_dist": "80000",
@@ -1124,10 +1125,10 @@
     "auto_tp_direction": "forward",
     "auto_tp_order": "sequential",
     "last_hub_tab_idx": 0,
-    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\maps\\10 Living World\\Season 4 (Path of Fire)\\Dragonfall\\META\\META_1. Keyfarm.tps",
-    "auto_tp_open": true,
+    "auto_tp_last_file": "C:\\Users\\muham\\OneDrive\\Desktop\\Trainer\\GW2X_MAR_15\\XXXX\\GW2X_Gemini2\\teleports\\custom\\Daily Task\\Gardening.tps",
+    "auto_tp_open": false,
     "last_auto_tp_index": 0,
-    "last_obj_tab_idx": 2,
+    "last_obj_tab_idx": 0,
     "hk_next": "F9",
     "hk_prev": "F10",
     "chat_x": "246",
@@ -1147,16 +1148,10 @@
         "mods": [
           18
         ],
-        "key": 49,
-        "text": "Alt+1"
-      },
-      "back": {
-        "mods": [
-          18
-        ],
         "key": 50,
         "text": "Alt+2"
-      }
+      },
+      "back": null
     },
     "live_src_NPCs": "",
     "live_exc_NPCs": "mini,",
@@ -1194,8 +1189,8 @@
         18,
         16
       ],
-      "key": 83,
-      "text": "Alt+Shift+S"
+      "key": 81,
+      "text": "Alt+Shift+Q"
     },
     "SLOT_SAVE_0": {
       "mods": [],

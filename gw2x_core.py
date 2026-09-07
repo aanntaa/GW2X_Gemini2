@@ -1029,7 +1029,7 @@ class LiveEventBridge:
                 }
 
 # =====================================================
-# MAP-CLOSED COMMANDER REGISTRY (KX-VISION V116, ABI V6)
+# MAP-CLOSED COMMANDER REGISTRY (KX-VISION V123, ABI V6)
 # =====================================================
 
 class CommanderMapBridge:
@@ -1111,7 +1111,7 @@ class CommanderMapBridge:
             self._close_handle(self.handle)
             self.handle = None
             return False
-        print(f"[CommanderIPC] Connected to KX-Vision V116 PID {self.process_id}.")
+        print(f"[CommanderIPC] Connected to KX-Vision V123 PID {self.process_id}.")
         return True
 
     def _map_sync_loop(self):
@@ -1255,7 +1255,7 @@ class CommanderMapBridge:
             if not self.connect():
                 return {
                     "ok": False,
-                    "message": "KX-Vision V116 map-closed registry is unavailable",
+                    "message": "KX-Vision V123 map-closed registry is unavailable",
                     "points": [], "commanders": [], "markers": [],
                     "name_receipts": [], "nearby_candidates": [],
                 }
@@ -1286,7 +1286,7 @@ class CommanderMapBridge:
                         header_size != self.HEADER_SIZE or not ready or
                         process_id != self.process_id or
                         capacity != self.CAPACITY or entry_size != self.ENTRY_SIZE):
-                    raise RuntimeError("KX-Vision V116 commander IPC ABI mismatch")
+                    raise RuntimeError("KX-Vision V123 commander IPC ABI mismatch")
 
                 entries = []
                 for index in range(min(max(int(count), 0), self.CAPACITY)):
@@ -1318,7 +1318,9 @@ class CommanderMapBridge:
                         "live_name": commander_name or None,
                         "name_source": (
                             "Lifecycle key/name receipt"
-                            if commander_name else None
+                            if commander_name and (flags & 16) else
+                            "Authoritative DLL commander name"
+                            if commander_name and (flags & 2) else None
                         ),
                     })
                 commanders = [e for e in entries if e["flags"] & 2]

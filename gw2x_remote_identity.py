@@ -107,9 +107,12 @@ class CommanderNameResolver:
             return None
         value = self._remember(clean_name, source, player)
         previous = self._agent_cache.get(agent_scope)
-        if isinstance(previous, dict):
+        if (isinstance(previous, dict) and
+                str(source) != "Authoritative DLL commander name"):
             # Once a lifecycle receipt is attached, keep its active-state
-            # marker even if an exact live-ID observation refreshes the row.
+            # marker if an exact live-ID observation refreshes the row. An
+            # authoritative DLL name is an independent proof and supersedes
+            # that removable receipt state.
             if previous.get("active_receipt_name"):
                 value["active_receipt_name"] = previous[
                     "active_receipt_name"
@@ -204,12 +207,19 @@ class CommanderNameResolver:
                     player,
                 )
             exported_name = str(point.get("live_name", "") or "").strip()
-            if (exported_name and point.get("name_source") ==
-                    "Lifecycle key/name receipt"):
+            if exported_name:
+                source = str(
+                    point.get("name_source") or
+                    "Authoritative DLL commander name"
+                )
+                receipt_name = (
+                    exported_name if bool(point.get("name_receipt"))
+                    else None
+                )
                 self.remember_agent_identity(
                     map_id, map_epoch, logical_id, exported_name,
-                    "Lifecycle key/name receipt",
-                    active_receipt_name=exported_name,
+                    source,
+                    active_receipt_name=receipt_name,
                 )
 
     def decorate(self, points, entities, max_distance=8.0):
@@ -270,19 +280,29 @@ class CommanderNameResolver:
         for point in points:
             scope = self._scope(point)
             exported_name = str(point.get("live_name", "") or "").strip()
-            if (exported_name and point.get("name_source") ==
-                    "Lifecycle key/name receipt"):
-                # The DLL correlated this name with the exact lifecycle key.
-                # Preserve it over every Python-side fallback.
-                self._cache[scope] = self._remember(
-                    exported_name, "Lifecycle key/name receipt")
+            if exported_name:
+                # A name already attached to a registry-proven commander by
+                # the DLL is authoritative.  It may come from the V123
+                # initial-population parser rather than a removable lifecycle
+                # receipt, so only the explicit receipt flag enables receipt
+                # revocation semantics.
+                source = str(
+                    point.get("name_source") or
+                    "Authoritative DLL commander name"
+                )
+                cached = self._remember(exported_name, source)
+                self._cache[scope] = cached
                 logical_id = int(point.get("logical_id", 0) or 0)
                 if logical_id > 0 and not (logical_id & 0x80000000):
                     self.remember_agent_identity(
                         scope[0], scope[1], logical_id, exported_name,
-                        "Lifecycle key/name receipt",
-                        active_receipt_name=exported_name,
+                        source,
+                        active_receipt_name=(
+                            exported_name
+                            if bool(point.get("name_receipt")) else None
+                        ),
                     )
+                self._apply_cached(point, cached)
                 continue
 
             logical_id = int(point.get("logical_id", 0) or 0)
@@ -299,6 +319,7 @@ class CommanderNameResolver:
             cached = self._cache.get(scope)
             if (isinstance(cached, dict) and cached.get("source") in {
                     "Lifecycle key/name receipt",
+                    "Authoritative DLL commander name",
                     "Exact live agent ID matches proven remote logical ID",
             }):
                 self._apply_cached(point, cached)

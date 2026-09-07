@@ -150,6 +150,7 @@ class GW2X_UI:
             }
         )
 
+        self.temp_aliases = {}  # Format: { "entity_id_or_logical_id": "Temporary Name" }
         # --- VARIABLES ---
         self.num_vcmd = (self.root.register(self.validate_number), "%P")  
         self.expanded = False
@@ -541,6 +542,38 @@ class GW2X_UI:
 
         step(0)
 
+    def set_temp_alias_prompt(self, target_id, current_display_name):
+        """
+        Prompts the user for a temporary alias that exists only in memory
+        until the list/UI is closed.
+        """
+        key = str(target_id).strip()
+        existing_alias = self.temp_aliases.get(key, "")
+        
+        new_alias = simpledialog.askstring(
+            "Set Temporary Alias",
+            f"Set temporary name for: {current_display_name}\n(Leave blank to clear):",
+            initialvalue=existing_alias,
+            parent=self.root
+        )
+        
+        if new_alias is not None:
+            cleaned = new_alias.strip()
+            if cleaned:
+                self.temp_aliases[key] = cleaned
+                self.show_center_notification(f"TEMP ALIAS SET:\n{cleaned}", "#00aaff")
+            else:
+                if key in self.temp_aliases:
+                    del self.temp_aliases[key]
+                self.show_center_notification("TEMP ALIAS CLEARED", "#ffaa00")
+                
+            # Instantly refresh current tab
+            if hasattr(self, "current_live_category"):
+                if self.current_live_category == "Commanders":
+                    if hasattr(self, "refresh_commanders_live"):
+                        self.refresh_commanders_live()
+                else:
+                    self.refresh_live_list(self.current_live_category)
     # ===============================
     # STABILITY FIX: THREAD-SAFE UI HIGHLIGHT
     # ===============================
@@ -2212,6 +2245,7 @@ class GW2X_UI:
             search_var = tk.StringVar()
             status_var = tk.StringVar(value="All records")
             distance_var = tk.StringVar(value="All distances")
+            limit_var = tk.StringVar(value="100") # NEW Limit Variable
 
             tk.Label(controls, text="Search", bg="#121212", fg="#cccccc").grid(
                 row=0, column=0, sticky="w")
@@ -2219,6 +2253,7 @@ class GW2X_UI:
                 controls, textvariable=search_var, bg="#202020", fg="white",
                 insertbackground="white", relief="flat")
             search_entry.grid(row=1, column=0, sticky="ew", padx=(0, 8))
+            
             tk.Label(controls, text="Type", bg="#121212", fg="#cccccc").grid(
                 row=0, column=1, sticky="w")
             status_box = ttk.Combobox(
@@ -2226,13 +2261,23 @@ class GW2X_UI:
                 values=("All records", "Active events", "Inactive event areas",
                         "NPC/map icons", "Cached records"))
             status_box.grid(row=1, column=1, sticky="ew", padx=(0, 8))
+            
             tk.Label(controls, text="Distance", bg="#121212", fg="#cccccc").grid(
                 row=0, column=2, sticky="w")
             distance_box = ttk.Combobox(
                 controls, textvariable=distance_var, state="readonly", width=16,
                 values=("All distances", "Within 100 m", "Within 250 m",
                         "Within 500 m", "Within 800 m", "Within 1000 m"))
-            distance_box.grid(row=1, column=2, sticky="ew")
+            distance_box.grid(row=1, column=2, sticky="ew", padx=(0, 8))
+
+            # NEW: Limit Dropdown Column
+            tk.Label(controls, text="Limit", bg="#121212", fg="#cccccc").grid(
+                row=0, column=3, sticky="w")
+            limit_box = ttk.Combobox(
+                controls, textvariable=limit_var, state="readonly", width=8,
+                values=("10", "50", "100", "300", "500", "800"))
+            limit_box.grid(row=1, column=3, sticky="ew")
+        
             controls.columnconfigure(0, weight=1)
 
             canvas = tk.Canvas(dialog, bg="#121212", highlightthickness=0)
@@ -2298,6 +2343,15 @@ class GW2X_UI:
                     if query and query not in haystack:
                         continue
                     visible.append(point)
+
+                try:
+                    max_records = int(limit_var.get())
+                    visible = visible[:max_records]
+                except ValueError:
+                    pass
+
+                header_text.set(
+                    f"Showing {len(visible)} of {len(points)} map/NPC records")
 
                 header_text.set(
                     f"Showing {len(visible)} of {len(points)} map/NPC records")
@@ -6587,6 +6641,7 @@ class GW2X_UI:
         search_var = tk.StringVar()
         status_var = tk.StringVar(value="All records")
         distance_var = tk.StringVar(value="All distances")
+        self.marker_limit_var = tk.StringVar(value="100") # NEW Limit Variable
 
         tk.Label(self.marker_filter_frame, text="Search", bg="#121212", fg="#cccccc").grid(row=0, column=0, sticky="w")
         search_entry = tk.Entry(self.marker_filter_frame, textvariable=search_var, bg="#202020", fg="white", insertbackground="white", relief="flat")
@@ -6598,7 +6653,13 @@ class GW2X_UI:
         
         tk.Label(self.marker_filter_frame, text="Distance", bg="#121212", fg="#cccccc").grid(row=0, column=2, sticky="w")
         distance_opt = ttk.OptionMenu(self.marker_filter_frame, distance_var, "All distances", "All distances", "Within 100 m", "Within 250 m", "Within 500 m", "Within 800 m", "Within 1000 m")
-        distance_opt.grid(row=1, column=2, sticky="ew")
+        distance_opt.grid(row=1, column=2, sticky="ew", padx=(0, 8))
+
+        # NEW: Limit Dropdown Column
+        tk.Label(self.marker_filter_frame, text="Limit", bg="#121212", fg="#cccccc").grid(row=0, column=3, sticky="w")
+        limit_opt = ttk.OptionMenu(self.marker_filter_frame, self.marker_limit_var, "100", "10", "50", "100", "300", "500", "800")
+        limit_opt.grid(row=1, column=3, sticky="ew")
+
         self.marker_filter_frame.columnconfigure(0, weight=1)
         
         # 4. Sorting Controls (Universal)
@@ -6717,6 +6778,13 @@ class GW2X_UI:
                     )).casefold()
                     if query and query not in haystack: continue
                     visible.append(point)
+
+                try:
+                    max_records = int(self.marker_limit_var.get())
+                    visible = visible[:max_records]
+                except ValueError:
+                    pass
+                
                 points = visible
                 self.cmd_header_var.set(f"Showing {len(points)} map/NPC records")
             else:
@@ -6744,12 +6812,22 @@ class GW2X_UI:
             for i, point in enumerate(points):
                 if i >= len(self.cmd_ui_pool):
                     row = tk.Frame(choices, bg="#2a1830")
+                    
+                    # Create container for the alias button on the right
+                    btn_frame = tk.Frame(row, bg="#2a1830")
+                    btn_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=4)
+                    
+                    btn_alias = tk.Button(btn_frame, text="🏷️", bg="#1e1e1e", fg="#aaaaaa", activebackground="#444444", activeforeground="white", relief="flat", width=3, font=("Segoe UI", 10), cursor="hand2", bd=0)
+                    btn_alias.pack(side=tk.RIGHT, pady=3)
+
+                    # Main text button on the left
                     btn = tk.Button(
                         row, text="", anchor="w", justify=tk.LEFT,
                         relief="flat", font=("Segoe UI", 9)
                     )
-                    btn.pack(fill=tk.X, padx=4, pady=3)
-                    self.cmd_ui_pool.append({"row": row, "btn": btn})
+                    btn.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=4, pady=3)
+                    
+                    self.cmd_ui_pool.append({"row": row, "btn": btn, "btn_alias": btn_alias, "btn_frame": btn_frame})
                     
                 w = self.cmd_ui_pool[i]
                 
@@ -6770,6 +6848,12 @@ class GW2X_UI:
                     source = point.get("source", "Map packet")
                     bg_color = "#3a2a00" if is_pinned else "#2a1830"
                     active_bg = "#553d00" if is_pinned else "#56305f"
+                    
+                    display_name_for_prompt = f"Commander #{number}"
+                    
+                    # --- APPLY ALIAS FOR COMMANDERS ---
+                    if l_id in self.temp_aliases:
+                        commander_name = f"[{self.temp_aliases[l_id]}] {commander_name}"
                     
                     label_text = (
                         f"{pin_icon}Commander #{number}: {commander_name}  •  {direction}  •  {distance_text}\n"
@@ -6792,6 +6876,12 @@ class GW2X_UI:
                     elif possible_event: title = f"INACTIVE EVENT AREA: {possible_event} (Level {point.get('possible_event_level', '?')})"
                     else: title = f"Map/NPC icon #{point.get('candidate_number', '?')}"
                         
+                    display_name_for_prompt = title
+                    
+                    # --- APPLY ALIAS FOR MAP/NPC ICONS ---
+                    if l_id in self.temp_aliases:
+                        title = f"[{self.temp_aliases[l_id]}] {title}"
+
                     ambiguity = f"\nNearby inactive event area: {possible_event}" if npc_name and possible_event else ""
                     bg_color = "#3a2a00" if is_pinned else "#183044"
                     active_bg = "#553d00" if is_pinned else "#285878"
@@ -6805,6 +6895,15 @@ class GW2X_UI:
                 w["btn"].config(
                     text=label_text, bg=bg_color, fg="#ffe8ff" if mode=="commanders" else "#e8f6ff",
                     activebackground=active_bg, activeforeground="white"
+                )
+                
+                # Match container backgrounds to the pin status
+                w["row"].config(bg=bg_color)
+                w["btn_frame"].config(bg=bg_color)
+
+                # --- BIND ALIAS BUTTON COMMAND ---
+                w["btn_alias"].config(
+                    command=lambda p_id=l_id, d_name=display_name_for_prompt: self.set_temp_alias_prompt(p_id, d_name)
                 )
 
                 # Generate unique commands
@@ -6843,6 +6942,7 @@ class GW2X_UI:
         search_var.trace_add("write", lambda *_: self.refresh_commanders_live())
         status_var.trace_add("write", lambda *_: self.refresh_commanders_live())
         distance_var.trace_add("write", lambda *_: self.refresh_commanders_live())
+        self.marker_limit_var.trace_add("write", lambda *_: self.refresh_commanders_live()) # NEW trace
         sort_var.trace_add("write", lambda *_: self.refresh_commanders_live())
 
     def _build_live_tab(self, parent, category):
@@ -7246,9 +7346,21 @@ class GW2X_UI:
             elif att_str == "Neutral": color = "#e6e600" 
 
             # Ambil nama yang sudah di-cache dari blok filter di atas
-            display_name = ent.get('_cached_display_name', ent.get('name', 'Unknown'))
+            base_display_name = ent.get('_cached_display_name', ent.get('name', 'Unknown'))
             raw_id = str(ent.get('id', '')).strip()
-                
+            
+            # --- APPLY TEMP ALIAS OVERRIDE ---
+            if raw_id in self.temp_aliases:
+                display_name = f"[{self.temp_aliases[raw_id]}] {base_display_name}"
+            else:
+                display_name = base_display_name
+
+            # --- UPDATE BUTTON ACTION FOR ALIAS BUTTON ---
+            # Locate btn_alias in the row creation/update pool and assign command:
+            w["btn_alias"].config(
+                command=lambda e=ent, r_id=raw_id, d_name=base_display_name: self.set_temp_alias_prompt(r_id, d_name)
+            )
+
             info_str = f"ID:{raw_id} | Dist: {dist:.1f}m | HP: {int(ent.get('hp_cur', 0))}/{int(ent.get('hp_max', 0))}"
 
             # --- CEK STATUS MULTI-PINNED ---
